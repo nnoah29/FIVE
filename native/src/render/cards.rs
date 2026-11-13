@@ -1,0 +1,86 @@
+//! Rendu des cartes de dossiers.
+
+use std::rc::Rc;
+
+use five_engine::entry::Entry;
+use gtk4::prelude::*;
+use gtk4::{Align, Button, Overlay};
+
+use crate::app::shared::{on_click, App};
+use crate::model::format::{format_date, group_digits};
+use crate::model::sorting::sort_items;
+use crate::ui::classes::clear;
+use crate::ui::icon::icon_with_stroke;
+use crate::ui::widgets::{dots_button, hbox, label, vbox};
+
+/// Texte du nombre d'éléments d'un dossier : `12 éléments`, `1 élément` ou `—`.
+fn count_text(entry: &Entry) -> String {
+    match entry.children {
+        Some(Some(n)) => format!("{} {}", group_digits(n), if n > 1 { "éléments" } else { "élément" }),
+        _ => "—".to_string(),
+    }
+}
+
+impl App {
+    /// Zone cliquable de la carte : icône, nom, badge Git, effectif et date.
+    fn card_main(self: &Rc<Self>, dir: &Entry) -> Button {
+        let button = Button::new();
+        button.add_css_class("card-main");
+        button.set_tooltip_text(Some(&dir.name));
+        let column = vbox(22);
+        let glyph = icon_with_stroke(if dir.is_link { "link" } else { "folder" }, 26, 1.5);
+        glyph.set_halign(Align::Start);
+        column.append(&glyph);
+        let name = hbox(0);
+        name.append(&label(&dir.name, &["card-name"]));
+        name.append(&self.git_badge(dir));
+        let meta = hbox(8);
+        let (count, date) = (label(&count_text(dir), &["card-meta"]), label(&format_date(dir.modified, self.set.borrow().full_dates), &["card-pill"]));
+        date.set_hexpand(true);
+        date.set_halign(Align::End);
+        meta.append(&count);
+        meta.append(&date);
+        let text = vbox(6);
+        text.append(&name);
+        text.append(&meta);
+        column.append(&text);
+        button.set_child(Some(&column));
+        let target = dir.path.clone();
+        on_click(&button, self, move |app| app.go(&target));
+        button
+    }
+
+    /// Carte d'un dossier : zone principale et bouton d'actions en haut à droite.
+    fn card_for(self: &Rc<Self>, dir: &Entry) -> Overlay {
+        let dots = dots_button();
+        dots.set_halign(Align::End);
+        dots.set_valign(Align::Start);
+        dots.set_margin_top(6);
+        dots.set_margin_end(6);
+        let (entry, weak) = (dir.clone(), Rc::downgrade(self));
+        dots.connect_clicked(move |button| {
+            if let Some(app) = weak.upgrade() {
+                app.open_menu_at(button, &entry, None);
+            }
+        });
+        let card = Overlay::new();
+        card.add_css_class("card");
+        card.set_size_request(200, -1);
+        card.set_child(Some(&self.card_main(dir)));
+        card.add_overlay(&dots);
+        card
+    }
+
+    /// Reconstruit les cartes (aucune en recherche ni en vue virtuelle).
+    pub fn render_cards(self: &Rc<Self>) {
+        clear(&self.ui.folders.cards);
+        let dirs: Vec<Entry> = {
+            let st = self.st.borrow();
+            if st.list_all() { Vec::new() } else { sort_items(&st.items.iter().filter(|i| i.is_dir).cloned().collect::<Vec<_>>(), st.sort, st.ascending) }
+        };
+        dirs.iter().for_each(|dir| self.ui.folders.cards.append(&self.card_for(dir)));
+        if let Some(scroll) = self.ui.folders.cards.parent().and_then(|p| p.parent()) {
+            scroll.set_visible(!dirs.is_empty());
+        }
+    }
+}

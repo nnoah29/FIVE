@@ -2,6 +2,7 @@
 
 use five_engine::clock::{local_fields, now_seconds};
 
+pub use super::numbers::group_digits;
 use super::numbers::group_text;
 
 const MONTHS: [&str; 12] = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
