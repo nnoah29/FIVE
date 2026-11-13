@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+"""Vérifie les normes de code de FIVE : taille des fonctions, nombre par fichier, commentaires, doc, interdits."""
+
+import pathlib
+import re
+import sys
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+FN = re.compile(r"^\s*(pub(\([^)]*\))?\s+)?(const\s+)?(async\s+)?(unsafe\s+)?fn\s+(\w+)")
+FORBIDDEN_FILES = {"utils.rs", "helpers.rs", "common.rs", "misc.rs"}
+FORBIDDEN_CALLS = re.compile(r"\.unwrap\(\)|\.expect\(|panic!\(|\bunsafe\b")
+MAX_LINES, MAX_FNS = 30, 6
+
+
+def strip_literals(line):
+    line = re.sub(r'r#*".*?"#*', '""', line)
+    line = re.sub(r'"(\\.|[^"\\])*"', '""', line)
+    return re.sub(r"'(\\.|[^'\\])'", "''", line)
+
+
+def function_end(lines, start):
+    depth, seen = 0, False
+    for index in range(start, len(lines)):
+        code = strip_literals(lines[index].split("//")[0])
+        depth += code.count("{") - code.count("}")
+        seen = seen or "{" in code
+        if seen and depth <= 0:
+            return index
+        if not seen and code.rstrip().endswith(";"):
+            return None
+    return None
+
+
+def check_file(path, is_test):
+    problems, lines = [], path.read_text(encoding="utf-8").splitlines()
+    rel = path.relative_to(ROOT)
+    if path.name in FORBIDDEN_FILES:
+        problems.append(f"{rel}: nom de fichier interdit")
+    head = [l for l in lines[:6] if l.startswith("//!")]
+    if len(head) > 3:
+        problems.append(f"{rel}: en-tête //! de plus de 3 lignes")
+    bodies = 0
+    for start, line in enumerate(lines):
+        if not FN.match(line):
+            continue
+        end = function_end(lines, start)
+        if end is None:
+            continue
+        bodies += 1
+        problems += check_function(rel, lines, start, end, is_test)
+    if bodies > MAX_FNS:
+        problems.append(f"{rel}: {bodies} fonctions (maximum {MAX_FNS})")
+    return problems
+
+
+def check_function(rel, lines, start, end, is_test):
+    problems, name = [], FN.match(lines[start]).group(6)
+    if end - start + 1 > MAX_LINES:
+        problems.append(f"{rel}:{start + 1}: {name} fait {end - start + 1} lignes (maximum {MAX_LINES})")
+    docs, cursor = 0, start - 1
+    while cursor >= 0 and (lines[cursor].strip().startswith(("///", "#["))):
+        docs += lines[cursor].strip().startswith("///")
+        cursor -= 1
+    if not is_test and docs != 1:
+        problems.append(f"{rel}:{start + 1}: {name} doit avoir exactement une ligne ///")
+    for number in range(start + 1, end + 1):
+        text = lines[number]
+        if "//" in strip_literals(text):
+            problems.append(f"{rel}:{number + 1}: commentaire dans le corps de {name}")
+        if not is_test and FORBIDDEN_CALLS.search(strip_literals(text)):
+            problems.append(f"{rel}:{number + 1}: unwrap/expect/panic/unsafe interdit dans {name}")
+    return problems
+
+
+def main():
+    problems = []
+    for path in sorted(ROOT.glob("*/src/**/*.rs")) + sorted(ROOT.glob("*/tests/**/*.rs")):
+        problems += check_file(path, "tests" in path.relative_to(ROOT).parts)
+    print("\n".join(problems) if problems else "normes : OK")
+    return 1 if problems else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
