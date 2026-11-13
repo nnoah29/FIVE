@@ -7,13 +7,7 @@ use five_engine::git_marks::git_marks;
 use support::Sandbox;
 
 fn git(folder: &Path, args: &[&str]) {
-    let status = Command::new("git")
-        .args(["-c", "user.name=t", "-c", "user.email=t@t"])
-        .args(args)
-        .current_dir(folder)
-        .output()
-        .unwrap()
-        .status;
+    let status = Command::new("git").args(["-c", "user.name=t", "-c", "user.email=t@t"]).args(args).current_dir(folder).output().unwrap().status;
     assert!(status.success(), "git {args:?}");
 }
 

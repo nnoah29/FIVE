@@ -16,13 +16,5 @@ pub fn init_offset() {
 pub fn local_stamp() -> String {
     let offset = OFFSET.get().copied().unwrap_or(UtcOffset::UTC);
     let now = OffsetDateTime::now_utc().to_offset(offset);
-    format!(
-        "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}",
-        now.year(),
-        u8::from(now.month()),
-        now.day(),
-        now.hour(),
-        now.minute(),
-        now.second()
-    )
+    format!("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}", now.year(), u8::from(now.month()), now.day(), now.hour(), now.minute(), now.second())
 }

@@ -1,7 +1,7 @@
 //! Vues virtuelles : documents récents, favoris GTK, montages réseau.
 
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::entry::Entry;
 use crate::mounts::read_mounts;
@@ -21,7 +21,7 @@ pub fn local_path(uri: &str) -> Option<PathBuf> {
 }
 
 /// Décrit l'élément situé à `full`, avec son chemin relatif.
-fn item_at(root: &Root, full: &PathBuf) -> Option<Entry> {
+fn item_at(root: &Root, full: &Path) -> Option<Entry> {
     let name = full.file_name().map_or_else(|| full.to_string_lossy().into_owned(), |n| n.to_string_lossy().into_owned());
     Entry::describe(root, full, &name)
 }

@@ -47,7 +47,11 @@ pub fn control_job(jobs: &Jobs, id: &str, action: &str) -> Resultat<()> {
         _ => return Err(Refus::new(400, "Action inconnue")),
     };
     if let Some(state) = next {
-        job.update(|p| if p.state.is_live() { p.state = state });
+        job.update(|p| {
+            if p.state.is_live() {
+                p.state = state
+            }
+        });
     }
     Ok(())
 }

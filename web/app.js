@@ -667,7 +667,7 @@ function serverPanel() {
   api("info", {}).then((info) => holder.replaceChildren(
     el("dl", { class: "facts" }, ...fact("Racine exposée", info.root), ...fact("Adresse", "http://127.0.0.1:" + info.port),
       ...fact("Accès", "Cette machine uniquement. Lecture, création de dossiers et mise à la corbeille, dans la racine."),
-      ...fact("Corbeille", "/" + info.trash), ...fact("Python", info.python)),
+      ...fact("Corbeille", "/" + info.trash), ...fact("Moteur", info.engine)),
     setting("Changer de racine", "Relancez le serveur avec --root /chemin (par exemple --root / pour tout le disque).", el("span")),
     setting("Terminer la session", "Efface le cookie de ce navigateur. Rouvrez l'adresse du terminal pour revenir.",
       el("button", { class: "btn", type: "button", onclick: endSession }, "Terminer"))))

@@ -1,6 +1,6 @@
 # FIVE — contrat d'API du prototype
 
-Spécification de comportement du backend jetable (`serveur.py`, `ops.py`, `coeur.py`). Sert de référence pour la version Rust.
+Contrat de comportement du serveur, implémenté en Rust (`engine/`, `server/`). Le prototype Python d'origine est conservé dans `legacy-python/` comme référence.
 Toutes les routes sont locales (`127.0.0.1`), sous une racine exposée (`--root`, défaut : dossier personnel). Les chemins `p` sont **relatifs à la racine**.
 
 ## Sécurité (à conserver)
@@ -15,12 +15,13 @@ Toutes les routes sont locales (`127.0.0.1`), sous une racine exposée (`--root`
 | Route | Rôle |
 |---|---|
 | `/api/places` | racine, utilisateur, dossiers XDG (`user-dirs.dirs`), corbeille |
+| `/api/info` | racine, port, corbeille, `engine` (nom et version du moteur), utilisateur |
 | `/api/list?p&h&q&f` | contenu d'un dossier ; `q` = recherche récursive (4 s max), `f=1` = recherche floue (sous-séquence, score) |
 | `/api/view?v=recent\|favorites\|network` | vues virtuelles : `recently-used.xbel`, signets GTK, montages réseau (`/proc/mounts`) |
 | `/api/disks` | disques montés (`/proc/mounts`, périphériques `/dev/*` hors loop) : nom, point de montage, taille, libre ; `p` = chemin relatif si sous la racine, sinon `null` (non cliquable) |
 | `/api/raw?p&dl` | contenu brut, plages `Range` (206), `dl=1` → téléchargement |
 | `/api/text?p` | 200 Ko de texte, détection binaire (octet nul) |
-| `/api/archive?p` | contenu zip/tar (500 entrées), sans extraction |
+| `/api/archive?p` | contenu zip, tar, tar.gz (500 entrées), sans extraction ; bz2/xz et zip64 non pris en charge |
 | `/api/usage?p` | taille cumulée des enfants directs, budget 10 s, indicateur `partial` |
 | `/api/duplicates?p&min` | groupes de doublons : taille puis SHA-256, budget 20 s |
 | `/api/git?p` | `{nom: M/A/D/?/!/U}` via `git status --porcelain=v1 -z` (`core.fsmonitor=false`, `hooksPath=/dev/null`, timeout 4 s) |
