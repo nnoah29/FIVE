@@ -47,22 +47,3 @@ pub fn text_button(text: &str, icon_name: Option<&str>, classes: &[&str]) -> But
     classes.iter().for_each(|class| button.add_css_class(class));
     button
 }
-
-/// Bouton carré qui ne porte qu'une icône.
-pub fn icon_button(icon_name: &str, classes: &[&str]) -> Button {
-    let button = text_button("", Some(icon_name), classes);
-    button.add_css_class("icon");
-    button
-}
-
-/// Bouton « ⋮ » de 30 pixels qui ouvre le menu d'un élément.
-pub fn dots_button() -> Button {
-    let button = Button::new();
-    button.add_css_class("dots");
-    button.set_child(Some(&icon("more")));
-    button.set_size_request(30, 30);
-    button.set_hexpand(false);
-    button.set_halign(Align::Center);
-    button.set_valign(Align::Center);
-    button
-}

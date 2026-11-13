@@ -1,9 +1,6 @@
 //! Thèmes clair et sombre : jetons de couleur, couleur principale, densité, feuille de style GTK.
 
-use gtk4::glib;
-use gtk4::prelude::*;
-
-use crate::model::accent::{is_hex, on_accent, SWATCHES};
+use crate::model::accent::{SWATCHES, is_hex, on_accent};
 use crate::model::settings::Settings;
 
 const TEMPLATE: &str = include_str!("style.css");
@@ -39,7 +36,13 @@ pub fn palette(dark: bool, accent: &str) -> Palette {
     let base = if is_hex(accent) { accent.to_lowercase() } else { SWATCHES[0].to_string() };
     let custom = base != SWATCHES[0];
     let shown = if dark { base.clone() } else { darken(&base, 0.92) };
-    let on = if custom { on_accent(&base) } else if dark { "#1b1b1b" } else { "#ffffff" };
+    let on = if custom {
+        on_accent(&base)
+    } else if dark {
+        "#1b1b1b"
+    } else {
+        "#ffffff"
+    };
     let (soft, colors) = if dark {
         (0.12, ["#1b1b1b", "#1e1e1e", "#242424", "#2a2a2a", "#333333", "#2b2b2b", "#ecebe6", "#d6d5cd", "#adaca5", "#8b8a84", "#ecebe6", "#1b1b1b"])
     } else {
@@ -65,27 +68,4 @@ pub fn build_css(dark: bool, settings: &Settings) -> String {
         css = css.replace(&format!("@{name}@"), &value);
     }
     css
-}
-
-/// Indique si le système demande un thème sombre.
-pub fn system_is_dark() -> bool {
-    let Some(settings) = gtk4::Settings::default() else { return true };
-    let scheme = settings.find_property("gtk-interface-color-scheme").and_then(|_| {
-        let value = settings.property_value("gtk-interface-color-scheme");
-        glib::EnumValue::from_value(&value).map(|(_, found)| found.value())
-    });
-    match scheme {
-        Some(2) => true,
-        Some(3) => false,
-        _ => settings.is_gtk_application_prefer_dark_theme() || settings.gtk_theme_name().is_some_and(|n| n.to_lowercase().contains("dark")),
-    }
-}
-
-/// Indique si le thème effectif est sombre, d'après le réglage de l'utilisateur.
-pub fn is_dark(settings: &Settings) -> bool {
-    match settings.theme.as_str() {
-        "dark" => true,
-        "light" => false,
-        _ => system_is_dark(),
-    }
 }

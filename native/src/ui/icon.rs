@@ -1,8 +1,8 @@
 //! Icône dessinée avec cairo : prend la couleur CSS (`color`) du widget qui la porte.
 
+use gtk4::DrawingArea;
 use gtk4::cairo::{Context, LineCap, LineJoin};
 use gtk4::prelude::*;
-use gtk4::DrawingArea;
 
 use super::icons_data::ICONS;
 use super::svgpath::{commands::parse, trace};

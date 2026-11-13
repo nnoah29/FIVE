@@ -2,22 +2,13 @@
 
 use std::rc::Rc;
 
-use gtk4::prelude::*;
 use gtk4::Button;
+use gtk4::prelude::*;
 
-use crate::app::shared::{on_click, App};
+use crate::app::shared::{App, on_click};
 use crate::model::kinds::FILTERS;
 use crate::ui::classes::{clear, set_class};
 use crate::ui::widgets::label;
-
-/// Libellé de chaque vue virtuelle.
-pub fn view_label(view: &str) -> &'static str {
-    match view {
-        "recent" => "Récents",
-        "favorites" => "Favoris",
-        _ => "Réseau",
-    }
-}
 
 /// Bouton de texte brut du fil d'Ariane.
 fn crumb(text: &str, class: &str) -> Button {
@@ -28,22 +19,6 @@ fn crumb(text: &str, class: &str) -> Button {
 }
 
 impl App {
-    /// Titre de la page selon la vue, la recherche ou le dossier.
-    fn page_title(&self) -> String {
-        let st = self.st.borrow();
-        if let Some(view) = &st.virtual_view {
-            return view_label(view).to_string();
-        }
-        if st.searching() {
-            return "Recherche".to_string();
-        }
-        match st.path.rsplit('/').next() {
-            Some(_) if st.path == five_engine::places::TRASH => "Corbeille".to_string(),
-            Some(name) if !st.path.is_empty() => name.to_string(),
-            _ => "Dossier personnel".to_string(),
-        }
-    }
-
     /// Séparateur du fil d'Ariane : ouvre la liste des sous-dossiers de `parent`.
     fn crumb_sep(self: &Rc<Self>, parent: String) -> Button {
         let sep = crumb("/", "crumb-sep");
@@ -98,7 +73,16 @@ impl App {
             let st = self.st.borrow();
             (st.virtual_view.is_some(), st.searching(), st.user.clone(), st.root.clone())
         };
-        self.ui.files.title.set_text(&(if virt { "Éléments" } else if searching { "Résultats" } else { "Tous les fichiers" }).to_uppercase());
+        self.ui.files.title.set_text(
+            &(if virt {
+                "Éléments"
+            } else if searching {
+                "Résultats"
+            } else {
+                "Tous les fichiers"
+            })
+            .to_uppercase(),
+        );
         self.render_crumbs();
         self.render_pills();
         self.ui.top.user_name.set_text(&user);

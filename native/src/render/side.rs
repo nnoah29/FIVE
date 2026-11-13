@@ -5,24 +5,12 @@ use std::rc::Rc;
 use gtk4::prelude::*;
 use gtk4::{Button, DrawingArea, Overlay};
 
-use crate::app::shared::{on_click, App};
+use crate::app::shared::{App, on_click};
 use crate::model::format::{format_size, group_digits};
-use crate::state::{Disk, Place};
+use crate::state::Disk;
 use crate::ui::classes::{clear, set_class};
 use crate::ui::icon::icon;
 use crate::ui::widgets::{hbox, label, vbox};
-
-/// Bouton d'emplacement : icône et libellé.
-fn nav_button(icon_name: &str, text: &str, current: bool) -> Button {
-    let button = Button::new();
-    button.add_css_class("navitem");
-    set_class(&button, "current", current);
-    let row = hbox(14);
-    row.append(&icon(icon_name));
-    row.append(&label(text, &[]));
-    button.set_child(Some(&row));
-    button
-}
 
 /// Barre d'occupation d'un disque, dessinée sur toute la largeur du bouton.
 fn usage_bar(ratio: f64) -> DrawingArea {
@@ -76,49 +64,17 @@ impl App {
             (st.items.len(), st.searching(), !st.path.is_empty() && st.virtual_view.is_none(), st.can_create())
         };
         self.ui.side.count.set_text(&group_digits(count as u64));
-        self.ui.side.count_label.set_text(if searching { "RÉSULTATS" } else if count > 1 { "ÉLÉMENTS" } else { "ÉLÉMENT" });
+        self.ui.side.count_label.set_text(if searching {
+            "RÉSULTATS"
+        } else if count > 1 {
+            "ÉLÉMENTS"
+        } else {
+            "ÉLÉMENT"
+        });
         self.ui.side.up.set_sensitive(up);
         self.ui.side.new_folder.set_sensitive(create);
         self.render_places();
         self.render_disks();
-    }
-
-    /// Reconstruit les emplacements : Dossier personnel, vues virtuelles, corbeille, puis dossiers XDG.
-    fn render_places(self: &Rc<Self>) {
-        clear(&self.ui.side.places);
-        let (places, path, view, searching) = {
-            let st = self.st.borrow();
-            (st.places.clone(), st.path.clone(), st.virtual_view.clone(), st.searching())
-        };
-        let fixed: [(&str, &str, Option<&str>); 4] = [("home", "Dossier personnel", None), ("recent", "Récents", Some("recent")), ("favorites", "Favoris", Some("favorites")), ("network", "Réseau", Some("network"))];
-        let trash: Option<&Place> = places.iter().find(|p| p.id == "trash");
-        let mut entries: Vec<(String, String, Option<String>, String)> = fixed.iter().map(|(id, text, v)| (id.to_string(), text.to_string(), v.map(String::from), String::new())).collect();
-        entries.extend(trash.map(|p| (p.id.clone(), p.label.clone(), None, p.path.clone())));
-        let others: Vec<&Place> = places.iter().filter(|p| p.id != "trash").collect();
-        let inside = |target: &str| path == target || path.starts_with(&format!("{target}/"));
-        for (id, text, v, target) in entries {
-            let here = match &v {
-                Some(name) => view.as_deref() == Some(name.as_str()),
-                None => view.is_none() && !searching && if target.is_empty() { path.is_empty() } else { inside(&target) },
-            };
-            let button = nav_button(&id, &text, here);
-            on_click(&button, self, move |app| match &v {
-                Some(name) => app.go_view(name),
-                None => app.go(&target),
-            });
-            self.ui.side.places.append(&button);
-        }
-        if others.is_empty() {
-            return;
-        }
-        self.ui.side.places.append(&label("DOSSIERS", &["nav-title"]));
-        for place in others {
-            let here = view.is_none() && !searching && inside(&place.path);
-            let button = nav_button(&place.id, &place.label, here);
-            let target = place.path.clone();
-            on_click(&button, self, move |app| app.go(&target));
-            self.ui.side.places.append(&button);
-        }
     }
 
     /// Reconstruit la liste des disques montés.

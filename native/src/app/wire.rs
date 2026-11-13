@@ -4,9 +4,9 @@ use std::rc::Rc;
 use std::time::Duration;
 
 use gtk4::prelude::*;
-use gtk4::{glib, EventControllerFocus};
+use gtk4::{EventControllerFocus, glib};
 
-use super::shared::{on_click, App};
+use super::shared::{App, on_click};
 use crate::ui::classes::set_class;
 
 impl App {

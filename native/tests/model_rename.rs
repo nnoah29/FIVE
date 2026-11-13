@@ -31,10 +31,7 @@ fn name_checks_report_conflicts() {
 
 #[test]
 fn settings_round_trip_through_json() {
-    let mut changed = Settings::default();
-    changed.accent = "#3b7bea".into();
-    changed.compact = true;
-    changed.ascending = false;
+    let changed = Settings { accent: "#3b7bea".into(), compact: true, ascending: false, ..Settings::default() };
     assert_eq!(Settings::from_json(&changed.to_json()), changed);
     assert_eq!(Settings::from_json(&serde_json::Value::Null), Settings::default());
 }

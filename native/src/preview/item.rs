@@ -3,12 +3,12 @@
 use std::rc::Rc;
 
 use five_engine::entry::Entry;
+use gtk4::Widget;
 use gtk4::gdk::ModifierType;
 use gtk4::prelude::*;
-use gtk4::Widget;
 
 use super::facts::Facts;
-use crate::app::shared::{on_click, App};
+use crate::app::shared::{App, on_click};
 use crate::model::format::{format_day, format_size, format_time, group_digits};
 use crate::model::kinds::{extension, kind_of};
 use crate::model::paths::in_trash;
@@ -20,7 +20,15 @@ impl App {
         let facts = Facts::new();
         let units = self.set.borrow().binary_units;
         facts.add("Emplacement", &format!("/{}", item.path));
-        let kind = if item.is_dir { "Dossier".to_string() } else { item.mime.clone().filter(|m| !m.is_empty()).or_else(|| Some(extension(&item.name).to_uppercase()).filter(|e| !e.is_empty())).unwrap_or_else(|| "Fichier".into()) };
+        let kind = if item.is_dir {
+            "Dossier".to_string()
+        } else {
+            item.mime
+                .clone()
+                .filter(|m| !m.is_empty())
+                .or_else(|| Some(extension(&item.name).to_uppercase()).filter(|e| !e.is_empty()))
+                .unwrap_or_else(|| "Fichier".into())
+        };
         facts.add("Type", &kind);
         if !item.is_dir {
             facts.add("Taille", &format!("{} ({} octets)", format_size(item.size, units), group_digits(item.size)));

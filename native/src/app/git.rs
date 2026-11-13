@@ -4,8 +4,8 @@ use std::rc::Rc;
 
 use five_engine::entry::Entry;
 use five_engine::git_marks::git_marks;
-use gtk4::prelude::*;
 use gtk4::Widget;
+use gtk4::prelude::*;
 
 use super::shared::App;
 use super::work::spawn_work;
@@ -57,17 +57,20 @@ impl App {
         let path = self.st.borrow().path.clone();
         let Ok(full) = self.root.resolve(&path) else { return };
         let app = self.clone();
-        spawn_work(move || git_marks(&full), move |marks| {
-            if marks.is_empty() || app.st.borrow().path != path {
-                return;
-            }
-            {
-                let mut st = app.st.borrow_mut();
-                st.git = marks;
-                st.git_path = Some(path);
-            }
-            app.render(None);
-        });
+        spawn_work(
+            move || git_marks(&full),
+            move |marks| {
+                if marks.is_empty() || app.st.borrow().path != path {
+                    return;
+                }
+                {
+                    let mut st = app.st.borrow_mut();
+                    st.git = marks;
+                    st.git_path = Some(path);
+                }
+                app.render(None);
+            },
+        );
     }
 
     /// Après chaque chargement : sélection différée, session enregistrée, état Git.

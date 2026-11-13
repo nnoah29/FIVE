@@ -6,12 +6,13 @@ use five_engine::entry::Entry;
 use gtk4::prelude::*;
 use gtk4::{Align, Button, Overlay};
 
-use crate::app::shared::{on_click, App};
+use crate::app::shared::{App, on_click};
 use crate::model::format::{format_date, group_digits};
 use crate::model::sorting::sort_items;
+use crate::ui::buttons::dots_button;
 use crate::ui::classes::clear;
 use crate::ui::icon::icon_with_stroke;
-use crate::ui::widgets::{dots_button, hbox, label, vbox};
+use crate::ui::widgets::{hbox, label, vbox};
 
 /// Texte du nombre d'éléments d'un dossier : `12 éléments`, `1 élément` ou `—`.
 fn count_text(entry: &Entry) -> String {

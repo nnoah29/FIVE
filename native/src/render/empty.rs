@@ -5,7 +5,7 @@ use std::rc::Rc;
 use gtk4::prelude::*;
 use gtk4::{Align, Box as GtkBox, Justification};
 
-use crate::app::shared::{on_click, App};
+use crate::app::shared::{App, on_click};
 use crate::ui::icon::icon_with_stroke;
 use crate::ui::widgets::{label, mono, text_button, vbox};
 
@@ -25,7 +25,13 @@ impl App {
         if !st.query.trim().is_empty() {
             return format!("Aucun nom ne contient « {} ».", st.query.trim());
         }
-        if st.items.iter().any(|i| !i.is_dir) { "Aucun fichier de ce type dans ce dossier.".into() } else if st.items.is_empty() { "Ce dossier est vide.".into() } else { "Ce dossier ne contient que des sous-dossiers.".into() }
+        if st.items.iter().any(|i| !i.is_dir) {
+            "Aucun fichier de ce type dans ce dossier.".into()
+        } else if st.items.is_empty() {
+            "Ce dossier est vide.".into()
+        } else {
+            "Ce dossier ne contient que des sous-dossiers.".into()
+        }
     }
 
     /// Action de sortie : effacer les filtres, ou remonter au dossier parent.

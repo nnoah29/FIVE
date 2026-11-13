@@ -10,10 +10,11 @@ use gtk4::prelude::*;
 use gtk4::{Box as GtkBox, EventControllerKey, Label};
 
 use super::modal::Modal;
-use super::shared::{on_click, App};
+use super::shared::{App, on_click};
 use crate::model::kinds::kind_of;
+use crate::ui::buttons::icon_button;
 use crate::ui::classes::clear;
-use crate::ui::widgets::{hbox, icon_button, label, mono, vbox};
+use crate::ui::widgets::{hbox, label, mono, vbox};
 
 /// Éléments visibles pendant l'aperçu et position courante.
 struct Look {
@@ -57,18 +58,22 @@ impl App {
         modal.layer.grab_focus();
     }
 
+    /// Position de départ de l'aperçu : l'élément demandé, ou le premier élément sélectionné.
+    fn look_start(&self, item: &Option<Entry>, list: &[Entry]) -> Option<usize> {
+        let picked = self.st.borrow().picked.clone();
+        match item {
+            Some(wanted) => list.iter().position(|i| i.path == wanted.path),
+            None => list.iter().position(|i| picked.contains(&i.path)),
+        }
+    }
+
     /// Ouvre l'aperçu rapide sur `item`, ou sur la sélection courante si `item` est absent.
     pub fn quick_look(self: &Rc<Self>, item: Option<Entry>) {
         if self.modal_open() {
             return;
         }
         let list = self.st.borrow().shown.clone();
-        let picked = self.st.borrow().picked.clone();
-        let start = match &item {
-            Some(wanted) => list.iter().position(|i| i.path == wanted.path),
-            None => list.iter().position(|i| picked.contains(&i.path)),
-        };
-        let Some(start) = start else { return self.toast("Sélectionnez un élément") };
+        let Some(start) = self.look_start(&item, &list) else { return self.toast("Sélectionnez un élément") };
         let modal = self.open_modal((self.ui.window.width() as f64 * 0.94).min(1100.0) as i32, false);
         modal.dialog.add_css_class("ql");
         let (title, zone) = (label("", &["h2"]), vbox(8));

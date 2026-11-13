@@ -1,7 +1,7 @@
 //! Barre latérale : marque, compteur, actions principales, emplacements, disques.
 
-use gtk4::prelude::*;
 use gtk4::Align;
+use gtk4::prelude::*;
 
 use super::logo::logo;
 use crate::ui::handles::SideUi;

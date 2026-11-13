@@ -3,8 +3,8 @@
 use std::rc::Rc;
 
 use five_engine::entry::Entry;
-use gtk4::prelude::*;
 use five_engine::jobs::start::start_job;
+use gtk4::prelude::*;
 
 use super::shared::App;
 use super::work::spawn_work;
@@ -39,16 +39,19 @@ impl App {
         }
         let (root, jobs, dest, app) = (self.root.clone(), self.jobs.clone(), self.st.borrow().path.clone(), self.clone());
         let mode = clip.mode.clone();
-        spawn_work(move || start_job(&root, &jobs, &clip.mode, &clip.paths, &dest).map_err(|r| r.message), move |result| match result {
-            Ok(id) => {
-                app.jobs_view.borrow_mut().seen.insert(id, "running".to_string());
-                if mode == "move" {
-                    app.st.borrow_mut().clip = None;
+        spawn_work(
+            move || start_job(&root, &jobs, &clip.mode, &clip.paths, &dest).map_err(|r| r.message),
+            move |result| match result {
+                Ok(id) => {
+                    app.jobs_view.borrow_mut().seen.insert(id, "running".to_string());
+                    if mode == "move" {
+                        app.st.borrow_mut().clip = None;
+                    }
+                    app.update_paste();
+                    app.poll_jobs();
                 }
-                app.update_paste();
-                app.poll_jobs();
-            }
-            Err(message) => app.toast(&message),
-        });
+                Err(message) => app.toast(&message),
+            },
+        );
     }
 }

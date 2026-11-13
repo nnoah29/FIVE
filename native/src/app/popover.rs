@@ -9,12 +9,15 @@ use super::shared::App;
 use crate::ui::icon::icon;
 use crate::ui::widgets::{hbox, label, vbox};
 
+/// Action d'une entrée de menu.
+pub type MenuAction = Rc<dyn Fn(&Rc<App>)>;
+
 /// Une entrée de menu : icône, texte, raccourci affiché, action.
 pub struct MenuEntry {
     pub icon: &'static str,
     pub label: String,
     pub hint: Option<&'static str>,
-    pub run: Rc<dyn Fn(&Rc<App>)>,
+    pub run: MenuAction,
 }
 
 impl MenuEntry {
@@ -54,15 +57,9 @@ impl App {
         }
     }
 
-    /// Ouvre un menu sous `anchor` ; un second appel sur la même ancre le referme.
-    pub fn popover(self: &Rc<Self>, anchor: &impl IsA<Widget>, entries: Vec<MenuEntry>) {
-        let toggled = self.menu.borrow().as_ref().is_some_and(|p| p.parent().as_ref() == Some(anchor.upcast_ref()));
-        self.close_menu();
-        if toggled {
-            return;
-        }
+    /// Liste de boutons du menu : chaque clic referme le menu puis lance l'action.
+    fn menu_list(self: &Rc<Self>, popover: &Popover, entries: Vec<MenuEntry>) -> gtk4::Box {
         let list = vbox(0);
-        let popover = Popover::new();
         for entry in entries {
             let button = entry_button(&entry);
             let (weak, run, pop) = (Rc::downgrade(self), entry.run.clone(), popover.clone());
@@ -74,7 +71,18 @@ impl App {
             });
             list.append(&button);
         }
-        popover.set_child(Some(&list));
+        list
+    }
+
+    /// Ouvre un menu sous `anchor` ; un second appel sur la même ancre le referme.
+    pub fn popover(self: &Rc<Self>, anchor: &impl IsA<Widget>, entries: Vec<MenuEntry>) {
+        let toggled = self.menu.borrow().as_ref().is_some_and(|p| p.parent().as_ref() == Some(anchor.upcast_ref()));
+        self.close_menu();
+        if toggled {
+            return;
+        }
+        let popover = Popover::new();
+        popover.set_child(Some(&self.menu_list(&popover, entries)));
         popover.set_parent(anchor);
         popover.set_has_arrow(false);
         popover.set_position(PositionType::Bottom);

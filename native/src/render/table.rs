@@ -5,7 +5,7 @@ use std::rc::Rc;
 use gtk4::prelude::*;
 use gtk4::{Align, Button};
 
-use crate::app::shared::{on_click, App};
+use crate::app::shared::{App, on_click};
 use crate::model::sorting::SortKey;
 use crate::ui::classes::{clear, fixed, set_class};
 use crate::ui::icon::icon_with_stroke;

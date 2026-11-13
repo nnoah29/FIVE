@@ -11,26 +11,36 @@ use super::shared::App;
 use crate::ui::capture::save_png;
 
 impl App {
-    /// Exécute une commande de démonstration : navigation, sélection, réglages, fenêtres.
-    fn demo_command(self: &Rc<Self>, command: &str) {
-        let (name, arg) = command.split_once(':').unwrap_or((command, ""));
+    /// Commandes de démonstration de navigation et d'affichage ; `false` si la commande est inconnue ici.
+    fn demo_nav(self: &Rc<Self>, name: &str, arg: &str) -> bool {
         match name {
             "go" => self.go(arg),
             "view" => self.set_view(arg),
             "theme" => self.change_setting(|s| s.theme = arg.to_string()),
             "accent" => self.change_setting(|s| s.accent = arg.to_string()),
             "compact" => self.change_setting(|s| s.compact = arg == "1"),
-            "select" => self.select(arg.parse().unwrap_or(0), ModifierType::empty()),
+            "filter" => self.toggle_filter(arg),
+            "search" => self.ui.top.search.set_text(arg),
+            "tab" => {
+                self.st.borrow_mut().tab = arg.to_string();
+                self.render_settings();
+            }
+            _ => return false,
+        }
+        true
+    }
+
+    /// Commandes de démonstration de sélection, de fenêtres et d'actions.
+    fn demo_action(self: &Rc<Self>, name: &str, arg: &str) {
+        let index: usize = arg.parse().unwrap_or(0);
+        match name {
+            "select" => self.select(index as isize, ModifierType::empty()),
             "range" => {
                 let (a, b) = arg.split_once('-').unwrap_or(("0", "0"));
                 self.select(a.parse().unwrap_or(0), ModifierType::empty());
                 self.select(b.parse().unwrap_or(0), ModifierType::SHIFT_MASK);
             }
             "settings" => self.open_settings(),
-            "tab" => {
-                self.st.borrow_mut().tab = arg.to_string();
-                self.render_settings();
-            }
             "palette" => self.open_palette(),
             "quicklook" => self.quick_look(None),
             "usage" => self.analyse_usage(),
@@ -38,26 +48,21 @@ impl App {
             "rename" => self.rename_items(self.st.borrow().picked_items()),
             "mkdir" => self.create_folder(),
             "delete" => self.delete_items(self.st.borrow().picked_items()),
-            "filter" => self.toggle_filter(arg),
             "menu" => {
-                let item = self.st.borrow().shown.get(arg.parse().unwrap_or(0)).cloned();
-                if let (Some(item), Some(row)) = (item, self.row_widgets().get(arg.parse().unwrap_or(0)).cloned()) {
-                    self.open_menu_at(&row, &item, Some(arg.parse().unwrap_or(0)));
+                let item = self.st.borrow().shown.get(index).cloned();
+                if let (Some(item), Some(row)) = (item, self.row_widgets().get(index).cloned()) {
+                    self.open_menu_at(&row, &item, Some(index));
                 }
             }
-            "dbg" => {
-                let mut cursor = self.ui.folders.cards.first_child();
-                while let Some(card) = cursor {
-                    let mut child = card.first_child();
-                    while let Some(c) = child {
-                        eprintln!("CARD child {:?} {}x{} classes={:?}", c.type_().name(), c.width(), c.height(), c.css_classes());
-                        child = c.next_sibling();
-                    }
-                    cursor = card.next_sibling();
-                }
-            }
-            "search" => self.ui.top.search.set_text(arg),
             _ => {}
+        }
+    }
+
+    /// Exécute une commande de démonstration : navigation, sélection, réglages, fenêtres.
+    fn demo_command(self: &Rc<Self>, command: &str) {
+        let (name, arg) = command.split_once(':').unwrap_or((command, ""));
+        if !self.demo_nav(name, arg) {
+            self.demo_action(name, arg);
         }
     }
 

@@ -32,7 +32,7 @@ pub fn logo() -> Overlay {
     frame.set_content_width(48);
     frame.set_content_height(48);
     frame.add_css_class("logo");
-    frame.set_draw_func(|widget, cr, width, height| draw_frame(widget, cr, width, height));
+    frame.set_draw_func(draw_frame);
     let letter = label("F", &["logo-f"]);
     letter.set_halign(Align::Center);
     letter.set_valign(Align::Center);

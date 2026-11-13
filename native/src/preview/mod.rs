@@ -2,9 +2,11 @@
 
 pub mod batch;
 pub mod dups;
+pub mod dups_rows;
 pub mod facts;
 pub mod fill;
 pub mod gauge;
+pub mod images;
 pub mod item;
 pub mod media;
 pub mod space;

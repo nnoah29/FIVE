@@ -3,8 +3,8 @@
 use std::rc::Rc;
 
 use five_engine::entry::Entry;
-use gtk4::prelude::*;
 use gtk4::Widget;
+use gtk4::prelude::*;
 
 use super::popover::MenuEntry;
 use super::shared::App;
@@ -41,7 +41,9 @@ impl App {
         out.push(MenuEntry::new("copy", "Copier", move |app| app.set_clip("copy", &copy)).hint("Ctrl C"));
         out.push(MenuEntry::new("cut", "Couper", move |app| app.set_clip("move", &cut)).hint("Ctrl X"));
         out.push(MenuEntry::new("pen", "Renommer", move |app| app.rename_items(rename.clone())).hint("F2"));
-        out.push(MenuEntry::new("trash2", if definitive { "Supprimer définitivement" } else { "Mettre à la corbeille" }, move |app| app.delete_items(delete.clone())));
+        out.push(MenuEntry::new("trash2", if definitive { "Supprimer définitivement" } else { "Mettre à la corbeille" }, move |app| {
+            app.delete_items(delete.clone())
+        }));
         out
     }
 

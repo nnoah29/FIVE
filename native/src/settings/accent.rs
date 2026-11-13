@@ -6,7 +6,7 @@ use gtk4::prelude::*;
 use gtk4::{Button, Entry, FlowBox, SelectionMode};
 
 use crate::app::shared::App;
-use crate::model::accent::{is_hex, SWATCHES};
+use crate::model::accent::{SWATCHES, is_hex};
 use crate::ui::classes::set_class;
 use crate::ui::icon::icon_with_stroke;
 

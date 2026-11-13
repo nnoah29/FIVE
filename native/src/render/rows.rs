@@ -8,13 +8,14 @@ use gtk4::prelude::*;
 use gtk4::{Box as GtkBox, GestureClick, Widget};
 
 use super::table::column_widths;
-use crate::app::shared::{on_click, App};
+use crate::app::shared::{App, on_click};
 use crate::model::format::{format_date, format_size};
 use crate::model::kinds::{kind_class, kind_label, kind_of};
 use crate::model::paths::{name_parts, parent_of};
+use crate::ui::buttons::dots_button;
 use crate::ui::classes::fixed;
 use crate::ui::icon::icon_with_stroke;
-use crate::ui::widgets::{dots_button, hbox, label, vbox};
+use crate::ui::widgets::{hbox, label, vbox};
 
 /// Câble un clic sur une ligne ou une tuile : simple = sélection, double = ouverture, droit = menu.
 pub fn attach_press(app: &Rc<App>, widget: &impl IsA<Widget>, item: &Entry, index: usize) {
@@ -32,6 +33,18 @@ pub fn attach_press(app: &Rc<App>, widget: &impl IsA<Widget>, item: &Entry, inde
         }
     });
     widget.add_controller(click);
+}
+
+/// Cellule du type : pastille de couleur et libellé de la famille.
+fn tag_cell(kind: &str) -> GtkBox {
+    let tag = hbox(8);
+    let dot = GtkBox::new(gtk4::Orientation::Horizontal, 0);
+    dot.add_css_class("tag-dot");
+    dot.add_css_class(kind_class(kind));
+    dot.set_valign(gtk4::Align::Center);
+    tag.append(&dot);
+    tag.append(&label(kind_label(kind), &["tag"]));
+    tag
 }
 
 impl App {
@@ -81,14 +94,7 @@ impl App {
         }
         row.append(&self.check_box(item, index));
         row.append(&self.name_cell(item, sub));
-        let tag = hbox(8);
-        let dot = GtkBox::new(gtk4::Orientation::Horizontal, 0);
-        dot.add_css_class("tag-dot");
-        dot.add_css_class(kind_class(kind));
-        dot.set_valign(gtk4::Align::Center);
-        tag.append(&dot);
-        tag.append(&label(kind_label(kind), &["tag"]));
-        row.append(&fixed(tag_w, &tag));
+        row.append(&fixed(tag_w, &tag_cell(kind)));
         row.append(&fixed(size_w, &label(&if item.is_dir { "—".to_string() } else { format_size(item.size, binary) }, &["meta"])));
         row.append(&fixed(date_w, &label(&format_date(item.modified, full_dates), &["meta"])));
         let dots = dots_button();

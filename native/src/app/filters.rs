@@ -2,8 +2,8 @@
 
 use std::rc::Rc;
 
+use gtk4::gio;
 use gtk4::prelude::*;
-use gtk4::{gio, Widget};
 
 use super::popover::MenuEntry;
 use super::shared::App;
@@ -26,23 +26,27 @@ impl App {
     pub fn crumb_menu(self: &Rc<Self>, parent: String) {
         let (root, hidden, app) = (self.root.clone(), self.st.borrow().hidden, self.clone());
         let anchor = self.ui.folders.crumbs.last_child();
-        spawn_work(move || {
-            let full = root.resolve(&parent).map_err(|r| r.message)?;
-            five_engine::listing::list_dir(&root, &full, hidden).map_err(|e| five_engine::refus::Refus::from(e).message)
-        }, move |result| match result {
-            Ok(items) => {
-                let mut dirs: Vec<_> = items.into_iter().filter(|i| i.is_dir).collect();
-                dirs.sort_by(|a, b| natural_cmp(&a.name, &b.name));
-                let mut entries: Vec<MenuEntry> = dirs.into_iter().take(40).map(|d| MenuEntry::new("folder", &d.name.clone(), move |app| app.go(&d.path))).collect();
-                if entries.is_empty() {
-                    entries.push(MenuEntry::new("folder", "Aucun sous-dossier", |_| {}));
+        spawn_work(
+            move || {
+                let full = root.resolve(&parent).map_err(|r| r.message)?;
+                five_engine::listing::list_dir(&root, &full, hidden).map_err(|e| five_engine::refus::Refus::from(e).message)
+            },
+            move |result| match result {
+                Ok(items) => {
+                    let mut dirs: Vec<_> = items.into_iter().filter(|i| i.is_dir).collect();
+                    dirs.sort_by(|a, b| natural_cmp(&a.name, &b.name));
+                    let mut entries: Vec<MenuEntry> =
+                        dirs.into_iter().take(40).map(|d| MenuEntry::new("folder", &d.name.clone(), move |app| app.go(&d.path))).collect();
+                    if entries.is_empty() {
+                        entries.push(MenuEntry::new("folder", "Aucun sous-dossier", |_| {}));
+                    }
+                    if let Some(widget) = anchor.clone() {
+                        app.popover(&widget, entries);
+                    }
                 }
-                if let Some(widget) = anchor.as_ref().map(|w: &Widget| w.clone()) {
-                    app.popover(&widget, entries);
-                }
-            }
-            Err(message) => app.toast(&message),
-        });
+                Err(message) => app.toast(&message),
+            },
+        );
     }
 
     /// Propose d'enregistrer une copie du fichier ailleurs, avec la boîte de dialogue du système.
@@ -55,10 +59,13 @@ impl App {
             let Ok(target) = result else { return };
             let Some(destination) = target.path() else { return };
             let again = app.clone();
-            spawn_work(move || std::fs::copy(&source, &destination).map(|_| ()).map_err(|e| five_engine::refus::Refus::from(e).message), move |outcome| match outcome {
-                Ok(()) => again.toast("Copie enregistrée"),
-                Err(message) => again.toast(&message),
-            });
+            spawn_work(
+                move || std::fs::copy(&source, &destination).map(|_| ()).map_err(|e| five_engine::refus::Refus::from(e).message),
+                move |outcome| match outcome {
+                    Ok(()) => again.toast("Copie enregistrée"),
+                    Err(message) => again.toast(&message),
+                },
+            );
         });
     }
 }

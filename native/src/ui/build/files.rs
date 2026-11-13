@@ -3,8 +3,9 @@
 use gtk4::prelude::*;
 use gtk4::{PolicyType, ScrolledWindow};
 
+use crate::ui::buttons::icon_button;
 use crate::ui::handles::FilesUi;
-use crate::ui::widgets::{hbox, icon_button, label, text_button, vbox};
+use crate::ui::widgets::{hbox, label, text_button, vbox};
 
 /// Bascule liste/grille : deux boutons dans un cadre.
 fn view_switch() -> (gtk4::Box, gtk4::Button, gtk4::Button) {

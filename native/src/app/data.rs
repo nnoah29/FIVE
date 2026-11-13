@@ -34,7 +34,8 @@ pub fn read_location(root: &Root, path: &str, view: Option<&str>, query: &str, h
     }
     let full = root.resolve(path).map_err(|r| r.message)?;
     let needle = query.trim();
-    let items = if needle.is_empty() { list_dir(root, &full, hidden).map_err(|e| Refus::from(e).message)? } else { search_dir(root, &full, needle, hidden, false) };
+    let items =
+        if needle.is_empty() { list_dir(root, &full, hidden).map_err(|e| Refus::from(e).message)? } else { search_dir(root, &full, needle, hidden, false) };
     let (free, total) = disk_space(&full);
     Ok(Listing { path: root.relative(&full), items, free, total })
 }
@@ -50,6 +51,13 @@ pub fn read_disks(root: &Root) -> Vec<Disk> {
     let text = |value: &serde_json::Value, key: &str| value[key].as_str().unwrap_or("").to_string();
     mounted_disks(root)
         .iter()
-        .map(|d| Disk { name: text(d, "n"), mount: text(d, "m"), fs: text(d, "fs"), total: d["t"].as_u64().unwrap_or(0), free: d["f"].as_u64().unwrap_or(0), path: d["p"].as_str().map(String::from) })
+        .map(|d| Disk {
+            name: text(d, "n"),
+            mount: text(d, "m"),
+            fs: text(d, "fs"),
+            total: d["t"].as_u64().unwrap_or(0),
+            free: d["f"].as_u64().unwrap_or(0),
+            path: d["p"].as_str().map(String::from),
+        })
         .collect()
 }

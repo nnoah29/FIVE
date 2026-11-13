@@ -3,9 +3,10 @@
 use gtk4::prelude::*;
 use gtk4::{Align, Entry, WindowControls};
 
+use crate::ui::buttons::icon_button;
 use crate::ui::handles::TopUi;
 use crate::ui::icon::icon;
-use crate::ui::widgets::{hbox, icon_button, label, text_button, vbox};
+use crate::ui::widgets::{hbox, label, text_button, vbox};
 
 /// Zone de recherche : icône et champ de saisie.
 fn search_field() -> Entry {
@@ -50,9 +51,16 @@ pub fn build_top() -> TopUi {
         button.set_valign(Align::Center);
     }
     user.set_valign(Align::Center);
-    for widget in [menu.upcast_ref::<gtk4::Widget>(), search_icon.upcast_ref(), search.upcast_ref(), hidden.upcast_ref(), theme.upcast_ref(), gear.upcast_ref(), user.upcast_ref()] {
-        root.append(widget);
-    }
+    let parts = [
+        menu.upcast_ref::<gtk4::Widget>(),
+        search_icon.upcast_ref(),
+        search.upcast_ref(),
+        hidden.upcast_ref(),
+        theme.upcast_ref(),
+        gear.upcast_ref(),
+        user.upcast_ref(),
+    ];
+    parts.iter().for_each(|widget| root.append(*widget));
     let controls = WindowControls::new(gtk4::PackType::End);
     controls.set_valign(Align::Center);
     root.append(&controls);

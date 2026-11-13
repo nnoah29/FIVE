@@ -28,7 +28,9 @@ fn read_args(letter: char, scan: &mut Scanner, cur: (f64, f64), reflect: (f64, f
         'V' => Cmd::Line(cur.0, oy + scan.number()?),
         'C' => numbers(scan, 6).map(|n| Cmd::Cubic([ox + n[0], oy + n[1], ox + n[2], oy + n[3], ox + n[4], oy + n[5]]))?,
         'S' => numbers(scan, 4).map(|n| Cmd::Cubic([reflect.0, reflect.1, ox + n[0], oy + n[1], ox + n[2], oy + n[3]]))?,
-        'A' => numbers(scan, 7).map(|n| Cmd::Arc { radii: (n[0], n[1]), rotation: n[2], large: n[3] != 0.0, sweep: n[4] != 0.0, to: (ox + n[5], oy + n[6]) })?,
+        'A' => {
+            numbers(scan, 7).map(|n| Cmd::Arc { radii: (n[0], n[1]), rotation: n[2], large: n[3] != 0.0, sweep: n[4] != 0.0, to: (ox + n[5], oy + n[6]) })?
+        }
         _ => return None,
     })
 }
@@ -40,6 +42,15 @@ fn end_of(cmd: &Cmd, start: (f64, f64)) -> (f64, f64) {
         Cmd::Cubic(c) => (c[4], c[5]),
         Cmd::Arc { to, .. } => *to,
         Cmd::Close => start,
+    }
+}
+
+/// Lettre de commande des répétitions : après un déplacement, les paires suivantes sont des lignes.
+fn implicit_next(letter: char) -> char {
+    match letter {
+        'M' => 'L',
+        'm' => 'l',
+        other => other,
     }
 }
 
@@ -61,7 +72,7 @@ pub fn parse(d: &str) -> Vec<Cmd> {
                 start = cur;
             }
             out.push(cmd);
-            letter = if letter == 'M' { 'L' } else if letter == 'm' { 'l' } else { letter };
+            letter = implicit_next(letter);
             if !scan.has_number() {
                 break;
             }

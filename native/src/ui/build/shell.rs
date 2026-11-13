@@ -18,6 +18,18 @@ fn lower_area(files: &gtk4::Box, work: &gtk4::Box) -> Overlay {
     lower
 }
 
+/// Pile à deux pages : le contenu et la page Paramètres (défilante).
+fn settings_stack(content: &gtk4::Box) -> (gtk4::Box, Stack) {
+    let settings = vbox(0);
+    settings.add_css_class("settings");
+    let scroll = ScrolledWindow::builder().hscrollbar_policy(PolicyType::Never).child(&settings).build();
+    let stack = Stack::new();
+    stack.add_named(content, Some("content"));
+    stack.add_named(&scroll, Some("settings"));
+    stack.set_vexpand(true);
+    (settings, stack)
+}
+
 /// Couches flottantes : message temporaire et file de transferts.
 fn floating(overlay: &Overlay) -> (gtk4::Label, gtk4::Box) {
     let toast = label("", &["toast"]);
@@ -46,13 +58,7 @@ pub fn build_ui(app: &gtk4::Application) -> Ui {
     let content = vbox(0);
     content.append(&folders.root);
     content.append(&lower);
-    let settings = vbox(0);
-    settings.add_css_class("settings");
-    let settings_scroll = ScrolledWindow::builder().hscrollbar_policy(PolicyType::Never).child(&settings).build();
-    let stack = Stack::new();
-    stack.add_named(&content, Some("content"));
-    stack.add_named(&settings_scroll, Some("settings"));
-    stack.set_vexpand(true);
+    let (settings, stack) = settings_stack(&content);
     let main = vbox(0);
     main.set_hexpand(true);
     main.append(&WindowHandle::builder().child(&top.root).build());

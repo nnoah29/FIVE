@@ -3,8 +3,9 @@
 use gtk4::prelude::*;
 use gtk4::{Align, PolicyType, ScrolledWindow};
 
+use crate::ui::buttons::icon_button;
 use crate::ui::handles::WorkUi;
-use crate::ui::widgets::{icon_button, vbox};
+use crate::ui::widgets::vbox;
 
 /// Panneau de droite vide, de 360 pixels de large.
 pub fn build_work() -> WorkUi {

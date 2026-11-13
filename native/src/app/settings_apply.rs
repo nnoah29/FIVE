@@ -6,7 +6,8 @@ use super::shared::App;
 use crate::model::settings::Settings;
 use crate::model::sorting::SortKey;
 use crate::ui::classes::set_class;
-use crate::ui::theme::{build_css, is_dark};
+use crate::ui::scheme::is_dark;
+use crate::ui::theme::build_css;
 
 impl App {
     /// Régénère la feuille de style selon le thème, la couleur principale, la densité et le format des dates.
@@ -50,24 +51,5 @@ impl App {
         self.st.borrow_mut().sel = -1;
         self.render(None);
         self.show_preview();
-    }
-
-    /// Affiche ou masque les fichiers cachés, avec un message.
-    pub fn toggle_hidden(self: &Rc<Self>) {
-        let now = !self.set.borrow().hidden;
-        self.change_setting(|s| s.hidden = now);
-        self.toast(if now { "Fichiers cachés affichés" } else { "Fichiers cachés masqués" });
-    }
-
-    /// Bascule entre thème clair et sombre.
-    pub fn toggle_theme(self: &Rc<Self>) {
-        let dark = is_dark(&self.set.borrow());
-        self.change_setting(|s| s.theme = if dark { "light" } else { "dark" }.to_string());
-    }
-
-    /// Choisit l'affichage en liste ou en grille.
-    pub fn set_view(self: &Rc<Self>, view: &str) {
-        let view = view.to_string();
-        self.change_setting(|s| s.view = view);
     }
 }

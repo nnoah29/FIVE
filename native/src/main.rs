@@ -8,7 +8,7 @@ use std::sync::Arc;
 use five_engine::jobs::registry::Jobs;
 use five_engine::root::Root;
 use gtk4::prelude::*;
-use gtk4::{gdk, glib, Application, CssProvider};
+use gtk4::{Application, CssProvider, gdk, glib};
 
 use five_gtk::app::shared::{App, JobsView};
 use five_gtk::model::settings::Settings;

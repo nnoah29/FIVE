@@ -7,7 +7,7 @@ use five_engine::usage::usage_of;
 use gtk4::prelude::*;
 use gtk4::{Align, Button, DrawingArea, Overlay};
 
-use crate::app::shared::{on_click, App};
+use crate::app::shared::{App, on_click};
 use crate::app::work::spawn_work;
 use crate::model::format::format_size;
 use crate::state::UsageView;
@@ -41,18 +41,21 @@ impl App {
         self.show_preview();
         let Ok(full) = self.root.resolve(&path) else { return };
         let (root, app) = (self.root.clone(), self.clone());
-        spawn_work(move || usage_of(&root, &full, Duration::from_secs(10)).map_err(|e| five_engine::refus::Refus::from(e).message), move |result| {
-            match result {
-                Ok(data) => app.st.borrow_mut().usage = Some(UsageView { path: path.clone(), data: Some(data) }),
-                Err(message) => {
-                    app.st.borrow_mut().usage = None;
-                    app.toast(&message);
+        spawn_work(
+            move || usage_of(&root, &full, Duration::from_secs(10)).map_err(|e| five_engine::refus::Refus::from(e).message),
+            move |result| {
+                match result {
+                    Ok(data) => app.st.borrow_mut().usage = Some(UsageView { path: path.clone(), data: Some(data) }),
+                    Err(message) => {
+                        app.st.borrow_mut().usage = None;
+                        app.toast(&message);
+                    }
                 }
-            }
-            if app.st.borrow().path == path {
-                app.show_preview();
-            }
-        });
+                if app.st.borrow().path == path {
+                    app.show_preview();
+                }
+            },
+        );
     }
 
     /// Ligne d'un élément : icône, nom, taille, barre proportionnelle ; cliquable si c'est un dossier.

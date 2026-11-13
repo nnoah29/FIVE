@@ -5,7 +5,7 @@ use std::rc::Rc;
 use gtk4::prelude::*;
 use gtk4::{Align, Entry, PolicyType, ScrolledWindow};
 
-use super::shared::{on_click, App};
+use super::shared::{App, on_click};
 use crate::ui::widgets::{hbox, label, text_button, vbox};
 
 /// Comportement de validation : reçoit la saisie et un rapporteur à appeler avec le résultat.
@@ -39,10 +39,8 @@ fn names_list(names: &[String]) -> ScrolledWindow {
 }
 
 impl App {
-    /// Ouvre la boîte de dialogue décrite par `spec`.
-    pub fn dialog(self: &Rc<Self>, spec: DialogSpec) {
-        let modal = self.open_modal(440, false);
-        let box_ = &modal.dialog;
+    /// Remplit la boîte : titre, texte, liste, champ, erreur ; retourne le champ et l'étiquette d'erreur.
+    fn dialog_body(&self, box_: &gtk4::Box, spec: &DialogSpec) -> (Option<Entry>, gtk4::Label) {
         box_.add_css_class("dialog");
         box_.append(&label(&spec.title.to_uppercase(), &["h2"]));
         if let Some(text) = &spec.text {
@@ -60,17 +58,22 @@ impl App {
         }
         let error = label("", &["form-error", "mono"]);
         box_.append(&error);
+        (input, error)
+    }
+
+    /// Ouvre la boîte de dialogue décrite par `spec`.
+    pub fn dialog(self: &Rc<Self>, spec: DialogSpec) {
+        let modal = self.open_modal(440, false);
+        let (input, error) = self.dialog_body(&modal.dialog, &spec);
         let (cancel, ok) = (text_button("Annuler", None, &[]), text_button(&spec.confirm, None, &["go"]));
         let actions = hbox(8);
         actions.set_halign(Align::End);
         actions.append(&cancel);
         actions.append(&ok);
-        box_.append(&actions);
+        modal.dialog.append(&actions);
         let run = self.dialog_runner(&modal, spec.submit.clone(), input.clone(), error, ok.clone());
-        on_click(&cancel, self, {
-            let modal = modal.clone();
-            move |app| app.close_modal(&modal)
-        });
+        let target = modal.clone();
+        on_click(&cancel, self, move |app| app.close_modal(&target));
         let again = run.clone();
         ok.connect_clicked(move |_| again());
         if let Some(entry) = &input {

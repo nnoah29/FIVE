@@ -2,10 +2,10 @@
 
 use std::rc::Rc;
 
+use gtk4::Picture;
 use gtk4::gdk::{MemoryFormat, MemoryTexture};
 use gtk4::gdk_pixbuf::Pixbuf;
 use gtk4::glib::Bytes;
-use gtk4::Picture;
 
 use crate::app::shared::App;
 use crate::app::work::spawn_work;
@@ -23,11 +23,14 @@ impl App {
     /// Charge l'image `rel` (chemin relatif à la racine) dans `picture`, sans bloquer l'interface.
     pub fn load_thumb(self: &Rc<Self>, rel: &str, picture: Picture) {
         let Ok(full) = self.root.resolve(rel) else { return };
-        spawn_work(move || decode(full), move |pixels| {
-            if let Some((width, height, stride, alpha, bytes)) = pixels {
-                let format = if alpha { MemoryFormat::R8g8b8a8 } else { MemoryFormat::R8g8b8 };
-                picture.set_paintable(Some(&MemoryTexture::new(width, height, format, &bytes, stride as usize)));
-            }
-        });
+        spawn_work(
+            move || decode(full),
+            move |pixels| {
+                if let Some((width, height, stride, alpha, bytes)) = pixels {
+                    let format = if alpha { MemoryFormat::R8g8b8a8 } else { MemoryFormat::R8g8b8 };
+                    picture.set_paintable(Some(&MemoryTexture::new(width, height, format, &bytes, stride as usize)));
+                }
+            },
+        );
     }
 }

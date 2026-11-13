@@ -43,6 +43,10 @@ fn draw_ellipse(cr: &Context, center: (f64, f64), shape: (f64, f64, f64), angles
     cr.translate(center.0, center.1);
     cr.rotate(phi);
     cr.scale(rx, ry);
-    if sweep { cr.arc(0.0, 0.0, 1.0, start, end) } else { cr.arc_negative(0.0, 0.0, 1.0, start, end) }
+    if sweep {
+        cr.arc(0.0, 0.0, 1.0, start, end)
+    } else {
+        cr.arc_negative(0.0, 0.0, 1.0, start, end)
+    }
     cr.set_matrix(saved);
 }

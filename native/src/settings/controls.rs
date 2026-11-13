@@ -70,3 +70,8 @@ pub fn checkbox(app: &Rc<App>, on: bool, set: fn(&mut Settings, bool)) -> Button
     });
     button
 }
+
+/// Ligne de réglage dont le contrôle est une case à cocher.
+pub fn toggle_row(app: &Rc<App>, title: &str, text: &str, on: bool, set: fn(&mut Settings, bool)) -> Widget {
+    setting_row(title, Some(text), &checkbox(app, on, set), false).upcast()
+}

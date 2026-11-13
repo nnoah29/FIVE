@@ -6,7 +6,7 @@ use gtk4::prelude::*;
 use gtk4::{Align, Button, Widget};
 
 use super::gauge::gauge;
-use crate::app::shared::{on_click, App};
+use crate::app::shared::{App, on_click};
 use crate::model::format::{format_size, group_digits};
 use crate::model::kinds::{kind_icon, kind_of};
 use crate::ui::classes::centered;
@@ -87,10 +87,24 @@ impl App {
             let folders = st.items.iter().filter(|i| i.is_dir).count();
             (folders, st.items.len() - folders)
         };
-        let caption = if usage.is_some() { "avec les sous-dossiers".to_string() } else { format!("{} fichier{} · {} dossier{}", group_digits(files as u64), if files > 1 { "s" } else { "" }, group_digits(folders as u64), if folders > 1 { "s" } else { "" }) };
+        let caption = if usage.is_some() {
+            "avec les sous-dossiers".to_string()
+        } else {
+            format!(
+                "{} fichier{} · {} dossier{}",
+                group_digits(files as u64),
+                if files > 1 { "s" } else { "" },
+                group_digits(folders as u64),
+                if folders > 1 { "s" } else { "" }
+            )
+        };
         let ratio = if total > 0 { here as f64 / total as f64 } else { 0.0 };
         let disk = label(&format!("Disque : {} libres sur {}", format_size(free, units), format_size(total, units)), &["disk-line"]);
-        let lower: Widget = if self.st.borrow().usage.as_ref().is_some_and(|u| u.path == self.st.borrow().path) { self.usage_block().upcast() } else { self.kinds_block().upcast() };
+        let lower: Widget = if self.st.borrow().usage.as_ref().is_some_and(|u| u.path == self.st.borrow().path) {
+            self.usage_block().upcast()
+        } else {
+            self.kinds_block().upcast()
+        };
         vec![label("ESPACE", &["h2"]).upcast(), gauge(ratio, &format_size(here, units), &caption).upcast(), disk.upcast(), self.space_tools().upcast(), lower]
     }
 }

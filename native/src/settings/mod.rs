@@ -3,23 +3,23 @@
 pub mod accent;
 pub mod controls;
 pub mod panels;
+pub mod visibility;
 
 use std::rc::Rc;
 
-use gtk4::prelude::*;
 use gtk4::Button;
+use gtk4::prelude::*;
 
-use crate::app::shared::{on_click, App};
+use crate::app::shared::{App, on_click};
+use crate::ui::buttons::icon_button;
 use crate::ui::classes::{clear, set_class};
-use crate::ui::widgets::{hbox, icon_button, label, vbox};
+use crate::ui::widgets::{hbox, label, vbox};
 
 const TABS: [(&str, &str); 4] = [("display", "Affichage"), ("files", "Fichiers"), ("keys", "Raccourcis"), ("system", "Système")];
 
 impl App {
-    /// Reconstruit la page : titre, bouton de fermeture, onglets, panneau choisi.
-    pub fn render_settings(self: &Rc<Self>) {
-        let page = &self.ui.settings;
-        clear(page);
+    /// Ligne du haut : titre et bouton de fermeture.
+    fn settings_top(self: &Rc<Self>) -> gtk4::Box {
         let top = hbox(16);
         let title = label("PARAMÈTRES", &["h1"]);
         title.set_hexpand(true);
@@ -27,6 +27,11 @@ impl App {
         on_click(&close, self, |app| app.close_settings());
         top.append(&title);
         top.append(&close);
+        top
+    }
+
+    /// Onglets : Affichage, Fichiers, Raccourcis, Système.
+    fn settings_tabs(self: &Rc<Self>) -> gtk4::Box {
         let tabs = hbox(28);
         tabs.add_css_class("tabs");
         let current = self.st.borrow().tab.clone();
@@ -41,9 +46,14 @@ impl App {
             });
             tabs.append(&tab);
         }
+        tabs
+    }
+
+    /// Cadre du panneau de l'onglet courant.
+    fn settings_card(self: &Rc<Self>) -> gtk4::Box {
         let card = vbox(0);
         card.add_css_class("group-card");
-        let panel = match current.as_str() {
+        let panel = match self.st.borrow().tab.as_str() {
             "files" => self.files_panel(),
             "keys" => self.keys_panel(),
             "system" => self.system_panel(),
@@ -51,33 +61,17 @@ impl App {
         };
         let count = panel.len();
         for (at, widget) in panel.iter().enumerate() {
-            if at + 1 == count {
-                widget.add_css_class("last");
-            }
+            set_class(widget, "last", at + 1 == count);
             card.append(widget);
         }
-        page.append(&top);
-        page.append(&tabs);
-        page.append(&card);
+        card
     }
 
-    /// Ouvre la page Paramètres.
-    pub fn open_settings(self: &Rc<Self>) {
-        self.st.borrow_mut().settings_open = true;
-        self.ui.stack.set_visible_child_name("settings");
-        self.sync_toggles();
-        self.render_settings();
-    }
-
-    /// Ferme la page Paramètres et revient aux fichiers.
-    pub fn close_settings(self: &Rc<Self>) {
-        self.st.borrow_mut().settings_open = false;
-        self.ui.stack.set_visible_child_name("content");
-        self.sync_toggles();
-    }
-
-    /// Ouvre ou ferme la page Paramètres.
-    pub fn toggle_settings(self: &Rc<Self>) {
-        if self.st.borrow().settings_open { self.close_settings() } else { self.open_settings() }
+    /// Reconstruit la page : titre, onglets, panneau choisi.
+    pub fn render_settings(self: &Rc<Self>) {
+        clear(&self.ui.settings);
+        self.ui.settings.append(&self.settings_top());
+        self.ui.settings.append(&self.settings_tabs());
+        self.ui.settings.append(&self.settings_card());
     }
 }

@@ -94,7 +94,13 @@ impl App {
                 return Propagation::Proceed;
             }
             let control = state.contains(ModifierType::CONTROL_MASK) && !state.contains(ModifierType::ALT_MASK);
-            let handled = if control { app.on_control(key) } else if app.typing() || state.contains(ModifierType::ALT_MASK) { false } else { app.on_plain(key) };
+            let handled = if control {
+                app.on_control(key)
+            } else if app.typing() || state.contains(ModifierType::ALT_MASK) {
+                false
+            } else {
+                app.on_plain(key)
+            };
             if handled { Propagation::Stop } else { Propagation::Proceed }
         });
         self.ui.window.add_controller(keys);
