@@ -1,0 +1,19 @@
+[package]
+name = "five-gtk"
+edition.workspace = true
+version.workspace = true
+
+[lib]
+name = "five_gtk"
+path = "src/lib.rs"
+
+[[bin]]
+name = "five-gtk"
+path = "src/main.rs"
+
+[dependencies]
+five-engine = { path = "../engine" }
+gtk4 = { version = "0.11", features = ["v4_16"] }
+pango = { version = "0.22", features = ["v1_56"] }
+regex = { version = "1", default-features = false, features = ["std", "unicode-case", "unicode-perl"] }
+serde_json = "1"
