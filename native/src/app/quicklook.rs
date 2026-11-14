@@ -29,7 +29,7 @@ impl App {
         title.set_text(&item.name.to_uppercase());
         clear(zone);
         zone.remove_css_class("none");
-        let height = (self.ui.window.height() as f64 * 0.62) as i32;
+        let height = ((self.ui.window.height() as f64 * 0.88).min(760.0) - 110.0) as i32;
         self.fill_preview(zone, item, kind_of(item), None, height);
     }
 
@@ -82,7 +82,7 @@ impl App {
         title.set_ellipsize(gtk4::pango::EllipsizeMode::End);
         zone.add_css_class("preview");
         zone.set_vexpand(true);
-        zone.set_size_request(-1, (self.ui.window.height() as f64 * 0.66) as i32);
+        modal.dialog.set_size_request(modal.dialog.width_request(), (self.ui.window.height() as f64 * 0.88).min(760.0) as i32);
         let head: GtkBox = hbox(16);
         let close = icon_button("x", &[]);
         let target = modal.clone();

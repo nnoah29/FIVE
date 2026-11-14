@@ -16,6 +16,7 @@ impl App {
     fn demo_nav(self: &Rc<Self>, name: &str, arg: &str) -> bool {
         match name {
             "go" => self.go(arg),
+            "goview" => self.go_view(arg),
             "view" => self.set_view(arg),
             "theme" => self.change_setting(|s| s.theme = arg.to_string()),
             "accent" => self.change_setting(|s| s.accent = arg.to_string()),

@@ -72,7 +72,7 @@ fn build_app(application: &Application, options: &Options) -> Option<Rc<App>> {
 fn main() -> glib::ExitCode {
     five_engine::clock::init_offset();
     let options = Rc::new(options());
-    let application = Application::builder().application_id("dev.five.files").build();
+    let application = Application::builder().application_id("dev.five.files").flags(gtk4::gio::ApplicationFlags::NON_UNIQUE).build();
     application.connect_activate(move |application| {
         let Some(app) = build_app(application, &options) else { return };
         app.wire();
