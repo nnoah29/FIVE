@@ -33,7 +33,13 @@ impl App {
         glyph.set_halign(Align::Start);
         column.append(&glyph);
         let name = hbox(0);
-        name.append(&label(&dir.name, &["card-name"]));
+        let title = label(&dir.name, &["card-name"]);
+        title.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+        title.set_max_width_chars(1);
+        title.set_hexpand(true);
+        title.set_halign(Align::Fill);
+        name.set_hexpand(true);
+        name.append(&title);
         name.append(&self.git_badge(dir));
         let meta = hbox(8);
         let (count, date) = (label(&count_text(dir), &["card-meta"]), label(&format_date(dir.modified, self.set.borrow().full_dates), &["card-pill"]));
