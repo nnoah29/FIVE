@@ -11,7 +11,7 @@ use crate::app::shared::App;
 use crate::model::kinds::{extension, kind_icon};
 use crate::ui::classes::clear;
 use crate::ui::icon::icon_with_stroke;
-use crate::ui::widgets::mono;
+use crate::ui::widgets::{mono, vbox};
 
 /// Indique si le nom est celui d'une archive que le moteur sait lister.
 pub fn is_archive(name: &str) -> bool {
@@ -26,7 +26,10 @@ pub fn none_state(zone: &GtkBox, kind: &str, text: &str) {
     zone.set_valign(Align::Center);
     let glyph = icon_with_stroke(kind_icon(kind), 44, 1.6);
     glyph.set_halign(Align::Center);
-    zone.append(&glyph);
+    let inner = vbox(8);
+    inner.set_vexpand(true);
+    inner.set_valign(Align::Center);
+    inner.append(&glyph);
     let note = mono(text, &[]);
     note.set_halign(Align::Fill);
     note.set_hexpand(true);
@@ -34,7 +37,8 @@ pub fn none_state(zone: &GtkBox, kind: &str, text: &str) {
     note.set_wrap(true);
     note.set_max_width_chars(1);
     note.set_justify(gtk4::Justification::Center);
-    zone.append(&note);
+    inner.append(&note);
+    zone.append(&inner);
 }
 
 /// Montre un texte à chasse fixe dans une zone défilante de hauteur limitée.
