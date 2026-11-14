@@ -58,8 +58,9 @@ impl App {
 
     /// Nombre de colonnes de la grille : comme `repeat(auto-fill, minmax(132px, 1fr))`, avec 8 px d'écart.
     fn grid_columns(&self) -> i32 {
-        let side = if self.compact.get() { 0 } else { 248 };
-        let available = self.ui.window.width() - side - self.ui.files.root.margin_end() - 56;
+        let (width, side_hidden) = (self.ui.window.width(), self.narrow_side());
+        let (side, panel) = (if side_hidden { 0 } else { 248 }, if self.narrow_work() { 0 } else { 360 });
+        let available = width - side - panel - 56;
         ((available + 8) / (132 + 8)).max(1)
     }
 
