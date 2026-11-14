@@ -11,6 +11,10 @@ fn sizes_use_french_units_and_decimals() {
     assert_eq!(format_size(35_000_000, false), "35 Mo");
     assert_eq!(format_size(1536, true), "1,5 Kio");
     assert_eq!(format_size(493_000_000_000, false), "493 Go");
+    assert_eq!(format_size(100_000_000_000, false), "100 Go");
+    assert_eq!(format_size(430_000_000_000, false), "430 Go");
+    assert_eq!(format_size(10_000, false), "10 Ko");
+    assert_eq!(format_size(1_000_000, false), "1 Mo");
 }
 
 #[test]

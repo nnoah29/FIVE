@@ -23,7 +23,7 @@ pub fn format_size(bytes: u64, binary: bool) -> String {
         at += 1;
     }
     let text = if value < 10.0 { format!("{:.1}", (value * 10.0).round() / 10.0) } else { format!("{:.0}", value) };
-    let text = text.trim_end_matches('0').trim_end_matches('.').replace('.', ",");
+    let text = if text.contains('.') { text.trim_end_matches('0').trim_end_matches('.').replace('.', ",") } else { text };
     format!("{} {}", group_text(&text), units[at])
 }
 
