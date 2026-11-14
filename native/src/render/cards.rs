@@ -22,6 +22,16 @@ fn count_text(entry: &Entry) -> String {
     }
 }
 
+/// Nom d'un dossier : une seule ligne, coupée par « … » plutôt que d'élargir la carte.
+fn card_title(name: &str) -> gtk4::Label {
+    let title = label(name, &["card-name"]);
+    title.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+    title.set_max_width_chars(1);
+    title.set_hexpand(true);
+    title.set_halign(Align::Fill);
+    title
+}
+
 impl App {
     /// Zone cliquable de la carte : icône, nom, badge Git, effectif et date.
     fn card_main(self: &Rc<Self>, dir: &Entry) -> Button {
@@ -33,13 +43,8 @@ impl App {
         glyph.set_halign(Align::Start);
         column.append(&glyph);
         let name = hbox(0);
-        let title = label(&dir.name, &["card-name"]);
-        title.set_ellipsize(gtk4::pango::EllipsizeMode::End);
-        title.set_max_width_chars(1);
-        title.set_hexpand(true);
-        title.set_halign(Align::Fill);
         name.set_hexpand(true);
-        name.append(&title);
+        name.append(&card_title(&dir.name));
         name.append(&self.git_badge(dir));
         let meta = hbox(8);
         let (count, date) = (label(&count_text(dir), &["card-meta"]), label(&format_date(dir.modified, self.set.borrow().full_dates), &["card-pill"]));

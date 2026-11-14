@@ -6,6 +6,7 @@ Gestionnaire de fichiers Linux léger, en Rust, même direction artistique que M
 - `engine/` : crate `five-engine`, logique pure sur les fichiers, aucun réseau.
 - `server/` : crate `five-server`, binaire `five`, coque HTTP locale qui sert `web/` et expose l'API.
 - `web/` : interface web (HTML/CSS/JS sans dépendance), maquette de référence.
+- `engine/src/rules/` : règles automatiques condition → action (`docs/REGLES.md`), lot 1 (évaluateur, validation, stockage).
 - `native/` : crate `five-gtk`, interface native GTK 4 fidèle à `web/`, branchée directement sur `five-engine` (aucun réseau). `native/src/model/` = logique pure testée ; `app/` = comportements ; `render/`, `preview/`, `settings/` = régions de la fenêtre ; `ui/` = widgets, icônes cairo, thème (`ui/style.css`).
 - `tools/check-norms` : normes de code (fonction ≤ 30 lignes, ≤ 6 fonctions par fichier, une ligne `///` par fonction, aucun commentaire dans un corps, zéro `unwrap`/`expect`/`panic!`/`unsafe` hors tests).
 

@@ -24,6 +24,7 @@ pub mod refus;
 pub mod rename;
 pub mod resolve;
 pub mod root;
+pub mod rules;
 pub mod search;
 pub mod sync;
 pub mod tar;

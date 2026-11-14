@@ -1,7 +1,7 @@
 # FIVE — Règles « condition → action »
 
 Spécification du système de règles automatiques de FIVE : ce que FIVE fait seul, sans clic, sur les fichiers d'un ou plusieurs dossiers. Même modèle que les règles de MIRA (`docs/dev/specs/R1-regles.md` dans le dépôt MIRA) : alternatives (OU) de suites de conditions (ET), conditions inversables, actions ordonnées, évaluateur pur testable sans écran.
-Référence : `API.md` (contrat), `docs/DECISIONS.md` (D-02 dépendances minimales, D-05 zip, D-06 barre latérale). Ce document est une **spécification** : rien n'est encore implémenté.
+Référence : `API.md` (contrat), `docs/DECISIONS.md` (D-02 dépendances minimales, D-05 zip, D-06 barre latérale). Ce document est la **spécification** ; le lot 1 est implémenté (voir §12).
 
 ## 1. Objectif et décisions proposées
 
@@ -196,3 +196,17 @@ Questions ouvertes (à trancher avant le lot 1) :
 - Annulation illimitée ou limitée à la dernière exécution (dernière exécution retenue).
 - Règles par dossier ou règles globales ordonnées (règles globales retenues, comme MIRA).
 - Exécution en arrière-plan quand l'interface est fermée (non retenue : FIVE n'est pas un service).
+
+## 12. État d'avancement
+
+**Lot 1 — fait** (`engine/src/rules/`, tests `engine/tests/rules_*.rs`) : types (`Rule`, déclencheurs, 74 conditions, 40 actions), évaluateur pur (`evaluate`, `rule_matches`), planification des actions avec noms calculés (`plan_rule`, modèles de noms), validation complète du §5 (`validate_rule`, `validate_set`), statut (`rule_status`), stockage atomique (`store`), noms temporaires, glob, regex en cache.
+Reste : lots 2 à 5 (veilleur, exécution, journal, annulation, API, interface).
+
+Écarts du lot 1 avec le texte ci-dessus (à relire avant le lot 2) :
+- `Compare::between` n'existe pas : deux conditions (`ge` et `le`) suffisent.
+- Après une action qui déplace ou met à la corbeille, **l'évaluation de ce fichier s'arrête** (le §4 prévoyait que les règles suivantes voient le nouveau chemin) ; c'est plus sûr tant que l'exécuteur n'existe pas.
+- Dans une règle, les renommages s'enchaînent sur le nom courant ; entre règles, le premier renommage gagne et les suivants sont journalisés comme ignorés.
+- `AddDate` : `AAAA-MM-JJ Nom.ext` (préfixe) ou `Nom AAAA-MM-JJ.ext` (suffixe) ; `AddCounter` : `Nom_NNN.ext`.
+- `evaluate` suppose que l'appelant a déjà retiré les règles invalides (`rule_status`) ; un état d'information absent (dimensions, hachage, texte…) rend la condition fausse, jamais une erreur. L'appelant remplit `FileContext` seulement pour les conditions utilisées.
+- Une règle neuve est **en essai** par défaut (`trial: true`) ; `dry_run` marque les actions prévues d'une règle en essai ou contenant `log_only`.
+- La table des familles de fichiers (`rules/kinds.rs`) double celle de l'interface native ; à fusionner au lot 4.

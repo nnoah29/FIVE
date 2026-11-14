@@ -35,3 +35,9 @@
 - **Règles** : seuls les dossiers existants sous la racine apparaissent dans la barre (les autres restent listés dans les paramètres, marqués « introuvable ») ; un nom vide affiche le nom du dossier ; icône : celle du dossier détecté, sinon un dossier.
 - **Écart** : propre à l'interface native, la web garde la liste automatique.
 - **Retour arrière** : choisir « Automatique » (ou supprimer `side_folders`).
+
+## D-07 — Règles automatiques : lot 1 et dépendances (2026-11-14)
+- **Contexte** : `docs/REGLES.md` décrit un système de règles ; le lot 1 (types, stockage, validation, évaluateur) vit dans `five-engine`.
+- **Choix** : `serde` (avec dérivation) et `regex` ajoutés au moteur. Le catalogue compte plus de 110 variantes étiquetées en JSON : les écrire à la main serait long et fragile ; les deux crates étaient déjà dans le graphe (`serde_json`, interface native), aucun téléchargement nouveau. Évaluateur pur, une fonction par famille de conditions, informations coûteuses fournies par l'appelant.
+- **Raison** : refuser sans deviner (une variante inconnue est une erreur de lecture, la règle est conservée telle quelle dans `regles.json`) ; aucune écriture ni exécution dans ce lot, donc rien à annuler.
+- **Retour arrière** : retirer `engine/src/rules/` et les deux dépendances ; aucun autre module ne s'en sert.

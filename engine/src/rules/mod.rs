@@ -1,0 +1,32 @@
+//! Règles automatiques condition → action sur les fichiers (spécification `docs/REGLES.md`).
+
+pub mod context;
+pub mod eval;
+pub mod eval_content;
+pub mod eval_dates;
+pub mod eval_misc;
+pub mod eval_name;
+pub mod eval_nature;
+pub mod evaluate;
+pub mod glob;
+pub mod kinds;
+pub mod matcher;
+pub mod namedate;
+pub mod outcome;
+pub mod plan;
+pub mod plan_text;
+pub mod rename_ops;
+pub mod status;
+pub mod store;
+pub mod temp_names;
+pub mod template;
+pub mod time_calc;
+pub mod types_action;
+pub mod types_condition;
+pub mod types_matcher;
+pub mod types_rule;
+pub mod validate;
+pub mod validate_actions;
+pub mod validate_folders;
+pub mod validate_shape;
+pub mod validate_values;

@@ -30,3 +30,10 @@ pub fn local_fields(seconds: f64) -> (i32, u8, u8, u8, u8) {
 pub fn now_seconds() -> f64 {
     OffsetDateTime::now_utc().unix_timestamp() as f64
 }
+
+/// Jour de la semaine local d'un instant en secondes Unix (0 = lundi).
+pub fn local_weekday(seconds: f64) -> u8 {
+    let offset = OFFSET.get().copied().unwrap_or(UtcOffset::UTC);
+    let moment = OffsetDateTime::from_unix_timestamp(seconds as i64).unwrap_or(OffsetDateTime::UNIX_EPOCH).to_offset(offset);
+    moment.weekday().number_days_from_monday()
+}

@@ -13,7 +13,7 @@ MAX_LINES, MAX_FNS = 30, 6
 
 
 def strip_literals(line):
-    line = re.sub(r'r#*".*?"#*', '""', line)
+    line = re.sub(r'\br#*".*?"#*', '""', line)
     line = re.sub(r'"(\\.|[^"\\])*"', '""', line)
     return re.sub(r"'(\\.|[^'\\])'", "''", line)
 
