@@ -261,3 +261,10 @@ window.five .who-name, window.five .who-root { }
 window.five .tile .name { line-height: 1; }
 window.five .tile .meta { line-height: 0.91; }
 window.five .topbar.small { padding: 0 12px 0 12px; }
+window.five .badge { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 1.2px; padding: 2px 8px; border: 1px solid @line@; color: @muted@; }
+window.five .badge-active, window.five .badge-done { border-color: @accent@; color: @accent@; }
+window.five .badge-trial, window.five .badge-dry_run { color: @text@; }
+window.five .badge-invalid, window.five .badge-failed { border-color: #d9534f; color: #d9534f; }
+window.five .badge-disabled, window.five .badge-skipped { color: @dim@; }
+window.five .rule-reason { color: #d9534f; }
+window.five .hist-line { padding: 6px 0; border-top: 1px solid @line_soft@; }

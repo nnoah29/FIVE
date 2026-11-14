@@ -1,6 +1,7 @@
 //! Modèle de l'interface : logique pure, sans GTK.
 
 pub mod accent;
+pub mod bookmarks;
 pub mod color;
 pub mod format;
 pub mod hsl;
@@ -8,6 +9,8 @@ pub mod kinds;
 pub mod numbers;
 pub mod paths;
 pub mod rename_plan;
+pub mod rules_labels;
+pub mod rules_summary;
 pub mod session;
 pub mod settings;
 pub mod shortcuts;

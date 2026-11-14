@@ -42,6 +42,7 @@ impl App {
         let index: usize = arg.parse().unwrap_or(0);
         match name {
             "select" => self.select(index as isize, ModifierType::empty()),
+            "rulepreview" => self.open_rule_preview(arg),
             "zip" => self.archive_items("zip", &self.picked()),
             "unzip" => self.archive_items("unzip", &self.picked()),
             "range" => {

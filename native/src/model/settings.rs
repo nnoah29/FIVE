@@ -24,6 +24,7 @@ pub struct Settings {
     pub git: bool,
     pub restore: bool,
     pub wallpaper: bool,
+    pub rules_enabled: bool,
     pub side_folders: Option<Vec<SideFolder>>,
 }
 
@@ -45,6 +46,7 @@ impl Default for Settings {
             git: true,
             restore: true,
             wallpaper: true,
+            rules_enabled: true,
             side_folders: None,
         }
     }
@@ -83,6 +85,7 @@ impl Settings {
             git: flag("git", base.git),
             restore: flag("restore", base.restore),
             wallpaper: flag("wallpaper", base.wallpaper),
+            rules_enabled: flag("rules_enabled", base.rules_enabled),
             side_folders: parse_folders(&json["side_folders"]),
         }
     }
@@ -91,7 +94,7 @@ impl Settings {
     pub fn to_json(&self) -> Value {
         json!({"theme": self.theme, "view": self.view, "sort": self.sort, "ascending": self.ascending, "hidden": self.hidden,
             "binary_units": self.binary_units, "full_dates": self.full_dates, "thumbs": self.thumbs, "confirm_trash": self.confirm_trash,
-            "accent": self.accent, "compact": self.compact, "git": self.git, "restore": self.restore, "wallpaper": self.wallpaper,
+            "accent": self.accent, "compact": self.compact, "git": self.git, "restore": self.restore, "wallpaper": self.wallpaper, "rules_enabled": self.rules_enabled,
             "side_folders": self.side_folders.as_deref().map_or(Value::Null, folders_to_json)})
     }
 

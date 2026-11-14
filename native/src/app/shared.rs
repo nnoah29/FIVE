@@ -41,6 +41,7 @@ pub struct App {
     pub modals: RefCell<Vec<Modal>>,
     pub menu: RefCell<Option<Popover>>,
     pub jobs_view: RefCell<JobsView>,
+    pub rules: crate::rules::service::RulesUi,
 }
 
 /// Référence partagée vers l'application, clonée dans les gestionnaires.

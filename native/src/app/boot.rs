@@ -36,5 +36,6 @@ impl App {
         self.load(path, view);
         self.poll_jobs();
         self.watch_wallpaper();
+        self.start_rules_loop();
     }
 }

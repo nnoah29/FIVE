@@ -38,6 +38,12 @@ fn options() -> Options {
     out
 }
 
+/// Transferts partagés et service des règles, sur la même racine.
+fn services(root: &Root, home: &std::path::Path) -> (Arc<Jobs>, five_gtk::rules::service::RulesUi) {
+    let jobs = Arc::new(Jobs::new());
+    (jobs.clone(), five_gtk::rules::service::RulesUi::new(root.clone(), jobs, home))
+}
+
 /// Construit l'application : fenêtre, moteur, état, réglages, style.
 fn build_app(application: &Application, options: &Options) -> Option<Rc<App>> {
     let home = PathBuf::from(std::env::var("HOME").ok()?);
@@ -50,13 +56,14 @@ fn build_app(application: &Application, options: &Options) -> Option<Rc<App>> {
     }
     fonts::register(&ui.window);
     let user = std::env::var("USER").unwrap_or_default();
+    let (jobs, rules) = services(&root, &home);
     let state = State::new(root.path().to_string_lossy().into_owned(), user);
     Some(Rc::new(App {
         ui,
         st: RefCell::new(state),
         set: RefCell::new(Settings::load(&home)),
         root,
-        jobs: Arc::new(Jobs::new()),
+        jobs: jobs.clone(),
         provider,
         home,
         toast_gen: Cell::new(0),
@@ -65,6 +72,7 @@ fn build_app(application: &Application, options: &Options) -> Option<Rc<App>> {
         modals: RefCell::new(Vec::new()),
         menu: RefCell::new(None),
         jobs_view: RefCell::new(JobsView::default()),
+        rules,
     }))
 }
 

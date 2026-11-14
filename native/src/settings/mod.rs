@@ -6,6 +6,12 @@ pub mod display;
 pub mod folder_fields;
 pub mod folders;
 pub mod panels;
+pub mod rules_actions;
+pub mod rules_editor;
+pub mod rules_history;
+pub mod rules_panel;
+pub mod rules_preview;
+pub mod rules_row;
 pub mod visibility;
 
 use std::rc::Rc;
@@ -18,7 +24,8 @@ use crate::ui::buttons::icon_button;
 use crate::ui::classes::{clear, set_class};
 use crate::ui::widgets::{hbox, label, vbox};
 
-const TABS: [(&str, &str); 5] = [("display", "Affichage"), ("files", "Fichiers"), ("folders", "Dossiers"), ("keys", "Raccourcis"), ("system", "Système")];
+const TABS: [(&str, &str); 6] =
+    [("display", "Affichage"), ("files", "Fichiers"), ("folders", "Dossiers"), ("rules", "Règles"), ("keys", "Raccourcis"), ("system", "Système")];
 
 impl App {
     /// Ligne du haut : titre et bouton de fermeture.
@@ -33,7 +40,7 @@ impl App {
         top
     }
 
-    /// Onglets : Affichage, Fichiers, Dossiers, Raccourcis, Système.
+    /// Onglets : Affichage, Fichiers, Dossiers, Règles, Raccourcis, Système.
     fn settings_tabs(self: &Rc<Self>) -> gtk4::Box {
         let tabs = hbox(28);
         tabs.add_css_class("tabs");
@@ -59,6 +66,7 @@ impl App {
         let panel = match self.st.borrow().tab.as_str() {
             "files" => self.files_panel(),
             "folders" => self.folders_panel(),
+            "rules" => self.rules_panel(),
             "keys" => self.keys_panel(),
             "system" => self.system_panel(),
             _ => self.display_panel(),
