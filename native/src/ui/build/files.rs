@@ -12,6 +12,8 @@ fn view_switch() -> (gtk4::Box, gtk4::Button, gtk4::Button) {
     let frame = hbox(0);
     frame.add_css_class("seg");
     let (list, grid) = (icon_button("list", &["seg-btn"]), icon_button("grid", &["seg-btn"]));
+    list.set_tooltip_text(Some("Liste"));
+    grid.set_tooltip_text(Some("Grille"));
     for button in [&list, &grid] {
         button.remove_css_class("btn");
         button.remove_css_class("icon");
@@ -20,17 +22,26 @@ fn view_switch() -> (gtk4::Box, gtk4::Button, gtk4::Button) {
     (frame, list, grid)
 }
 
-/// En-tête de la section : titre, filtres, coller, bascule d'affichage.
+/// En-tête de la section : titre, filtres (défilants s'il manque de la place), coller, bascule d'affichage.
 fn head() -> (gtk4::Box, gtk4::Label, gtk4::Box, gtk4::Button, gtk4::Button, gtk4::Button) {
     let row = hbox(16);
     row.add_css_class("files-head");
     let title = label("Tous les fichiers", &["h2"]);
     title.set_hexpand(true);
     let pills = hbox(6);
+    let strip = ScrolledWindow::builder()
+        .hscrollbar_policy(PolicyType::External)
+        .vscrollbar_policy(PolicyType::Never)
+        .propagate_natural_width(true)
+        .child(&pills)
+        .build();
+    strip.set_valign(gtk4::Align::Center);
     let paste = text_button("Coller", Some("paste"), &[]);
     paste.set_visible(false);
+    paste.set_valign(gtk4::Align::Center);
     let (frame, list, grid) = view_switch();
-    for widget in [title.upcast_ref::<gtk4::Widget>(), pills.upcast_ref(), paste.upcast_ref(), frame.upcast_ref()] {
+    frame.set_valign(gtk4::Align::Center);
+    for widget in [title.upcast_ref::<gtk4::Widget>(), strip.upcast_ref(), paste.upcast_ref(), frame.upcast_ref()] {
         row.append(widget);
     }
     (row, title, pills, paste, list, grid)

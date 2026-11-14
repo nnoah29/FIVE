@@ -1,7 +1,7 @@
 //! Panneau de droite : espace du dossier ou aperçu de la sélection.
 
 use gtk4::prelude::*;
-use gtk4::{Align, PolicyType, ScrolledWindow};
+use gtk4::{Align, Overlay, PolicyType, ScrolledWindow};
 
 use crate::ui::buttons::icon_button;
 use crate::ui::handles::WorkUi;
@@ -9,7 +9,7 @@ use crate::ui::widgets::vbox;
 
 /// Panneau de droite vide, de 360 pixels de large.
 pub fn build_work() -> WorkUi {
-    let root = vbox(0);
+    let root = Overlay::new();
     root.add_css_class("work");
     root.set_size_request(360, -1);
     let body = vbox(18);
@@ -20,7 +20,9 @@ pub fn build_work() -> WorkUi {
     close.set_valign(Align::Start);
     close.set_margin_top(12);
     close.set_margin_end(12);
+    close.set_tooltip_text(Some("Fermer ( Échap )"));
     close.set_visible(false);
-    root.append(&scroll);
+    root.set_child(Some(&scroll));
+    root.add_overlay(&close);
     WorkUi { root, body, close }
 }

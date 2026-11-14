@@ -8,10 +8,11 @@ use crate::ui::handles::Ui;
 use crate::ui::widgets::{hbox, label, vbox};
 
 /// Zone des fichiers avec le panneau de droite posé par-dessus, à droite.
-fn lower_area(files: &gtk4::Box, work: &gtk4::Box) -> Overlay {
+fn lower_area(files: &gtk4::Box, work: &Overlay) -> Overlay {
     let lower = Overlay::new();
     files.set_margin_end(0);
-    lower.set_child(Some(files));
+    let scroller = ScrolledWindow::builder().hscrollbar_policy(PolicyType::External).vscrollbar_policy(PolicyType::Never).child(files).build();
+    lower.set_child(Some(&scroller));
     work.set_halign(Align::End);
     lower.add_overlay(work);
     lower.set_vexpand(true);
@@ -71,6 +72,10 @@ pub fn build_ui(app: &gtk4::Application) -> Ui {
     let overlay = Overlay::new();
     overlay.set_child(Some(&page));
     let (toast, transfers) = floating(&overlay);
+    let scrim = vbox(0);
+    scrim.add_css_class("scrim");
+    scrim.set_visible(false);
+    overlay.add_overlay(&scrim);
     window.set_child(Some(&overlay));
-    Ui { window, overlay, side, side_scroll, top, folders, files, work, stack, content, settings, toast, transfers, lower }
+    Ui { window, overlay, side, side_scroll, page, scrim, top, folders, files, work, stack, content, settings, toast, transfers, lower }
 }

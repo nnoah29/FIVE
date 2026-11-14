@@ -9,6 +9,9 @@ use super::shared::App;
 /// Largeur en dessous de laquelle le panneau de droite devient un tiroir.
 pub const MEDIUM: i32 = 1100;
 
+/// Largeur en dessous de laquelle la barre latérale devient un tiroir.
+pub const NARROW: i32 = 880;
+
 impl App {
     /// Indique si la fenêtre est assez étroite pour que le panneau de droite soit un tiroir.
     pub fn narrow_work(&self) -> bool {
@@ -25,15 +28,26 @@ impl App {
         if self.narrow_work() {
             self.ui.work.root.set_visible(false);
         }
+        if self.narrow_side() {
+            self.ui.side_scroll.set_visible(false);
+            self.ui.scrim.set_visible(false);
+        }
     }
 
     /// Adapte la disposition à la largeur de la fenêtre.
     pub fn apply_layout(self: &Rc<Self>) {
         let narrow = self.narrow_work();
+        let narrow_side = self.narrow_side();
+        self.place_side(narrow_side);
+        if self.compact.replace(narrow_side) != narrow_side {
+            self.render(None);
+        }
+        self.ui.top.menu.set_visible(narrow_side);
         self.ui.work.close.set_visible(narrow);
         self.ui.files.root.set_margin_end(if narrow { 0 } else { 360 });
         let has_pick = !self.st.borrow().picked.is_empty();
         self.ui.work.root.set_visible(!narrow || has_pick);
-        self.ui.top.user.set_visible(self.ui.window.width() > 760);
+        self.ui.top.user.set_visible(!narrow_side);
+        self.ui.top.who.set_visible(!narrow);
     }
 }

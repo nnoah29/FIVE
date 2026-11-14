@@ -56,7 +56,7 @@ impl App {
         box_.append(&summary);
         let groups = data["groups"].as_array().cloned().unwrap_or_default();
         let marked: Marked = Rc::new(RefCell::new(initial_marks(&data)));
-        let confirm: Button = text_button("", Some("trash2"), &["go"]);
+        let confirm: Button = text_button("Mettre à la corbeille", Some("trash2"), &["go"]);
         let refresh = self.dup_refresh(&data, &marked, &summary, &confirm);
         if !groups.is_empty() {
             let list = vbox(14);

@@ -14,12 +14,13 @@ pub fn build_folders() -> FoldersUi {
     title.set_ellipsize(gtk4::pango::EllipsizeMode::End);
     title.set_halign(gtk4::Align::Fill);
     let crumbs = hbox(0);
-    crumbs.add_css_class("crumbs");
     let cards = hbox(12);
     let scroll = ScrolledWindow::builder().hscrollbar_policy(PolicyType::Automatic).vscrollbar_policy(PolicyType::Never).child(&cards).build();
     scroll.add_css_class("cards");
     root.append(&title);
-    root.append(&crumbs);
+    let crumb_scroll = ScrolledWindow::builder().hscrollbar_policy(PolicyType::External).vscrollbar_policy(PolicyType::Never).child(&crumbs).build();
+    crumb_scroll.add_css_class("crumbs");
+    root.append(&crumb_scroll);
     root.append(&scroll);
     FoldersUi { root, title, crumbs, cards }
 }

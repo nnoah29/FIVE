@@ -7,6 +7,7 @@ use gtk4::gdk::ModifierType;
 use gtk4::glib;
 use gtk4::prelude::*;
 
+use super::demo_find::{find_class, find_widget};
 use super::shared::App;
 use crate::ui::capture::save_png;
 
@@ -21,6 +22,11 @@ impl App {
             "compact" => self.change_setting(|s| s.compact = arg == "1"),
             "filter" => self.toggle_filter(arg),
             "search" => self.ui.top.search.set_text(arg),
+            "side" => self.open_side(),
+            "size" => {
+                let (w, h) = arg.split_once('x').unwrap_or(("1500", "900"));
+                self.ui.window.set_default_size(w.parse().unwrap_or(1500), h.parse().unwrap_or(900));
+            }
             "tab" => {
                 self.st.borrow_mut().tab = arg.to_string();
                 self.render_settings();
@@ -45,15 +51,36 @@ impl App {
             "quicklook" => self.quick_look(None),
             "usage" => self.analyse_usage(),
             "dups" => self.find_duplicates(),
-            "rename" => self.rename_items(self.st.borrow().picked_items()),
-            "mkdir" => self.create_folder(),
-            "delete" => self.delete_items(self.st.borrow().picked_items()),
+            "rename" => self.rename_items(self.picked()),
+            "delete" => self.delete_items(self.picked()),
             "menu" => {
                 let item = self.st.borrow().shown.get(index).cloned();
                 if let (Some(item), Some(row)) = (item, self.row_widgets().get(index).cloned()) {
                     self.open_menu_at(&row, &item, Some(index));
                 }
             }
+            _ => self.demo_dialog(name, arg),
+        }
+    }
+
+    /// Commandes de démonstration des dialogues et du presse-papiers.
+    fn demo_dialog(self: &Rc<Self>, name: &str, arg: &str) {
+        match name {
+            "mkdir" => self.create_folder(),
+            "input" => {
+                if let Some(entry) = self.modals.borrow().last().and_then(|m| find_widget::<gtk4::Entry>(m.dialog.upcast_ref())) {
+                    entry.set_text(arg);
+                }
+            }
+            "confirm" => {
+                let button = self.modals.borrow().last().and_then(|m| find_class(m.dialog.upcast_ref(), "go"));
+                if let Some(button) = button.and_then(|b| b.downcast::<gtk4::Button>().ok()) {
+                    button.emit_clicked();
+                }
+            }
+            "copy" => self.set_clip("copy", &self.picked()),
+            "cut" => self.set_clip("move", &self.picked()),
+            "paste" => self.paste_clip(),
             _ => {}
         }
     }

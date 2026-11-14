@@ -5,10 +5,12 @@ Gestionnaire de fichiers Linux léger, en Rust, même direction artistique que M
 ## Disposition
 - `engine/` : crate `five-engine`, logique pure sur les fichiers, aucun réseau.
 - `server/` : crate `five-server`, binaire `five`, coque HTTP locale qui sert `web/` et expose l'API.
-- `web/` : interface (HTML/CSS/JS sans dépendance).
+- `web/` : interface web (HTML/CSS/JS sans dépendance), maquette de référence.
+- `native/` : crate `five-gtk`, interface native GTK 4 fidèle à `web/`, branchée directement sur `five-engine` (aucun réseau). `native/src/model/` = logique pure testée ; `app/` = comportements ; `render/`, `preview/`, `settings/` = régions de la fenêtre ; `ui/` = widgets, icônes cairo, thème (`ui/style.css`).
 - `tools/check-norms` : normes de code (fonction ≤ 30 lignes, ≤ 6 fonctions par fichier, une ligne `///` par fonction, aucun commentaire dans un corps, zéro `unwrap`/`expect`/`panic!`/`unsafe` hors tests).
 
 ## Commandes
+- `cargo run -p five-gtk --release -- [--root DOSSIER]` lance l'interface native ; `five-gtk --shot fichier.png=go:chemin,select:1,settings …` produit des captures pilotées par script (voir `docs/NATIF.md`).
 - `cargo test -p five-engine --test <famille>` (tests ciblés), `cargo clippy --all-targets -- -D warnings`, `cargo fmt`, `python3 tools/check-norms`.
 - `./ci.sh` regroupe le tout ; ne le lancer que sur accord de l'utilisateur.
 

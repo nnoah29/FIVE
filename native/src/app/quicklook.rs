@@ -78,6 +78,7 @@ impl App {
         modal.dialog.add_css_class("ql");
         let (title, zone) = (label("", &["h2"]), vbox(8));
         title.set_hexpand(true);
+        title.set_halign(gtk4::Align::Fill);
         title.set_ellipsize(gtk4::pango::EllipsizeMode::End);
         zone.add_css_class("preview");
         zone.set_vexpand(true);

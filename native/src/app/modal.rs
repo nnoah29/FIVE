@@ -23,6 +23,7 @@ impl App {
         dialog.set_size_request(width, -1);
         dialog.set_halign(Align::Center);
         dialog.set_valign(if top { Align::Start } else { Align::Center });
+        dialog.set_vexpand(!top);
         if top {
             dialog.set_margin_top(90);
         }

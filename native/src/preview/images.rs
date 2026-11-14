@@ -15,7 +15,7 @@ pub type Decoded = Option<((i32, i32), (i32, i32, i32, bool, gtk4::glib::Bytes))
 /// Lit l'image réduite à `limit` pixels de côté et ses dimensions d'origine.
 pub fn decode_image(path: PathBuf, limit: i32) -> Decoded {
     let (_, width, height) = Pixbuf::file_info(&path)?;
-    let pixbuf = Pixbuf::from_file_at_scale(&path, limit, limit, true).ok()?;
+    let pixbuf = if width <= limit && height <= limit { Pixbuf::from_file(&path).ok()? } else { Pixbuf::from_file_at_scale(&path, limit, limit, true).ok()? };
     Some(((width, height), (pixbuf.width(), pixbuf.height(), pixbuf.rowstride(), pixbuf.has_alpha(), pixbuf.read_pixel_bytes())))
 }
 

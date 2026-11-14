@@ -43,7 +43,14 @@ impl App {
         on_click(&self.ui.files.view_grid, self, |app| app.set_view("grid"));
         on_click(&self.ui.files.paste, self, |app| app.paste_clip());
         on_click(&self.ui.work.close, self, |app| app.ui.work.root.set_visible(false));
-        on_click(&self.ui.top.menu, self, |app| app.ui.side_scroll.set_visible(true));
+        on_click(&self.ui.top.menu, self, |app| app.open_side());
         self.wire_search();
+        let (weak, click) = (Rc::downgrade(self), gtk4::GestureClick::new());
+        click.connect_pressed(move |_, _, _, _| {
+            if let Some(app) = weak.upgrade() {
+                app.close_drawers();
+            }
+        });
+        self.ui.scrim.add_controller(click);
     }
 }

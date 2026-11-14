@@ -25,6 +25,7 @@ pub struct TopUi {
     pub user_name: Label,
     pub user_root: Label,
     pub user: GtkBox,
+    pub who: GtkBox,
 }
 
 /// Section des dossiers : titre, fil d'Ariane, cartes.
@@ -50,7 +51,7 @@ pub struct FilesUi {
 
 /// Panneau de droite : espace et aperçu.
 pub struct WorkUi {
-    pub root: GtkBox,
+    pub root: Overlay,
     pub body: GtkBox,
     pub close: Button,
 }
@@ -61,6 +62,8 @@ pub struct Ui {
     pub overlay: Overlay,
     pub side: SideUi,
     pub side_scroll: ScrolledWindow,
+    pub page: GtkBox,
+    pub scrim: GtkBox,
     pub top: TopUi,
     pub folders: FoldersUi,
     pub files: FilesUi,

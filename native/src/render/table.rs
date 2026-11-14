@@ -42,7 +42,12 @@ impl App {
         let name = self.column_button(SortKey::Name, "Nom");
         name.set_hexpand(true);
         head.append(&name);
-        for (key, text, width) in [(SortKey::Kind, "Type", tag), (SortKey::Size, "Taille", size), (SortKey::Modified, "Modifié", date)] {
+        let columns = if self.compact.get() {
+            vec![(SortKey::Size, "Taille", 72)]
+        } else {
+            vec![(SortKey::Kind, "Type", tag), (SortKey::Size, "Taille", size), (SortKey::Modified, "Modifié", date)]
+        };
+        for (key, text, width) in columns {
             let column = self.column_button(key, text);
             column.set_halign(Align::Fill);
             head.append(&fixed(width, &column));

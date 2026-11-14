@@ -37,6 +37,7 @@ pub struct App {
     pub home: PathBuf,
     pub toast_gen: Cell<u64>,
     pub search_gen: Cell<u64>,
+    pub compact: Cell<bool>,
     pub modals: RefCell<Vec<Modal>>,
     pub menu: RefCell<Option<Popover>>,
     pub jobs_view: RefCell<JobsView>,

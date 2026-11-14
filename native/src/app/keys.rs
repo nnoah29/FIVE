@@ -46,8 +46,8 @@ impl App {
             Some('p' | 'k') => self.open_palette(),
             Some(c) if !self.typing() && !self.st.borrow().settings_open && "acxv".contains(c) => match c {
                 'a' => self.select_all(),
-                'c' => self.set_clip("copy", &self.st.borrow().picked_items()),
-                'x' => self.set_clip("move", &self.st.borrow().picked_items()),
+                'c' => self.set_clip("copy", &self.picked()),
+                'x' => self.set_clip("move", &self.picked()),
                 _ => self.paste_clip(),
             },
             _ => return false,
@@ -66,14 +66,17 @@ impl App {
             }
             Key::j | Key::Down => self.move_sel(1),
             Key::k | Key::Up => self.move_sel(-1),
-            Key::Return | Key::KP_Enter => self.open_index(self.st.borrow().sel.max(0) as usize),
+            Key::Return | Key::KP_Enter => {
+                let index = self.st.borrow().sel.max(0) as usize;
+                self.open_index(index)
+            }
             Key::BackSpace | Key::h => self.go_up(),
             Key::period => self.toggle_hidden(),
             Key::c => self.create_folder(),
             Key::comma => self.toggle_settings(),
-            Key::Delete | Key::numbersign => self.delete_items(self.st.borrow().picked_items()),
+            Key::Delete | Key::numbersign => self.delete_items(self.picked()),
             Key::space => self.quick_look(None),
-            Key::F2 => self.rename_items(self.st.borrow().picked_items()),
+            Key::F2 => self.rename_items(self.picked()),
             _ => return false,
         }
         true

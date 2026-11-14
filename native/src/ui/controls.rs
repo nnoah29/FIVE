@@ -1,23 +1,21 @@
 //! Contrôles de formulaire : case à cocher carrée, bouton d'un groupe segmenté.
 
+use gtk4::Button;
 use gtk4::prelude::*;
-use gtk4::{Box as GtkBox, Button};
 
-use super::classes::set_class;
+use super::classes::{centered, set_class};
 use super::icon::icon_with_stroke;
 
 /// Case à cocher carrée, cochée ou non.
 pub fn tick(on: bool) -> Button {
     let button = Button::new();
     button.add_css_class("tick");
-    let frame = GtkBox::new(gtk4::Orientation::Horizontal, 0);
+    button.set_hexpand(false);
+    button.set_halign(gtk4::Align::Center);
+    let frame = centered(14, 14, &icon_with_stroke("check", 10, 2.6));
     frame.add_css_class("tick-box");
     frame.set_halign(gtk4::Align::Center);
     frame.set_valign(gtk4::Align::Center);
-    frame.set_size_request(14, 14);
-    let mark = icon_with_stroke("check", 10, 2.6);
-    mark.set_hexpand(true);
-    frame.append(&mark);
     button.set_child(Some(&frame));
     set_tick(&button, on);
     button

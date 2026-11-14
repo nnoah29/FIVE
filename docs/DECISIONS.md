@@ -14,3 +14,10 @@
 - Liens symboliques vers un dossier : comptés comme fichiers dans l'occupation et les doublons.
 - `/api/info` renvoie `engine` à la place de `python`.
 - La chaîne de session, le cookie et les en-têtes de protection sont identiques (voir `API.md`).
+
+## D-04 — Interface native GTK 4 à parité avec l'interface web (2026-11-14)
+- **Contexte** : l'objectif est une vraie application légère ; l'interface web est la maquette validée.
+- **Choix** : crate `five-gtk` (gtk4-rs 0.11), appel direct de `five-engine` (travail bloquant dans `gio::spawn_blocking`), feuille de style GTK adaptée de `web/style.css` (mêmes jetons, thème clair/sombre, couleur principale, densité), icônes SVG dessinées avec cairo (recolorables par CSS), polices Anton / Hanken Grotesk / JetBrains Mono embarquées et déclarées à Pango.
+- **Écarts assumés** : « Télécharger » devient « Enregistrer une copie… » ; le réglage « ouvrir dans un nouvel onglet » et la session HTTP disparaissent (onglet Système à la place de Serveur) ; l'aperçu PDF utilise `pdftoppm` s'il est installé ; le tiroir de la barre latérale apparaît à 880 px (et non 760 px) car la barre du haut impose ~870 px de largeur minimale.
+- **Vérification visuelle** : `five-gtk --shot` rend la fenêtre en PNG (sous Xvfb : `xvfb-run -a env GDK_BACKEND=x11 GSK_RENDERER=cairo five-gtk --shot …`), sans dépendre d'un outil externe.
+- **Retour arrière** : `server/` + `web/` restent complets et servent la même interface dans un navigateur.

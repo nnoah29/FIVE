@@ -13,7 +13,7 @@ pub fn commands(app: &Rc<App>) -> Vec<(String, String, Option<&'static str>, Act
         ("plus".into(), "Nouveau dossier".into(), Some("c"), act(|a| a.create_folder())),
         ("up".into(), "Dossier parent".into(), Some("h"), act(|a| a.go_up())),
         ("paste".into(), "Coller".into(), Some("Ctrl V"), act(|a| a.paste_clip())),
-        ("pen".into(), "Renommer la sélection".into(), Some("F2"), act(|a| a.rename_items(a.st.borrow().picked_items()))),
+        ("pen".into(), "Renommer la sélection".into(), Some("F2"), act(|a| a.rename_items(a.picked()))),
         ("gear".into(), "Ouvrir les paramètres".into(), Some(","), act(|a| a.toggle_settings())),
         ("sun".into(), "Basculer le thème clair / sombre".into(), None, act(|a| a.toggle_theme())),
         ("eye".into(), "Afficher ou masquer les fichiers cachés".into(), Some("."), act(|a| a.toggle_hidden())),

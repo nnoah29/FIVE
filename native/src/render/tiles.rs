@@ -4,9 +4,9 @@ use std::rc::Rc;
 
 use five_engine::entry::Entry;
 use gtk4::prelude::*;
-use gtk4::{Align, Box as GtkBox, FlowBox, Picture, SelectionMode};
+use gtk4::{Align, Box as GtkBox, FlowBox, Overlay, Picture, SelectionMode};
 
-use super::rows::attach_press;
+use super::press::attach_press;
 use crate::app::shared::App;
 use crate::model::format::format_size;
 use crate::model::kinds::{kind_icon, kind_of};
@@ -14,24 +14,23 @@ use crate::ui::icon::icon_with_stroke;
 use crate::ui::widgets::{label, vbox};
 
 impl App {
-    /// Cadre de la vignette : image chargée en arrière-plan pour les images, icône sinon.
-    fn thumb_for(self: &Rc<Self>, item: &Entry) -> GtkBox {
-        let frame = GtkBox::new(gtk4::Orientation::Horizontal, 0);
+    /// Cadre de la vignette : image chargée en arrière-plan pour les images (en surimpression, pour ne pas peser sur la largeur), icône sinon.
+    fn thumb_for(self: &Rc<Self>, item: &Entry) -> Overlay {
+        let base = GtkBox::new(gtk4::Orientation::Horizontal, 0);
+        base.set_size_request(-1, 92);
+        let frame = Overlay::new();
         frame.add_css_class("thumb");
-        frame.set_size_request(-1, 92);
-        frame.set_hexpand(true);
+        frame.set_child(Some(&base));
         frame.set_overflow(gtk4::Overflow::Hidden);
         let (kind, thumbs) = (kind_of(item), self.set.borrow().thumbs);
         if kind == "image" && thumbs && item.size < 30_000_000 {
             let picture = Picture::new();
             picture.set_content_fit(gtk4::ContentFit::Cover);
-            picture.set_hexpand(true);
-            frame.append(&picture);
+            frame.add_overlay(&picture);
             self.load_thumb(&item.path, picture);
         } else {
             let glyph = icon_with_stroke(if item.is_link { "link" } else { kind_icon(kind) }, 30, 1.6);
-            glyph.set_hexpand(true);
-            frame.append(&glyph);
+            frame.add_overlay(&glyph);
         }
         frame
     }

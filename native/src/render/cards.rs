@@ -67,6 +67,8 @@ impl App {
         let card = Overlay::new();
         card.add_css_class("card");
         card.set_size_request(200, -1);
+        card.set_hexpand(false);
+        card.set_halign(Align::Start);
         card.set_child(Some(&self.card_main(dir)));
         card.add_overlay(&dots);
         card

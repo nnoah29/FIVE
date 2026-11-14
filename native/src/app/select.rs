@@ -6,10 +6,17 @@ use gtk4::gdk::ModifierType;
 use gtk4::prelude::*;
 use gtk4::{FlowBox, Widget};
 
+use five_engine::entry::Entry;
+
 use super::shared::App;
 use crate::ui::classes::set_class;
 
 impl App {
+    /// Copie des éléments sélectionnés (le verrou de l'état est relâché avant tout appel).
+    pub fn picked(&self) -> Vec<Entry> {
+        self.st.borrow().picked_items()
+    }
+
     /// Widgets des lignes ou tuiles affichées, dans l'ordre de `shown`.
     pub fn row_widgets(&self) -> Vec<Widget> {
         let items = &self.ui.files.items;

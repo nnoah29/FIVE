@@ -61,6 +61,7 @@ fn build_app(application: &Application, options: &Options) -> Option<Rc<App>> {
         home,
         toast_gen: Cell::new(0),
         search_gen: Cell::new(0),
+        compact: Cell::new(false),
         modals: RefCell::new(Vec::new()),
         menu: RefCell::new(None),
         jobs_view: RefCell::new(JobsView::default()),
