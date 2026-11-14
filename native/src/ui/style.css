@@ -145,6 +145,7 @@ window.five .sheet { background-color: @surface@; border: 1px solid @line@; }
 window.five .preview { min-height: 140px; background-color: @surface@; border: 1px solid @line@; }
 window.five .preview.none { color: @dim@; font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 1.5px; }
 window.five .preview-text { font-family: "JetBrains Mono", monospace; font-size: 12px; color: @body@; padding: 14px 16px; }
+window.five textview.preview-text, window.five textview.preview-text text { background-color: transparent; color: @body@; }
 window.five .fact-k { padding: 9px 14px; border-bottom: 1px solid @line_soft@; font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 1.5px; color: @dim@; }
 window.five .fact-v { padding: 9px 14px; border-bottom: 1px solid @line_soft@; color: @text@; font-size: 14px; }
 window.five .gauge-read-b { font-family: "Anton", sans-serif; font-size: 40px; letter-spacing: 0.8px; color: @text@; }

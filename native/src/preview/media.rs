@@ -4,14 +4,14 @@ use std::rc::Rc;
 
 use five_engine::entry::Entry;
 use gtk4::prelude::*;
-use gtk4::{Align, Box as GtkBox, PolicyType, ScrolledWindow};
+use gtk4::{Align, Box as GtkBox, PolicyType, ScrolledWindow, TextView};
 
 use super::facts::Facts;
 use crate::app::shared::App;
 use crate::model::kinds::{extension, kind_icon};
 use crate::ui::classes::clear;
 use crate::ui::icon::icon_with_stroke;
-use crate::ui::widgets::{label, mono};
+use crate::ui::widgets::mono;
 
 /// Indique si le nom est celui d'une archive que le moteur sait lister.
 pub fn is_archive(name: &str) -> bool {
@@ -39,11 +39,13 @@ pub fn none_state(zone: &GtkBox, kind: &str, text: &str) {
 pub fn show_text(zone: &GtkBox, text: &str, height: i32) {
     clear(zone);
     zone.remove_css_class("none");
-    let body = label(text, &["preview-text"]);
-    body.set_wrap(true);
-    body.set_wrap_mode(gtk4::pango::WrapMode::Char);
-    body.set_selectable(true);
-    body.set_yalign(0.0);
+    let body = TextView::new();
+    body.add_css_class("preview-text");
+    body.buffer().set_text(text);
+    body.set_editable(false);
+    body.set_cursor_visible(false);
+    body.set_focusable(false);
+    body.set_wrap_mode(gtk4::WrapMode::Char);
     let scroll = ScrolledWindow::builder().hscrollbar_policy(PolicyType::Never).max_content_height(height).propagate_natural_height(true).child(&body).build();
     scroll.set_hexpand(true);
     zone.append(&scroll);
