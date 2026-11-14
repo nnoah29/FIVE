@@ -57,7 +57,11 @@ impl App {
         on_click(&pen, self, move |app| app.rename_items(vec![rename.clone()]));
         let trash = text_button(if in_trash(&item.path) { "Supprimer définitivement" } else { "Mettre à la corbeille" }, Some("trash2"), &[]);
         on_click(&trash, self, move |app| app.delete_items(vec![delete.clone()]));
-        for button in [primary, copy, pen, trash] {
+        row.append(&primary);
+        if let Some(button) = self.archive_button(std::slice::from_ref(item)) {
+            row.append(&button);
+        }
+        for button in [copy, pen, trash] {
             row.append(&button);
         }
         actions.append(&row);

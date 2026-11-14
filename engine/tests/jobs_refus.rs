@@ -17,7 +17,7 @@ fn start_refuses_invalid_requests() {
     sandbox.write("f", "1");
     let (root, jobs) = (sandbox.root(), Jobs::new());
     let code = |kind: &str, src: &[&str], dest: &str| start_job(&root, &jobs, kind, &paths(src), dest).unwrap_err().code;
-    assert_eq!(code("zip", &["f"], "d"), 400);
+    assert_eq!(code("rar", &["f"], "d"), 400);
     assert_eq!(code("copy", &["d"], "d/sous"), 400);
     assert_eq!(code("copy", &["f"], "f"), 400);
     assert_eq!(code("move", &["d/x"], "d"), 400);

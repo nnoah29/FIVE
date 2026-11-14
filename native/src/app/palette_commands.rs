@@ -14,6 +14,8 @@ pub fn commands(app: &Rc<App>) -> Vec<(String, String, Option<&'static str>, Act
         ("up".into(), "Dossier parent".into(), Some("h"), act(|a| a.go_up())),
         ("paste".into(), "Coller".into(), Some("Ctrl V"), act(|a| a.paste_clip())),
         ("pen".into(), "Renommer la sélection".into(), Some("F2"), act(|a| a.rename_items(a.picked()))),
+        ("archive".into(), "Compresser la sélection en .zip".into(), None, act(|a| a.archive_items("zip", &a.picked()))),
+        ("archive".into(), "Extraire l'archive sélectionnée".into(), None, act(|a| a.archive_items("unzip", &a.picked()))),
         ("gear".into(), "Ouvrir les paramètres".into(), Some(","), act(|a| a.toggle_settings())),
         ("sun".into(), "Basculer le thème clair / sombre".into(), None, act(|a| a.toggle_theme())),
         ("eye".into(), "Afficher ou masquer les fichiers cachés".into(), Some("."), act(|a| a.toggle_hidden())),

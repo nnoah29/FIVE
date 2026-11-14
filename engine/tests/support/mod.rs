@@ -1,6 +1,8 @@
 //! Bac à sable de test : un faux dossier personnel jetable qui sert aussi de racine.
 #![allow(dead_code)]
 
+pub mod zip_bytes;
+
 use std::fs;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU32, Ordering};

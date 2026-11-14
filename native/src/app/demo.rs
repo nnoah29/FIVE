@@ -42,6 +42,8 @@ impl App {
         let index: usize = arg.parse().unwrap_or(0);
         match name {
             "select" => self.select(index as isize, ModifierType::empty()),
+            "zip" => self.archive_items("zip", &self.picked()),
+            "unzip" => self.archive_items("unzip", &self.picked()),
             "range" => {
                 let (a, b) = arg.split_once('-').unwrap_or(("0", "0"));
                 self.select(a.parse().unwrap_or(0), ModifierType::empty());

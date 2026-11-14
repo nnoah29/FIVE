@@ -13,7 +13,7 @@ use crate::model::paths::in_trash;
 use crate::ui::widgets::{label, text_button};
 
 impl App {
-    /// Boutons d'actions groupées : renommer, copier, couper, supprimer.
+    /// Boutons d'actions groupées : renommer, copier, couper, compresser, supprimer.
     fn batch_buttons(self: &Rc<Self>, items: &[Entry], definitive: bool) -> gtk4::FlowBox {
         let flow = gtk4::FlowBox::new();
         flow.set_selection_mode(gtk4::SelectionMode::None);
@@ -23,6 +23,7 @@ impl App {
             ("Renommer", "pen", "go"),
             ("Copier", "copy", ""),
             ("Couper", "cut", ""),
+            ("Compresser en .zip", "archive", ""),
             (if definitive { "Supprimer définitivement" } else { "Mettre à la corbeille" }, "trash2", ""),
         ];
         for (at, (text, icon, class)) in buttons.iter().enumerate() {
@@ -33,6 +34,7 @@ impl App {
                 0 => app.rename_items(list.clone()),
                 1 => app.set_clip("copy", &list),
                 2 => app.set_clip("move", &list),
+                3 => app.archive_items("zip", &list),
                 _ => app.delete_items(list.clone()),
             });
             flow.append(&button);

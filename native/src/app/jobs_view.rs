@@ -5,6 +5,7 @@ use std::rc::Rc;
 use gtk4::prelude::*;
 use serde_json::Value;
 
+use super::job_title::job_title;
 use super::shared::{App, on_click};
 use crate::ui::buttons::icon_button;
 use crate::ui::widgets::{hbox, label, vbox};
@@ -44,8 +45,7 @@ impl App {
         let card = vbox(8);
         card.add_css_class("job");
         let top = hbox(8);
-        let kind = if job["kind"] == "copy" { "Copie" } else { "Déplacement" };
-        let title = label(&format!("{kind} de {} élément(s)", job["count"]), &["job-title"]);
+        let title = label(&job_title(job), &["job-title"]);
         title.set_hexpand(true);
         top.append(&title);
         self.job_buttons(&top, job, &id, state);

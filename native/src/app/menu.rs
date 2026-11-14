@@ -37,6 +37,7 @@ impl App {
             let target = it.clone();
             out.push(MenuEntry::new("copy", "Copier le chemin", move |app| app.copy_path(&target)));
         }
+        out.extend(self.archive_entries(&targets));
         let (copy, cut, rename, delete) = (targets.clone(), targets.clone(), targets.clone(), targets);
         out.push(MenuEntry::new("copy", "Copier", move |app| app.set_clip("copy", &copy)).hint("Ctrl C"));
         out.push(MenuEntry::new("cut", "Couper", move |app| app.set_clip("move", &cut)).hint("Ctrl X"));

@@ -14,7 +14,7 @@ densité, session restaurée.
 ## Captures pilotées par script
 `five-gtk --root /home/nnoah --shot sortie.png=go:_WORKS/DeV/FIVE,select:1 --shot autre.png=settings,tab:keys`
 Commandes : `go:CHEMIN` `view:list|grid` `theme:light|dark|system` `accent:#rrggbb` `compact:1` `select:N` `range:A-B`
-`settings` `tab:display|files|keys|system` `palette` `quicklook` `usage` `dups` `rename` `mkdir` `delete`
+`settings` `tab:display|files|keys|system` `palette` `quicklook` `usage` `dups` `rename` `mkdir` `delete` `zip` `unzip`
 `input:TEXTE` `confirm` `copy` `cut` `paste` `filter:ID` `search:TEXTE` `size:LxH` `side`.
 Une étape toutes les 900 ms ; les animations CSS sont coupées pendant les captures.
 

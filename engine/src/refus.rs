@@ -34,6 +34,9 @@ impl From<Error> for Refus {
             ErrorKind::PermissionDenied => Refus::new(403, "Accès refusé par le système"),
             ErrorKind::NotFound | ErrorKind::NotADirectory => Refus::new(404, "Élément introuvable"),
             ErrorKind::AlreadyExists => Refus::new(409, "Un élément de ce nom existe déjà"),
+            ErrorKind::InvalidData | ErrorKind::UnexpectedEof => Refus::new(400, "Archive illisible, abîmée ou dangereuse"),
+            ErrorKind::Unsupported => Refus::new(400, "Format d'archive non pris en charge (chiffrement, zip64, bz2, xz)"),
+            ErrorKind::FileTooLarge => Refus::new(413, "Trop volumineux pour une archive (4 Go par fichier et 65 535 entrées en zip, 100 Go extraits)"),
             _ => Refus::new(500, "Erreur système"),
         }
     }

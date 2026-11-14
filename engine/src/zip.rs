@@ -10,7 +10,7 @@ const ENTRY_SIGNATURE: [u8; 4] = [0x50, 0x4b, 0x01, 0x02];
 pub type Member = (String, u64, bool);
 
 /// Lit un entier little-endian de `width` octets à `at`.
-fn le(bytes: &[u8], at: usize, width: usize) -> Option<usize> {
+pub fn le(bytes: &[u8], at: usize, width: usize) -> Option<usize> {
     let slice = bytes.get(at..at + width)?;
     Some(slice.iter().rev().fold(0usize, |acc, byte| (acc << 8) | *byte as usize))
 }
@@ -21,7 +21,7 @@ pub fn is_zip(head: &[u8]) -> bool {
 }
 
 /// Lit la fin du fichier et retourne (nombre d'entrées, taille et position du répertoire central).
-fn end_record(file: &mut File) -> io::Result<(usize, usize, u64)> {
+pub fn end_record(file: &mut File) -> io::Result<(usize, usize, u64)> {
     let length = file.metadata()?.len();
     let start = length.saturating_sub(70_000);
     file.seek(SeekFrom::Start(start))?;

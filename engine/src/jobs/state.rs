@@ -7,6 +7,8 @@ use std::io;
 pub enum Kind {
     Copy,
     Move,
+    Zip,
+    Unzip,
 }
 
 /// État d'un transfert.
@@ -27,18 +29,25 @@ pub enum Stop {
 }
 
 impl Kind {
-    /// Reconnaît `copy` ou `move`.
+    /// Reconnaît `copy`, `move`, `zip` ou `unzip`.
     pub fn parse(text: &str) -> Option<Kind> {
         match text {
             "copy" => Some(Kind::Copy),
             "move" => Some(Kind::Move),
+            "zip" => Some(Kind::Zip),
+            "unzip" => Some(Kind::Unzip),
             _ => None,
         }
     }
 
     /// Nom du type tel que l'API le renvoie.
     pub fn as_str(self) -> &'static str {
-        if self == Kind::Copy { "copy" } else { "move" }
+        match self {
+            Kind::Copy => "copy",
+            Kind::Move => "move",
+            Kind::Zip => "zip",
+            Kind::Unzip => "unzip",
+        }
     }
 }
 

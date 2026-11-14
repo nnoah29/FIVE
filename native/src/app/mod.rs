@@ -1,6 +1,7 @@
 //! Application : état partagé et comportements, organisés par intention.
 
 pub mod actions;
+pub mod archive;
 pub mod boot;
 pub mod clip;
 pub mod data;
@@ -10,6 +11,7 @@ pub mod dialog;
 pub mod filters;
 pub mod git;
 pub mod goto;
+pub mod job_title;
 pub mod jobs;
 pub mod jobs_view;
 pub mod keys;

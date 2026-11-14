@@ -1,6 +1,8 @@
 //! Moteur de FIVE : opérations sur les fichiers, sans aucune couche réseau.
 
 pub mod archive;
+pub mod archive_kind;
+pub mod archive_path;
 pub mod clock;
 pub mod delete;
 pub mod disks;
@@ -25,6 +27,7 @@ pub mod root;
 pub mod search;
 pub mod sync;
 pub mod tar;
+pub mod tar_header;
 pub mod text;
 pub mod trash;
 pub mod trash_ops;
@@ -33,3 +36,7 @@ pub mod usage;
 pub mod views;
 pub mod xbel;
 pub mod zip;
+pub mod zip_header;
+pub mod zip_read;
+pub mod zip_stream;
+pub mod zip_write;

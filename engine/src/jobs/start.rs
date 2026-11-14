@@ -1,5 +1,6 @@
 //! Démarrage et contrôle des transferts.
 
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::thread;
 
@@ -8,8 +9,27 @@ use super::measure::measure;
 use super::registry::Jobs;
 use super::state::{Kind, State};
 use super::transfer::run_job;
+use crate::archive_kind::detect;
 use crate::refus::{Refus, Resultat};
 use crate::root::Root;
+
+/// Refuse les sources incompatibles avec la nature du transfert : dossier dans lui-même, déplacement sur place, archive illisible.
+fn check_sources(kind: Kind, sources: &[PathBuf], dest: &Path) -> Resultat<()> {
+    if sources.is_empty() {
+        return Err(Refus::new(400, "Aucun élément à traiter"));
+    }
+    for src in sources {
+        match kind {
+            Kind::Copy | Kind::Move if src.is_dir() && !src.is_symlink() && dest.starts_with(src) => {
+                return Err(Refus::new(400, "Impossible de copier un dossier dans lui-même"));
+            }
+            Kind::Move if src.parent() == Some(dest) => return Err(Refus::new(400, "Les éléments sont déjà dans ce dossier")),
+            Kind::Unzip if detect(src).is_none() => return Err(Refus::new(400, "Ce n'est pas une archive prise en charge (zip, tar, tar.gz)")),
+            _ => {}
+        }
+    }
+    Ok(())
+}
 
 /// Vérifie les sources et la destination, puis lance le transfert ; retourne son identifiant.
 pub fn start_job(root: &Root, jobs: &Jobs, kind: &str, rels: &[String], dest_rel: &str) -> Resultat<String> {
@@ -19,14 +39,7 @@ pub fn start_job(root: &Root, jobs: &Jobs, kind: &str, rels: &[String], dest_rel
         return Err(Refus::new(400, "Destination invalide"));
     }
     let sources = rels.iter().map(|rel| root.resolve_entry(rel)).collect::<Resultat<Vec<_>>>()?;
-    for src in &sources {
-        if src.is_dir() && !src.is_symlink() && dest.starts_with(src) {
-            return Err(Refus::new(400, "Impossible de copier un dossier dans lui-même"));
-        }
-        if kind == Kind::Move && src.parent() == Some(dest.as_path()) {
-            return Err(Refus::new(400, "Les éléments sont déjà dans ce dossier"));
-        }
-    }
+    check_sources(kind, &sources, &dest)?;
     let job = Arc::new(Job::new(kind, sources, dest, root.relative(&root.resolve(dest_rel)?)));
     let measured: Vec<(u64, u64)> = job.sources.iter().map(|s| measure(s)).collect();
     job.update(|p| measured.iter().for_each(|(size, count)| (p.total, p.files) = (p.total + size, p.files + count)));

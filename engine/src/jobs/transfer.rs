@@ -4,7 +4,9 @@ use std::fs;
 use std::path::Path;
 use std::sync::Arc;
 
+use super::compress::run_zip;
 use super::copy::{copy_tree, unique_destination};
+use super::extract::run_unzip;
 use super::job::Job;
 use super::measure::measure;
 use super::state::{Kind, State, Stop};
@@ -33,16 +35,25 @@ fn transfer_one(job: &Job, src: &Path) -> Result<(), Stop> {
     Ok(())
 }
 
-/// Corps du thread de transfert : traite chaque source puis fixe l'état final.
+/// Exécute le travail du transfert selon sa nature : copie ou déplacement par source, une seule archive pour `zip`, une extraction par archive pour `unzip`.
+fn run_steps(job: &Job) -> Result<(), Stop> {
+    match job.kind {
+        Kind::Zip => run_zip(job),
+        Kind::Unzip => run_unzip(job),
+        Kind::Copy | Kind::Move => job.sources.iter().try_for_each(|src| {
+            job.checkpoint()?;
+            transfer_one(job, src)
+        }),
+    }
+}
+
+/// Corps du thread de transfert : exécute le travail puis fixe l'état final.
 pub fn run_job(job: Arc<Job>) {
-    let outcome = job.sources.iter().try_for_each(|src| {
-        job.checkpoint()?;
-        transfer_one(&job, src)
-    });
+    let outcome = run_steps(&job);
     job.update(|p| {
         p.current.clear();
         match outcome {
-            Ok(()) => p.state = State::Done,
+            Ok(()) => (p.state, p.done) = (State::Done, p.total),
             Err(Stop::Cancelled) => p.state = State::Cancelled,
             Err(Stop::Io(error)) => {
                 p.state = State::Error;
