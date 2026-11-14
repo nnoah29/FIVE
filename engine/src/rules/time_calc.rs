@@ -56,3 +56,13 @@ pub fn format_date(at: f64, spec: &str) -> String {
     }
     out
 }
+
+/// Lit `AAAA-MM-JJ hh:mm` (ou `AAAA-MM-JJ`) comme une date locale et la rend en secondes Unix.
+pub fn parse_local(text: &str) -> Option<f64> {
+    let (date, clock) = text.trim().split_once(' ').unwrap_or((text.trim(), "00:00"));
+    let number = |part: Option<&str>| part.and_then(|p| p.parse::<i32>().ok());
+    let mut d = date.split('-');
+    let mut c = clock.split(':');
+    let (y, m, day) = (number(d.next())?, number(d.next())?, number(d.next())?);
+    crate::clock::local_timestamp(y, m as u8, day as u8, number(c.next())? as u8, number(c.next())? as u8)
+}

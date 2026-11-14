@@ -4,7 +4,7 @@ use super::context::FileContext;
 use super::outcome::{PlannedAction, Skipped};
 use super::plan_text::{is_rename, new_name, target_text};
 use super::time_calc::seconds;
-use super::types_action::{AfterUnzip, RuleAction as A};
+use super::types_action::{AfterUnzip, Keep, RuleAction as A};
 use super::types_rule::Rule;
 
 /// Ce qu'une règle prévoit pour un fichier.
@@ -32,8 +32,22 @@ fn leaves(action: &A) -> bool {
     )
 }
 
+/// Indique si ce fichier est le doublon à jeter : il en existe d'autres, et ce n'est pas celui qu'on garde.
+fn is_discardable(ctx: &FileContext, keep: Keep) -> Result<(), String> {
+    let group = ctx.duplicates.as_ref().map(|d| &d.watched).filter(|g| g.others > 0).ok_or("aucun doublon")?;
+    let kept = match keep {
+        Keep::Newest => group.newest,
+        Keep::Oldest => group.oldest,
+        Keep::ShortestName => group.shortest,
+    };
+    if kept { Err("doublon conservé".to_string()) } else { Ok(()) }
+}
+
 /// Prévoit une action : renommage (sur le nom courant) ou texte calculé ; `Err` avec la raison si elle ne s'applique pas.
 fn plan_one(rule: &Rule, ctx: &FileContext, action: &A, current: &mut String, dry_run: bool) -> Result<PlannedAction, String> {
+    if let A::TrashDuplicates { keep } = action {
+        is_discardable(ctx, *keep)?;
+    }
     let text = if is_rename(action) {
         let name = new_name(action, ctx, current)?;
         if name == *current {

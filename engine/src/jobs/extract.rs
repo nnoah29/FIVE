@@ -23,7 +23,7 @@ pub fn folder_name(archive: &Path) -> String {
 }
 
 /// Premier dossier libre sous `dest` : `nom`, puis `nom (2)`, `nom (3)`…
-fn unique_folder(dest: &Path, name: &str) -> PathBuf {
+pub fn unique_folder(dest: &Path, name: &str) -> PathBuf {
     let mut candidate = dest.join(name);
     let mut n = 1;
     while fs::symlink_metadata(&candidate).is_ok() {

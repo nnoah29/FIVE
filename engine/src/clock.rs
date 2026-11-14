@@ -37,3 +37,11 @@ pub fn local_weekday(seconds: f64) -> u8 {
     let moment = OffsetDateTime::from_unix_timestamp(seconds as i64).unwrap_or(OffsetDateTime::UNIX_EPOCH).to_offset(offset);
     moment.weekday().number_days_from_monday()
 }
+
+/// Instant (secondes Unix) d'une date et heure locales ; `None` si la date n'existe pas.
+pub fn local_timestamp(year: i32, month: u8, day: u8, hour: u8, minute: u8) -> Option<f64> {
+    let offset = OFFSET.get().copied().unwrap_or(UtcOffset::UTC);
+    let date = time::Date::from_calendar_date(year, time::Month::try_from(month).ok()?, day).ok()?;
+    let moment = date.with_hms(hour, minute, 0).ok()?.assume_offset(offset);
+    Some(moment.unix_timestamp() as f64)
+}

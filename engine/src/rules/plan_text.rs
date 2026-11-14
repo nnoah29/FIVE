@@ -32,7 +32,14 @@ fn dated(ctx: &FileContext, from: DateSource, format: &str) -> Result<String, St
         DateSource::Created => ctx.created.map(|t| format_date(t, format)).ok_or_else(missing),
         DateSource::Today => Ok(format_date(ctx.now, format)),
         DateSource::Name => date_in_name(&ctx.name)
-            .map(|(y, m, d)| format.replace("AAAA", &format!("{y:04}")).replace("MM", &format!("{m:02}")).replace("JJ", &format!("{d:02}")))
+            .map(|(y, m, d)| {
+                format
+                    .replace("AAAA", &format!("{y:04}"))
+                    .replace("MM", &format!("{m:02}"))
+                    .replace("JJ", &format!("{d:02}"))
+                    .replace("hh", "00")
+                    .replace("mm", "00")
+            })
             .ok_or_else(missing),
     }
 }

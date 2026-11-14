@@ -200,7 +200,9 @@ Questions ouvertes (à trancher avant le lot 1) :
 ## 12. État d'avancement
 
 **Lot 1 — fait** (`engine/src/rules/`, tests `engine/tests/rules_*.rs`) : types (`Rule`, déclencheurs, 74 conditions, 40 actions), évaluateur pur (`evaluate`, `rule_matches`), planification des actions avec noms calculés (`plan_rule`, modèles de noms), validation complète du §5 (`validate_rule`, `validate_set`), statut (`rule_status`), stockage atomique (`store`), noms temporaires, glob, regex en cache.
-Reste : lots 2 à 5 (veilleur, exécution, journal, annulation, API, interface).
+
+**Lot 2 — fait** : veilleur par balayage (`scan`, `changes`, `state`), règles planifiées (`schedule`), contexte construit depuis le disque avec seulement les informations demandées (`needs`, `context_build`, `info_*`), exécution (`exec_*`, `exec_pass`), journal et annulation (`journal`, `undo`), service qui orchestre une passe (`runner::RulesService::{tick, run_now, preview}`).
+Reste : lot 3 (routes d'API), lot 4 (interface native : thread de veille, liste, éditeur, historique), lot 5 (web, optionnel).
 
 Écarts du lot 1 avec le texte ci-dessus (à relire avant le lot 2) :
 - `Compare::between` n'existe pas : deux conditions (`ge` et `le`) suffisent.
@@ -210,3 +212,13 @@ Reste : lots 2 à 5 (veilleur, exécution, journal, annulation, API, interface).
 - `evaluate` suppose que l'appelant a déjà retiré les règles invalides (`rule_status`) ; un état d'information absent (dimensions, hachage, texte…) rend la condition fausse, jamais une erreur. L'appelant remplit `FileContext` seulement pour les conditions utilisées.
 - Une règle neuve est **en essai** par défaut (`trial: true`) ; `dry_run` marque les actions prévues d'une règle en essai ou contenant `log_only`.
 - La table des familles de fichiers (`rules/kinds.rs`) double celle de l'interface native ; à fusionner au lot 4.
+
+Écarts du lot 2 (à relire avant le lot 3) :
+- **Première passe = mémorisation.** Les fichiers déjà présents ne sont jamais traités ; seuls les fichiers apparus ou modifiés ensuite le sont (`Created`, `Modified`, `Stable`). Le veilleur ne distingue pas `MovedIn` de `Created`.
+- **Règles planifiées** (`Schedule`, `Daily`, `Weekly`) : une règle vue pour la première fois est seulement mémorisée, aucun rattrapage d'une exécution manquée. `OnStart` ne s'exécute qu'à la première passe du service ; `OnMount` à l'apparition d'un disque dans `mounted_disks`.
+- **Actions confiées à l'interface** (résultat `deferred`, rien n'est exécuté par le moteur) : `notify`, `notify_only_once`, `add_to_favorites`, `remove_from_favorites`, `pin_folder_in_sidebar`, `open_with_default`, `reveal_in_five_folder`. Plafonds appliqués par le moteur : 1 000 notifications par jour, une `notify_only_once` par règle et par passe.
+- **Conditions non calculées** (toujours fausses) : `duration`, `video_resolution`, `has_audio_track` (il faudrait un outil externe) ; `archive_is_encrypted` ; `downloaded_from` dépend de l'attribut étendu `user.xdg.origin.url`. Les favoris, récents et dossiers épinglés viennent de `Extras`, rempli par l'interface.
+- **Annulation** : réversibles — renommer, masquer, déplacer, copier, compresser, extraire, mettre à la corbeille, créer ou supprimer un dossier vide, droits, date. **Non réversibles** : `empty_trash_older_than` (effacement définitif) et `flatten_folder`. L'annulation refuse de toucher à ce qui a changé depuis et à tout chemin hors de la racine et de la corbeille, même si le journal a été modifié.
+- **Plafonds** : 100 fichiers par règle et par passe (le reste est journalisé « plafond atteint »), balayage limité à 200 ms par passe (reprise à la passe suivante), doublons calculés en 3 s au plus par fichier.
+- Le journal contient aussi les lignes « essai » (`dry_run`) ; une règle neuve reste en essai tant qu'elle n'est pas activée.
+- `Zip { one_for_all }` regroupe les fichiers d'une même passe et d'une même règle dans une seule archive, créée à côté du premier fichier.

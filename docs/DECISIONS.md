@@ -41,3 +41,10 @@
 - **Choix** : `serde` (avec dérivation) et `regex` ajoutés au moteur. Le catalogue compte plus de 110 variantes étiquetées en JSON : les écrire à la main serait long et fragile ; les deux crates étaient déjà dans le graphe (`serde_json`, interface native), aucun téléchargement nouveau. Évaluateur pur, une fonction par famille de conditions, informations coûteuses fournies par l'appelant.
 - **Raison** : refuser sans deviner (une variante inconnue est une erreur de lecture, la règle est conservée telle quelle dans `regles.json`) ; aucune écriture ni exécution dans ce lot, donc rien à annuler.
 - **Retour arrière** : retirer `engine/src/rules/` et les deux dépendances ; aucun autre module ne s'en sert.
+
+## D-08 — Règles automatiques : lot 2, exécution et journal (2026-11-14)
+- **Contexte** : le lot 1 évalue des règles sans rien modifier ; le lot 2 les applique.
+- **Choix** : aucune nouvelle voie d'écriture. Déplacement, copie, compression et extraction passent par `jobs::start::start_job` (progression, annulation), les renommages par `rename_many`, la corbeille par `trash_ops` (qui rend maintenant le chemin dans la corbeille pour la restaurer). Le veilleur balaie les dossiers (pas d'`inotify`, D-02) et compare à `etat-regles.json`. Le journal (`journal-regles.jsonl`) contient, pour chaque action, de quoi la défaire (chemins absolus, revérifiés contre la racine à l'annulation).
+- **Sûreté** : jamais d'écrasement (politique `rename`, `skip` ou `ask`), seul effacement définitif = fichier de la corbeille plus ancien que la durée demandée (revérifié à l'exécution), droits spéciaux refusés, destination qui remonte (`..`) refusée, règle en essai = aucune écriture.
+- **Raison** : une règle automatique doit pouvoir être arrêtée, relue et défaite ; l'exécution ne refait jamais confiance au plan seul (elle revérifie l'état du disque).
+- **Retour arrière** : n'appeler ni `tick` ni `run_now` ; rien d'autre ne dépend de ces modules.

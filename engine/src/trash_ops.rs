@@ -22,6 +22,11 @@ pub fn unique_trash_name(files: &Path, name: &str) -> String {
 
 /// Déplace un élément dans la corbeille et écrit son `.trashinfo`.
 pub fn move_to_trash(root: &Root, full: &Path) -> Resultat<()> {
+    move_to_trash_at(root, full).map(drop)
+}
+
+/// Comme `move_to_trash`, et retourne le chemin de l'élément dans la corbeille (pour pouvoir le restaurer).
+pub fn move_to_trash_at(root: &Root, full: &Path) -> Resultat<std::path::PathBuf> {
     let base = root.trash_dir();
     let (files, infos) = (base.join("files"), base.join("info"));
     for folder in [&files, &infos] {
@@ -36,7 +41,7 @@ pub fn move_to_trash(root: &Root, full: &Path) -> Resultat<()> {
         let _ = fs::remove_file(&info);
         return Err(Refus::new(409, "Cet élément est sur un autre disque que la corbeille : suppression refusée"));
     }
-    Ok(())
+    Ok(files.join(&name))
 }
 
 /// Efface définitivement un élément de la corbeille, avec son `.trashinfo`.

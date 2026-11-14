@@ -11,7 +11,7 @@ fn holds(ctx: &FileContext, test: serde_json::Value) -> bool {
 
 #[test]
 fn duplicate_conditions_depend_on_the_scope() {
-    let group = |others, newest| DuplicateGroup { others, newest, oldest: !newest, same_name: 1 };
+    let group = |others, newest| DuplicateGroup { others, newest, oldest: !newest, shortest: false, same_name: 1 };
     let ctx = FileContext { duplicates: Some(Duplicates { folder: group(0, true), watched: group(2, true), root: group(2, false) }), ..file("Dl/a.bin") };
     assert!(
         !holds(&ctx, json!({"type": "duplicate_of_another", "scope": "folder"})) && holds(&ctx, json!({"type": "duplicate_of_another", "scope": "watched"}))

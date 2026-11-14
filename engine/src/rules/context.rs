@@ -34,6 +34,7 @@ pub struct DuplicateGroup {
     pub others: u32,
     pub newest: bool,
     pub oldest: bool,
+    pub shortest: bool,
     pub same_name: u32,
 }
 

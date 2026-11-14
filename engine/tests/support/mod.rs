@@ -4,6 +4,7 @@
 pub mod catalog_samples;
 pub mod rules_helpers;
 pub mod rules_json;
+pub mod rules_run;
 pub mod zip_bytes;
 
 use std::fs;
