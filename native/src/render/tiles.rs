@@ -56,15 +56,16 @@ impl App {
         tile
     }
 
-    /// Nombre de colonnes de la grille : comme `repeat(auto-fill, minmax(132px, 1fr))`, avec 8 px d'écart.
-    fn grid_columns(&self) -> i32 {
+    /// Nombre de colonnes et largeur d'une tuile : comme `repeat(auto-fill, minmax(132px, 1fr))`, avec 8 px d'écart.
+    fn grid_metrics(&self) -> (i32, i32) {
         let (width, side_hidden) = (self.ui.window.width(), self.narrow_side());
         let (side, panel) = (if side_hidden { 0 } else { 248 }, if self.narrow_work() { 0 } else { 360 });
         let available = width - side - panel - 56;
-        ((available + 8) / (132 + 8)).max(1)
+        let columns = ((available + 8) / (132 + 8)).max(1);
+        (columns, ((available + 8) / columns - 8).max(132))
     }
 
-    /// Grille de toutes les tuiles, à colonnes de largeur égale.
+    /// Grille de toutes les tuiles ; une rangée incomplète garde la largeur d'une colonne au lieu de s'étirer.
     pub fn build_tiles(self: &Rc<Self>) -> Grid {
         let grid = Grid::new();
         grid.set_column_homogeneous(true);
@@ -72,9 +73,14 @@ impl App {
         grid.set_row_spacing(8);
         grid.set_valign(Align::Start);
         grid.set_margin_top(14);
-        let (shown, columns) = (self.st.borrow().shown.clone(), self.grid_columns());
+        let (shown, (columns, tile_width)) = (self.st.borrow().shown.clone(), self.grid_metrics());
+        let partial = (shown.len() as i32) < columns;
+        grid.set_halign(if partial { Align::Start } else { Align::Fill });
         for (index, item) in shown.iter().enumerate() {
             let tile = self.tile_for(item, index);
+            if partial {
+                tile.set_size_request(tile_width, -1);
+            }
             grid.attach(&tile, index as i32 % columns, index as i32 / columns, 1, 1);
         }
         grid
