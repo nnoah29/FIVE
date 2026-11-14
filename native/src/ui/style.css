@@ -249,3 +249,4 @@ window.five .crumb, window.five .crumb-sep { font-family: "JetBrains Mono", mono
 window.five.csd { border-radius: 0; box-shadow: none; }
 window.five .rn-check check { border-radius: 0; background-color: @bg@; border: 1px solid @dim@; min-width: 14px; min-height: 14px; }
 window.five .rn-check check:checked { background-color: @accent@; border-color: @accent@; color: @on_accent@; }
+window.five .titlebar, window.five headerbar { min-height: 0; min-width: 0; padding: 0; margin: 0; border: none; background: none; box-shadow: none; }
