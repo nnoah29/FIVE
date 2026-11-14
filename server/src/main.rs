@@ -3,6 +3,8 @@
 mod api_file;
 mod api_folder;
 mod api_info;
+mod api_rules;
+mod api_rules_run;
 mod api_write;
 mod args;
 mod auth;
@@ -14,6 +16,7 @@ mod query;
 mod reply;
 mod routes_get;
 mod routes_post;
+mod routes_rules;
 mod state;
 mod static_files;
 mod token;

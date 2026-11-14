@@ -1,5 +1,9 @@
 //! Banc d'essai : lance le vrai binaire `five` sur un dossier jetable et parle HTTP brut avec lui.
 
+#![allow(dead_code)]
+
+pub mod rules_calls;
+
 use std::fs;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{TcpListener, TcpStream};

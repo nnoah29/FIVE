@@ -42,5 +42,25 @@ Toutes les routes sont locales (`127.0.0.1`), sous une racine exposée (`--root`
 - Extraction : zip (stocké ou deflate), tar, tar.gz ; jamais d'écrasement (dossier `nom (2)`). Un nom qui remonte (`..`) ou contient un octet nul refuse toute l'archive (400) ; les noms absolus sont ramenés sous le dossier de destination ; liens et fichiers spéciaux d'un tar sont ignorés. Taille et somme de contrôle de chaque entrée zip sont vérifiées, la taille extraite est plafonnée à 100 Go. Chiffrement, zip64, bz2 et xz : refusés (400).
 - La progression d'une extraction suit les octets lus de l'archive.
 
+## Règles automatiques (`/api/rules`)
+Spécification complète : `docs/REGLES.md`. Les lectures exigent la session ; toute écriture (POST, PUT, DELETE) exige en plus `X-Five: 1` et une origine locale, corps JSON ≤ 64 Ko.
+
+| Route | Rôle |
+|---|---|
+| `GET /api/rules` | règles dans l'ordre d'évaluation, chacune avec `status` (`disabled`, `trial`, `active`, `invalid`) et `reason` ; `unreadable`, `damaged`, `newer` signalent un fichier à problème |
+| `GET /api/rules/catalog` | déclencheurs, conditions (74), actions (40), chacun avec `family`, `type` et un `example` JSON ; variables de modèles, opérateurs, unités, plafonds |
+| `GET /api/rules/history?limit` | dernières lignes du journal (1 à 500, défaut 50), la plus récente d'abord ; une ligne `undo_of` marque une passe annulée |
+| `POST /api/rules` | crée (201) ; l'identifiant est attribué, la règle est **toujours en essai** ; 400 avec tous les problèmes dans `erreur` |
+| `PUT /api/rules/<id>` | remplace ; la règle repasse en essai et son aperçu consulté est oublié ; 404 si inconnue |
+| `DELETE /api/rules/<id>` | supprime ; 404 si inconnue |
+| `POST /api/rules/validate` | `{valid, problems:[{code,message}], rule}` sans rien enregistrer |
+| `POST /api/rules/preview` | `{id}` ou `{rule}`, `paths?` : `{count, truncated, items:[{path, action, text, dry_run}]}` (500 au plus), rien n'est modifié ; l'aperçu d'une règle enregistrée est retenu |
+| `POST /api/rules/enable` | `{id, enabled, activate?}` ; `activate: true` sort la règle de l'essai, seulement si son aperçu actuel a été consulté (409 sinon) |
+| `POST /api/rules/run` | `{id, paths?}` : applique maintenant ; une règle en essai répond `dry_run`, une règle désactivée 409, invalide 400 |
+| `POST /api/rules/undo` | annule la dernière passe annulable : `{run, undone, failed[]}` ; 404 s'il n'y en a pas |
+| `POST /api/rules/reorder` | `{ids[]}` : doit contenir exactement les règles existantes |
+
+Les règles et leur journal vivent dans `~/.config/five/` (`regles.json`, `journal-regles.jsonl`, `etat-regles.json`, `apercus-regles.json`). Le serveur ne lance pas de veilleur : seules les routes ci-dessus agissent (la veille est portée par l'interface native, lot 4).
+
 ## Idées non retenues dans le prototype
 Terminal intégré et scripts personnalisés (exécution de commandes depuis une page web : surface d'attaque), coffre-fort chiffré, montage SFTP/cloud, onglets et multi-panneaux, étiquettes, recherches enregistrées, coloration syntaxique, EXIF.

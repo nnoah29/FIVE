@@ -14,7 +14,7 @@ use crate::state::State;
 const MAX_BODY: usize = 65_536;
 
 /// Lit le corps de la requête : JSON de type objet, 64 Ko au plus.
-fn read_body(request: &mut Request) -> Resultat<Value> {
+pub fn read_body(request: &mut Request) -> Resultat<Value> {
     if request.body_length().is_some_and(|length| length > MAX_BODY) {
         return Err(Refus::new(413, "Requête trop volumineuse"));
     }

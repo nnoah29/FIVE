@@ -1,5 +1,12 @@
 //! Règles automatiques condition → action sur les fichiers (spécification `docs/REGLES.md`).
 
+pub mod api_previews;
+pub mod api_read;
+pub mod api_run;
+pub mod api_support;
+pub mod api_write;
+pub mod catalog;
+pub mod catalog_data;
 pub mod changes;
 pub mod context;
 pub mod context_build;

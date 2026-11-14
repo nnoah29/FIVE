@@ -1,7 +1,6 @@
 //! Bac à sable de test : un faux dossier personnel jetable qui sert aussi de racine.
 #![allow(dead_code)]
 
-pub mod catalog_samples;
 pub mod rules_helpers;
 pub mod rules_json;
 pub mod rules_run;

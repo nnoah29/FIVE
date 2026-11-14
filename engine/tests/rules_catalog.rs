@@ -1,21 +1,24 @@
-mod support;
-
+use five_engine::rules::catalog::catalog;
 use five_engine::rules::eval::is_implemented;
 use five_engine::rules::types_action::RuleAction;
 use five_engine::rules::types_condition::ConditionTest;
 use five_engine::rules::types_rule::Trigger;
-use support::catalog_samples::{ACTIONS, CONDITIONS, TRIGGERS};
+use serde_json::Value;
+
+fn examples(list: &str) -> Vec<Value> {
+    catalog()[list].as_array().unwrap().iter().map(|e| e["example"].clone()).collect()
+}
 
 #[test]
 fn every_condition_of_the_catalog_is_readable_and_implemented() {
-    let tests: Vec<ConditionTest> = serde_json::from_str(CONDITIONS).unwrap();
+    let tests: Vec<ConditionTest> = examples("conditions").into_iter().map(|e| serde_json::from_value(e).unwrap()).collect();
     assert_eq!(tests.len(), 74);
     assert!(tests.iter().all(is_implemented));
 }
 
 #[test]
 fn every_action_of_the_catalog_is_readable_and_round_trips() {
-    let actions: Vec<RuleAction> = serde_json::from_str(ACTIONS).unwrap();
+    let actions: Vec<RuleAction> = examples("actions").into_iter().map(|e| serde_json::from_value(e).unwrap()).collect();
     assert_eq!(actions.len(), 40);
     let again: Vec<RuleAction> = serde_json::from_value(serde_json::to_value(&actions).unwrap()).unwrap();
     assert_eq!(actions, again);
@@ -23,8 +26,19 @@ fn every_action_of_the_catalog_is_readable_and_round_trips() {
 
 #[test]
 fn every_trigger_of_the_catalog_is_readable() {
-    let triggers: Vec<Trigger> = serde_json::from_str(TRIGGERS).unwrap();
+    let triggers: Vec<Trigger> = examples("triggers").into_iter().map(|e| serde_json::from_value(e).unwrap()).collect();
     assert_eq!(triggers.len(), 10);
+}
+
+#[test]
+fn catalog_entries_name_their_family_and_match_their_example() {
+    let all = catalog();
+    for list in ["conditions", "actions"] {
+        for entry in all[list].as_array().unwrap() {
+            assert!(!entry["family"].as_str().unwrap().is_empty() && entry["example"]["type"] == entry["type"], "{entry}");
+        }
+    }
+    assert!(all["template_variables"].as_array().unwrap().len() >= 18 && all["limits"]["rules"] == 200);
 }
 
 #[test]

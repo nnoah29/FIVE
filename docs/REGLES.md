@@ -202,7 +202,8 @@ Questions ouvertes (à trancher avant le lot 1) :
 **Lot 1 — fait** (`engine/src/rules/`, tests `engine/tests/rules_*.rs`) : types (`Rule`, déclencheurs, 74 conditions, 40 actions), évaluateur pur (`evaluate`, `rule_matches`), planification des actions avec noms calculés (`plan_rule`, modèles de noms), validation complète du §5 (`validate_rule`, `validate_set`), statut (`rule_status`), stockage atomique (`store`), noms temporaires, glob, regex en cache.
 
 **Lot 2 — fait** : veilleur par balayage (`scan`, `changes`, `state`), règles planifiées (`schedule`), contexte construit depuis le disque avec seulement les informations demandées (`needs`, `context_build`, `info_*`), exécution (`exec_*`, `exec_pass`), journal et annulation (`journal`, `undo`), service qui orchestre une passe (`runner::RulesService::{tick, run_now, preview}`).
-Reste : lot 3 (routes d'API), lot 4 (interface native : thread de veille, liste, éditeur, historique), lot 5 (web, optionnel).
+**Lot 3 — fait** : API du moteur (`rules::api_*`) et routes `/api/rules` du serveur (voir `API.md`), catalogue exposé, aperçu obligatoire avant activation (empreinte de la règle dans `apercus-regles.json`).
+Reste : lot 4 (interface native : thread de veille, liste, éditeur, historique), lot 5 (web, optionnel).
 
 Écarts du lot 1 avec le texte ci-dessus (à relire avant le lot 2) :
 - `Compare::between` n'existe pas : deux conditions (`ge` et `le`) suffisent.
@@ -222,3 +223,8 @@ Reste : lot 3 (routes d'API), lot 4 (interface native : thread de veille, liste,
 - **Plafonds** : 100 fichiers par règle et par passe (le reste est journalisé « plafond atteint »), balayage limité à 200 ms par passe (reprise à la passe suivante), doublons calculés en 3 s au plus par fichier.
 - Le journal contient aussi les lignes « essai » (`dry_run`) ; une règle neuve reste en essai tant qu'elle n'est pas activée.
 - `Zip { one_for_all }` regroupe les fichiers d'une même passe et d'une même règle dans une seule archive, créée à côté du premier fichier.
+
+Écarts du lot 3 :
+- `POST /api/rules/<action>` remplace les routes `/api/rules/enable` etc. du §7 par un seul aiguillage ; les chemins sont identiques. Pas de `GET /api/rules/<id>` : la liste suffit.
+- Une règle créée ou modifiée repasse **toujours en essai** (même si le client envoie `trial: false`) ; seule `enable` avec `activate: true` la sort de l'essai, après un aperçu de sa version actuelle.
+- Le serveur n'exécute aucune passe automatique : `tick` reste à l'interface native (lot 4). Les routes `preview` et `run` créent un service éphémère sur les transferts partagés du serveur.

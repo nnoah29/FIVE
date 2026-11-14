@@ -48,3 +48,9 @@
 - **Sûreté** : jamais d'écrasement (politique `rename`, `skip` ou `ask`), seul effacement définitif = fichier de la corbeille plus ancien que la durée demandée (revérifié à l'exécution), droits spéciaux refusés, destination qui remonte (`..`) refusée, règle en essai = aucune écriture.
 - **Raison** : une règle automatique doit pouvoir être arrêtée, relue et défaite ; l'exécution ne refait jamais confiance au plan seul (elle revérifie l'état du disque).
 - **Retour arrière** : n'appeler ni `tick` ni `run_now` ; rien d'autre ne dépend de ces modules.
+
+## D-09 — Règles automatiques : lot 3, API (2026-11-14)
+- **Contexte** : l'interface (native puis web) doit lire, écrire, prévisualiser et appliquer les règles sans connaître le moteur.
+- **Choix** : l'API vit dans `five-engine` (`rules::api_*`, fonctions pures sur la racine et le dossier de configuration) ; le serveur ne fait que relayer (`/api/rules`, méthodes PUT et DELETE ajoutées, mêmes gardes que les autres écritures). Les transferts du serveur sont partagés dans un `Arc<Jobs>`.
+- **Sûreté** : « essai d'abord » est une règle du serveur, pas de l'interface : une règle n'est active qu'après un aperçu de sa version exacte.
+- **Retour arrière** : retirer `routes_rules.rs`, `api_rules*.rs` et l'aiguillage dans `http.rs`.

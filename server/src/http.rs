@@ -8,6 +8,7 @@ use crate::query::{parse_query, split_url};
 use crate::reply::{Reply, refus_reply};
 use crate::routes_get::handle_get;
 use crate::routes_post::handle_post;
+use crate::routes_rules::handle_rules;
 use crate::state::State;
 
 /// Choisit le traitement selon la méthode HTTP.
@@ -15,7 +16,11 @@ fn dispatch(request: &mut Request, state: &State) -> Resultat<Reply> {
     check_host(request, state)?;
     let url = request.url().to_string();
     let (path, raw_query) = split_url(&url);
-    match request.method() {
+    let method = request.method().clone();
+    if path == "/api/rules" || path.starts_with("/api/rules/") {
+        return handle_rules(request, state, &method, path, &parse_query(raw_query));
+    }
+    match method {
         Method::Get => handle_get(request, state, path, &parse_query(raw_query)),
         Method::Post => handle_post(request, state, path),
         _ => Err(Refus::new(405, "Méthode non prise en charge")),
