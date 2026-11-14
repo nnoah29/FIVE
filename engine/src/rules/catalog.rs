@@ -3,11 +3,13 @@
 use serde_json::{Value, json};
 
 use super::catalog_data::{ACTIONS, CONDITIONS, TRIGGERS};
+use super::catalog_fields::fields_of;
 use super::template::VARIABLES;
 
 /// Transforme une ligne (famille, type, exemple) en objet JSON ; un exemple illisible donne `null`.
 fn entry(family: &str, kind: &str, example: &str) -> Value {
-    json!({"family": family, "type": kind, "example": serde_json::from_str::<Value>(example).unwrap_or(Value::Null)})
+    let example = serde_json::from_str::<Value>(example).unwrap_or(Value::Null);
+    json!({"family": family, "type": kind, "fields": fields_of(kind, &example), "example": example})
 }
 
 /// Catalogue complet : déclencheurs, conditions, actions, variables de modèles et valeurs énumérées.

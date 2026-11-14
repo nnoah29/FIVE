@@ -33,5 +33,23 @@ pub fn commands(app: &Rc<App>) -> Vec<(String, String, Option<&'static str>, Act
         let path = place.path.clone();
         list.push((place.id.clone(), format!("Aller à : {}", place.label), None, Rc::new(move |a: &Rc<App>| a.go(&path))));
     }
+    list.extend(rule_commands());
     list
+}
+
+/// Commandes des règles : ouvrir la liste et l'historique, mettre en pause ou reprendre.
+fn rule_commands() -> Vec<(String, String, Option<&'static str>, Action)> {
+    let open: Action = Rc::new(|a: &Rc<App>| {
+        a.st.borrow_mut().tab = "rules".to_string();
+        a.open_settings();
+    });
+    let toggle: Action = Rc::new(|a: &Rc<App>| {
+        let now = !a.set.borrow().rules_enabled;
+        a.change_setting(|s| s.rules_enabled = now);
+        a.toast(if now { "Règles reprises" } else { "Règles en pause" });
+    });
+    vec![
+        ("gear".into(), "Ouvrir les règles et leur historique".into(), None, open),
+        ("pause".into(), "Mettre en pause ou reprendre les règles".into(), None, toggle),
+    ]
 }

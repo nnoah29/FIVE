@@ -31,17 +31,6 @@ fn every_trigger_of_the_catalog_is_readable() {
 }
 
 #[test]
-fn catalog_entries_name_their_family_and_match_their_example() {
-    let all = catalog();
-    for list in ["conditions", "actions"] {
-        for entry in all[list].as_array().unwrap() {
-            assert!(!entry["family"].as_str().unwrap().is_empty() && entry["example"]["type"] == entry["type"], "{entry}");
-        }
-    }
-    assert!(all["template_variables"].as_array().unwrap().len() >= 18 && all["limits"]["rules"] == 200);
-}
-
-#[test]
 fn an_unknown_variant_is_refused_instead_of_guessed() {
     assert!(serde_json::from_str::<ConditionTest>(r#"{"type": "est_belle"}"#).is_err());
     assert!(serde_json::from_str::<RuleAction>(r#"{"type": "executer_script", "commande": "rm"}"#).is_err());

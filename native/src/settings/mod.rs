@@ -7,7 +7,6 @@ pub mod folder_fields;
 pub mod folders;
 pub mod panels;
 pub mod rules_actions;
-pub mod rules_editor;
 pub mod rules_history;
 pub mod rules_panel;
 pub mod rules_preview;

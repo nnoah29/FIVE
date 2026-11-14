@@ -43,6 +43,7 @@ impl App {
         match name {
             "select" => self.select(index as isize, ModifierType::empty()),
             "rulepreview" => self.open_rule_preview(arg),
+            "ruleedit" => self.open_rule_editor((!arg.is_empty()).then(|| arg.to_string())),
             "zip" => self.archive_items("zip", &self.picked()),
             "unzip" => self.archive_items("unzip", &self.picked()),
             "range" => {

@@ -54,3 +54,10 @@
 - **Choix** : l'API vit dans `five-engine` (`rules::api_*`, fonctions pures sur la racine et le dossier de configuration) ; le serveur ne fait que relayer (`/api/rules`, méthodes PUT et DELETE ajoutées, mêmes gardes que les autres écritures). Les transferts du serveur sont partagés dans un `Arc<Jobs>`.
 - **Sûreté** : « essai d'abord » est une règle du serveur, pas de l'interface : une règle n'est active qu'après un aperçu de sa version exacte.
 - **Retour arrière** : retirer `routes_rules.rs`, `api_rules*.rs` et l'aiguillage dans `http.rs`.
+
+## D-10 — Règles automatiques : lot 4, interface native (2026-11-14)
+- **Contexte** : les règles (moteur, API) doivent être utilisables sans écrire de JSON.
+- **Choix** : la veille tourne dans le processus natif (`RulesService::tick` toutes les 5 s dans un fil de travail, résultats traités sur le fil de l'interface). L'éditeur ne connaît aucun type de condition ou d'action : il lit le catalogue du moteur (famille, champs, genres, valeurs permises) et construit les contrôles ; seuls les libellés français vivent côté interface (`model/rules_labels`, `rules_fields_labels`). Le brouillon est un JSON modifié par chemin ; une modification de structure reconstruit la fenêtre en gardant la position de défilement.
+- **Sûreté** : enregistrer repasse toujours en essai ; activer exige l'aperçu de la version exacte (règle du serveur, pas de l'interface) ; « Appliquer maintenant » demande confirmation.
+- **Piège évité** : les boutons de l'éditeur ne référencent l'éditeur que faiblement ; l'application le garde en vie tant que sa fenêtre est ouverte.
+- **Retour arrière** : l'interrupteur « Appliquer les règles automatiquement » coupe la veille sans rien supprimer.

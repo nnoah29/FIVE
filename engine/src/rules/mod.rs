@@ -7,6 +7,7 @@ pub mod api_support;
 pub mod api_write;
 pub mod catalog;
 pub mod catalog_data;
+pub mod catalog_fields;
 pub mod changes;
 pub mod context;
 pub mod context_build;

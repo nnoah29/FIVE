@@ -203,7 +203,8 @@ Questions ouvertes (à trancher avant le lot 1) :
 
 **Lot 2 — fait** : veilleur par balayage (`scan`, `changes`, `state`), règles planifiées (`schedule`), contexte construit depuis le disque avec seulement les informations demandées (`needs`, `context_build`, `info_*`), exécution (`exec_*`, `exec_pass`), journal et annulation (`journal`, `undo`), service qui orchestre une passe (`runner::RulesService::{tick, run_now, preview}`).
 **Lot 3 — fait** : API du moteur (`rules::api_*`) et routes `/api/rules` du serveur (voir `API.md`), catalogue exposé, aperçu obligatoire avant activation (empreinte de la règle dans `apercus-regles.json`).
-Reste : lot 4 (interface native : thread de veille, liste, éditeur, historique), lot 5 (web, optionnel).
+**Lot 4 — fait** (`native/src/rules/`, `native/src/settings/rules_*.rs`) : veille native, onglet Paramètres → Règles, éditeur complet, aperçu, historique, annulation.
+Reste : lot 5 (interface web, optionnel).
 
 Écarts du lot 1 avec le texte ci-dessus (à relire avant le lot 2) :
 - `Compare::between` n'existe pas : deux conditions (`ge` et `le`) suffisent.
@@ -228,3 +229,10 @@ Reste : lot 4 (interface native : thread de veille, liste, éditeur, historique)
 - `POST /api/rules/<action>` remplace les routes `/api/rules/enable` etc. du §7 par un seul aiguillage ; les chemins sont identiques. Pas de `GET /api/rules/<id>` : la liste suffit.
 - Une règle créée ou modifiée repasse **toujours en essai** (même si le client envoie `trial: false`) ; seule `enable` avec `activate: true` la sort de l'essai, après un aperçu de sa version actuelle.
 - Le serveur n'exécute aucune passe automatique : `tick` reste à l'interface native (lot 4). Les routes `preview` et `run` créent un service éphémère sur les transferts partagés du serveur.
+
+Écarts du lot 4 :
+- **Veille** : un passage toutes les 5 secondes, dans un fil de travail, tant que la fenêtre native est ouverte. Interrupteur général dans l'onglet Règles ; commandes de palette « Mettre en pause ou reprendre les règles » et « Ouvrir les règles et leur historique ». **Pas de pastille dans la barre du haut** (prévue au §8) : un échec ou une question s'affiche en notification.
+- **Éditeur** : tous les champs sont déduits du catalogue du moteur (`fields`), y compris les conditions imbriquées (toutes / au moins une / aucune). Une taille se saisit « 5 Mo », des droits en octal, une date « AAAA-MM-JJ hh:mm ». « Enregistrer » refuse une règle invalide en listant tous les problèmes ; « Aperçu » fonctionne sur le brouillon non enregistré.
+- **Actions de l'interface** : notification (message en notification), favoris (fichier de signets GTK), épinglage, ouverture, « montrer dans FIVE ». La condition « dans les récents » reste toujours fausse (l'interface ne fournit pas les récents au moteur).
+- Menu d'un fichier : « Créer une règle à partir de ce fichier » (dossier du fichier, même extension) ; menu d'un dossier : « Surveiller ce dossier avec une règle ».
+- Non fait : tests d'interface automatisés de l'éditeur (vérifié par captures sous Xvfb et par un clic réel sur « Enregistrer »), raccourcis clavier propres aux règles.

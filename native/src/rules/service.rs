@@ -1,6 +1,6 @@
 //! Veille des règles : un passage toutes les 5 secondes dans un fil de travail, résultats traités sur le fil de l'interface.
 
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 use std::collections::HashSet;
 use std::path::Path;
 use std::rc::{Rc, Weak};
@@ -16,6 +16,7 @@ use five_engine::rules::runner::{RulesService, TickReport};
 use five_engine::views::favorite_items;
 use gtk4::glib;
 
+use super::editor::state::Editor;
 use crate::app::shared::App;
 use crate::app::work::spawn_work;
 
@@ -23,12 +24,17 @@ use crate::app::work::spawn_work;
 pub struct RulesUi {
     pub service: Arc<Mutex<RulesService>>,
     pub busy: Cell<bool>,
+    pub editors: RefCell<Vec<Rc<Editor>>>,
 }
 
 impl RulesUi {
     /// Crée le service sur la racine, avec les transferts de l'application et `~/.config/five` comme dossier de configuration.
     pub fn new(root: Root, jobs: Arc<Jobs>, home: &Path) -> RulesUi {
-        RulesUi { service: Arc::new(Mutex::new(RulesService::new(root, jobs, home.join(".config/five")))), busy: Cell::new(false) }
+        RulesUi {
+            service: Arc::new(Mutex::new(RulesService::new(root, jobs, home.join(".config/five")))),
+            busy: Cell::new(false),
+            editors: RefCell::new(Vec::new()),
+        }
     }
 }
 
