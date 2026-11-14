@@ -28,7 +28,9 @@ pub fn none_state(zone: &GtkBox, kind: &str, text: &str) {
     glyph.set_halign(Align::Center);
     zone.append(&glyph);
     let note = mono(text, &[]);
-    note.set_halign(Align::Center);
+    note.set_halign(Align::Fill);
+    note.set_hexpand(true);
+    note.set_xalign(0.5);
     note.set_wrap(true);
     note.set_max_width_chars(1);
     note.set_justify(gtk4::Justification::Center);
