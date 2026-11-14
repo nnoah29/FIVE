@@ -65,22 +65,22 @@ impl App {
         button
     }
 
-    /// Reconstruit les emplacements, puis la section « Dossiers » des dossiers XDG.
+    /// Reconstruit les emplacements, puis la section « Dossiers » (automatique ou choisie dans les paramètres).
     pub fn render_places(self: &Rc<Self>) {
         clear(&self.ui.side.places);
         let (places, path, view, searching) = {
             let st = self.st.borrow();
             (st.places.clone(), st.path.clone(), st.virtual_view.clone(), st.searching())
         };
+        let others = self.side_places();
         for entry in main_entries(&places) {
             let here = is_current(&entry, &path, &view, searching);
             self.ui.side.places.append(&self.nav_row(entry, here));
         }
-        let others: Vec<&Place> = places.iter().filter(|p| p.id != "trash").collect();
         if !others.is_empty() {
             self.ui.side.places.append(&label("DOSSIERS", &["nav-title"]));
         }
-        for place in others {
+        for place in &others {
             let entry = NavEntry { id: place.id.clone(), text: place.label.clone(), view: None, target: place.path.clone() };
             let here = is_current(&entry, &path, &view, searching);
             self.ui.side.places.append(&self.nav_row(entry, here));

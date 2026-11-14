@@ -11,6 +11,7 @@ pub mod rename_plan;
 pub mod session;
 pub mod settings;
 pub mod shortcuts;
+pub mod side_folders;
 pub mod sorting;
 pub mod wall_palette;
 pub mod wall_seed;

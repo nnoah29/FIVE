@@ -28,7 +28,8 @@ pub fn commands(app: &Rc<App>) -> Vec<(String, String, Option<&'static str>, Act
         ("favorites".into(), "Aller à : Favoris".into(), None, act(|a| a.go_view("favorites"))),
         ("network".into(), "Aller à : Réseau".into(), None, act(|a| a.go_view("network"))),
     ];
-    for place in app.st.borrow().places.clone() {
+    let trash = app.st.borrow().places.iter().filter(|p| p.id == "trash").cloned().collect::<Vec<_>>();
+    for place in trash.into_iter().chain(app.side_places()) {
         let path = place.path.clone();
         list.push((place.id.clone(), format!("Aller à : {}", place.label), None, Rc::new(move |a: &Rc<App>| a.go(&path))));
     }

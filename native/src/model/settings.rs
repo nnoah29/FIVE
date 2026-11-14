@@ -5,6 +5,8 @@ use std::path::{Path, PathBuf};
 
 use serde_json::{Value, json};
 
+use super::side_folders::{SideFolder, folders_to_json, parse_folders};
+
 /// Réglages persistants de l'interface.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Settings {
@@ -22,6 +24,7 @@ pub struct Settings {
     pub git: bool,
     pub restore: bool,
     pub wallpaper: bool,
+    pub side_folders: Option<Vec<SideFolder>>,
 }
 
 impl Default for Settings {
@@ -42,6 +45,7 @@ impl Default for Settings {
             git: true,
             restore: true,
             wallpaper: true,
+            side_folders: None,
         }
     }
 }
@@ -79,6 +83,7 @@ impl Settings {
             git: flag("git", base.git),
             restore: flag("restore", base.restore),
             wallpaper: flag("wallpaper", base.wallpaper),
+            side_folders: parse_folders(&json["side_folders"]),
         }
     }
 
@@ -86,7 +91,8 @@ impl Settings {
     pub fn to_json(&self) -> Value {
         json!({"theme": self.theme, "view": self.view, "sort": self.sort, "ascending": self.ascending, "hidden": self.hidden,
             "binary_units": self.binary_units, "full_dates": self.full_dates, "thumbs": self.thumbs, "confirm_trash": self.confirm_trash,
-            "accent": self.accent, "compact": self.compact, "git": self.git, "restore": self.restore, "wallpaper": self.wallpaper})
+            "accent": self.accent, "compact": self.compact, "git": self.git, "restore": self.restore, "wallpaper": self.wallpaper,
+            "side_folders": self.side_folders.as_deref().map_or(Value::Null, folders_to_json)})
     }
 
     /// Enregistre les réglages ; un échec d'écriture est sans conséquence.

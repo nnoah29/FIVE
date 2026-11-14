@@ -17,6 +17,16 @@ impl App {
         if st.picked.contains(&item.path) && st.picked.len() > 1 { st.picked_items() } else { vec![item.clone()] }
     }
 
+    /// Entrées de rangement : compresser ou extraire, et épingler un dossier dans la barre latérale.
+    fn more_entries(&self, item: &Entry, targets: &[Entry]) -> Vec<MenuEntry> {
+        let mut out = self.archive_entries(targets);
+        if let ([only], true) = (targets, item.is_dir) {
+            let target = only.clone();
+            out.push(MenuEntry::new("favorites", "Épingler dans la barre latérale", move |app| app.pin_entry(&target)));
+        }
+        out
+    }
+
     /// Entrées du menu d'un ensemble d'éléments.
     fn menu_entries(&self, item: &Entry, targets: Vec<Entry>) -> Vec<MenuEntry> {
         let single = targets.len() == 1;
@@ -37,7 +47,7 @@ impl App {
             let target = it.clone();
             out.push(MenuEntry::new("copy", "Copier le chemin", move |app| app.copy_path(&target)));
         }
-        out.extend(self.archive_entries(&targets));
+        out.extend(self.more_entries(item, &targets));
         let (copy, cut, rename, delete) = (targets.clone(), targets.clone(), targets.clone(), targets);
         out.push(MenuEntry::new("copy", "Copier", move |app| app.set_clip("copy", &copy)).hint("Ctrl C"));
         out.push(MenuEntry::new("cut", "Couper", move |app| app.set_clip("move", &cut)).hint("Ctrl X"));

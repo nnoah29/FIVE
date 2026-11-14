@@ -3,6 +3,7 @@
 pub mod accent;
 pub mod controls;
 pub mod display;
+pub mod folders;
 pub mod panels;
 pub mod visibility;
 
@@ -16,7 +17,7 @@ use crate::ui::buttons::icon_button;
 use crate::ui::classes::{clear, set_class};
 use crate::ui::widgets::{hbox, label, vbox};
 
-const TABS: [(&str, &str); 4] = [("display", "Affichage"), ("files", "Fichiers"), ("keys", "Raccourcis"), ("system", "Système")];
+const TABS: [(&str, &str); 5] = [("display", "Affichage"), ("files", "Fichiers"), ("folders", "Dossiers"), ("keys", "Raccourcis"), ("system", "Système")];
 
 impl App {
     /// Ligne du haut : titre et bouton de fermeture.
@@ -31,7 +32,7 @@ impl App {
         top
     }
 
-    /// Onglets : Affichage, Fichiers, Raccourcis, Système.
+    /// Onglets : Affichage, Fichiers, Dossiers, Raccourcis, Système.
     fn settings_tabs(self: &Rc<Self>) -> gtk4::Box {
         let tabs = hbox(28);
         tabs.add_css_class("tabs");
@@ -56,6 +57,7 @@ impl App {
         card.add_css_class("group-card");
         let panel = match self.st.borrow().tab.as_str() {
             "files" => self.files_panel(),
+            "folders" => self.folders_panel(),
             "keys" => self.keys_panel(),
             "system" => self.system_panel(),
             _ => self.display_panel(),

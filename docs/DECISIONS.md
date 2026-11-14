@@ -28,3 +28,10 @@
 - **Sécurité** : `safe_join` refuse `..` et l'octet nul ; tailles annoncées bornées pendant la copie (`copy_limited`) ; CRC vérifié ; plafond de 100 Go ; aucun lien ni fichier spécial recréé ; droits `& 0o777 | 0o600`, jamais de setuid.
 - **Écarts assumés** : pas de zip64, de chiffrement, de bz2 ni de xz ; les dates des fichiers extraits ne sont pas restaurées ; l'interface web n'expose pas encore ces actions (l'API les accepte). Native : menu contextuel, panneaux (archive seule : « Extraire ici » ; sinon « Compresser en .zip »), palette de commandes.
 - **Retour arrière** : retirer `zip`/`unzip` de `Kind::parse` ; le reste du moteur est inchangé.
+
+## D-06 — Dossiers de la barre latérale configurables (2026-11-14)
+- **Contexte** : la section « Dossiers » était figée sur les dossiers XDG (Téléchargements, Images, Musique, Vidéos).
+- **Choix** : réglage `side_folders` dans `reglages.json` (liste de `{label, path absolu, icon}`) ; absent = mode **automatique** (comportement d'origine). Onglet Paramètres → **Dossiers** : bascule Automatique / Personnalisés (la liste part des dossiers détectés), nom modifiable, monter / descendre / retirer, « Choisir un dossier… » (sélecteur système) et « Ajouter le dossier ouvert ». Menu d'un dossier : « Épingler dans la barre latérale » (bascule en mode personnalisé si besoin). La palette de commandes propose les mêmes dossiers.
+- **Règles** : seuls les dossiers existants sous la racine apparaissent dans la barre (les autres restent listés dans les paramètres, marqués « introuvable ») ; un nom vide affiche le nom du dossier ; icône : celle du dossier détecté, sinon un dossier.
+- **Écart** : propre à l'interface native, la web garde la liste automatique.
+- **Retour arrière** : choisir « Automatique » (ou supprimer `side_folders`).
