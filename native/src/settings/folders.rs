@@ -4,49 +4,35 @@ use std::path::Path;
 use std::rc::Rc;
 
 use gtk4::prelude::*;
-use gtk4::{Align, Box as GtkBox, Entry, Widget, gio};
+use gtk4::{Align, Box as GtkBox, Widget, gio};
 
 use super::controls::{choice, setting_row};
 use super::panels::opt;
 use crate::app::shared::{App, on_click};
-use crate::model::side_folders::{SideFolder, move_folder, shown_label};
+use crate::model::side_folders::{SideFolder, move_folder, pin_folder};
 use crate::ui::buttons::icon_button;
 use crate::ui::icon::icon;
-use crate::ui::widgets::{hbox, label, text_button};
+use crate::ui::widgets::{hbox, text_button};
 
 impl App {
-    /// Ligne d'un dossier épinglé : icône, nom modifiable, chemin, monter, descendre, retirer.
+    /// Ligne d'un dossier épinglé : icône, nom et chemin modifiables, parcourir, monter, descendre, retirer.
     fn folder_row(self: &Rc<Self>, at: usize, folder: &SideFolder, last: usize) -> GtkBox {
         let row = hbox(12);
         row.add_css_class("setting");
         row.append(&icon(&folder.icon));
-        let entry = Entry::new();
-        entry.add_css_class("hex");
-        entry.set_text(&folder.label);
-        entry.set_placeholder_text(Some(&shown_label(folder)));
-        entry.set_hexpand(true);
-        let weak = Rc::downgrade(self);
-        entry.connect_changed(move |e| {
-            let (text, app) = (e.text().to_string(), weak.upgrade());
-            let edit =
-                move |s: &mut crate::model::settings::Settings| s.side_folders.as_mut().and_then(|l| l.get_mut(at)).map(|f| f.label = text).unwrap_or_default();
-            if let Some(app) = app {
-                app.change_setting_quiet(edit);
-            }
-        });
-        row.append(&entry);
-        let missing = if Path::new(&folder.path).is_dir() { "" } else { " · introuvable" };
-        let path = label(&format!("{}{missing}", folder.path), &["mono", "dim"]);
-        path.set_ellipsize(gtk4::pango::EllipsizeMode::Start);
-        path.set_max_width_chars(34);
-        path.set_tooltip_text(Some(&folder.path));
-        row.append(&path);
-        self.folder_buttons(&row, at, last);
+        row.append(&self.name_entry(at, folder));
+        row.append(&self.path_entry(at, folder));
+        self.folder_buttons(&row, at, last, &folder.path);
         row
     }
 
-    /// Boutons d'une ligne : monter, descendre, retirer.
-    fn folder_buttons(self: &Rc<Self>, row: &GtkBox, at: usize, last: usize) {
+    /// Boutons d'une ligne : parcourir, monter, descendre, retirer.
+    fn folder_buttons(self: &Rc<Self>, row: &GtkBox, at: usize, last: usize, path: &str) {
+        let browse = icon_button("folder", &["small"]);
+        browse.set_tooltip_text(Some("Choisir un autre dossier"));
+        let start = path.to_string();
+        on_click(&browse, self, move |app| app.choose_folder(&start, move |app, text| app.edit_side_folders(|list| list[at].path = text)));
+        row.append(&browse);
         for (glyph, delta) in [("up", -1isize), ("down", 1)] {
             let button = icon_button(glyph, &["small"]);
             button.set_sensitive(if delta < 0 { at > 0 } else { at < last });
@@ -59,17 +45,15 @@ impl App {
         row.append(&remove);
     }
 
-    /// Ouvre le sélecteur de dossier système ; le dossier choisi est épinglé s'il est sous la racine.
-    fn choose_folder(self: &Rc<Self>) {
+    /// Ouvre le sélecteur de dossier système, à partir de `start` ; `then` reçoit le chemin choisi s'il est sous la racine.
+    pub fn choose_folder(self: &Rc<Self>, start: &str, then: impl Fn(&Rc<App>, String) + 'static) {
         let dialog = gtk4::FileDialog::new();
-        dialog.set_initial_folder(Some(&gio::File::for_path(self.root.path())));
+        let initial = if Path::new(start).is_dir() { Path::new(start) } else { self.root.path() };
+        dialog.set_initial_folder(Some(&gio::File::for_path(initial)));
         let app = self.clone();
         dialog.select_folder(Some(&self.ui.window), None::<&gio::Cancellable>, move |result| {
             let Some(chosen) = result.ok().and_then(|file| file.path()) else { return };
-            match chosen.strip_prefix(app.root.path()).map(Path::to_path_buf) {
-                Ok(rel) => app.pin_side_folder(&rel.to_string_lossy()),
-                Err(_) => app.toast("Ce dossier est hors de la racine exposée"),
-            }
+            if app.root.inside(&chosen) { then(&app, chosen.to_string_lossy().into_owned()) } else { app.toast("Ce dossier est hors de la racine exposée") }
         });
     }
 
@@ -78,7 +62,13 @@ impl App {
         let row = hbox(12);
         row.add_css_class("setting");
         let pick = text_button("Choisir un dossier…", Some("plus"), &[]);
-        on_click(&pick, self, |app| app.choose_folder());
+        on_click(&pick, self, |app| {
+            app.choose_folder("", |app, text| {
+                app.edit_side_folders(|list| {
+                    pin_folder(list, &text);
+                })
+            })
+        });
         let here = text_button("Ajouter le dossier ouvert", Some("folder"), &[]);
         on_click(&here, self, |app| {
             let path = app.st.borrow().path.clone();

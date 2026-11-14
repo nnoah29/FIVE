@@ -3,6 +3,7 @@
 pub mod accent;
 pub mod controls;
 pub mod display;
+pub mod folder_fields;
 pub mod folders;
 pub mod panels;
 pub mod visibility;
