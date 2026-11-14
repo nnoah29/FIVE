@@ -46,6 +46,8 @@ impl App {
         tile.append(&self.thumb_for(item));
         let name = label(&item.name, &["name"]);
         name.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+        name.set_max_width_chars(12);
+        name.set_width_chars(8);
         name.set_tooltip_text(Some(&item.name));
         let size = if item.is_dir { "Dossier".to_string() } else { format_size(item.size, self.set.borrow().binary_units) };
         tile.append(&name);
