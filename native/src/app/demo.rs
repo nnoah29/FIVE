@@ -23,6 +23,15 @@ impl App {
             "compact" => self.change_setting(|s| s.compact = arg == "1"),
             "filter" => self.toggle_filter(arg),
             "search" => self.ui.top.search.set_text(arg),
+            "dbgmin" => {
+                let m = |n: &str, w: &gtk4::Widget| eprintln!("MIN {n} {:?}", w.measure(gtk4::Orientation::Horizontal, -1));
+                m("top", self.ui.top.root.upcast_ref());
+                m("page", self.ui.page.upcast_ref());
+                m("search", self.ui.top.search.upcast_ref());
+                m("user", self.ui.top.user.upcast_ref());
+                m("folders", self.ui.folders.root.upcast_ref());
+                m("lower", self.ui.lower.upcast_ref());
+            }
             "side" => self.open_side(),
             "size" => {
                 let (w, h) = arg.split_once('x').unwrap_or(("1500", "900"));

@@ -5,12 +5,13 @@ use std::rc::Rc;
 use gtk4::prelude::*;
 
 use super::shared::App;
+use crate::ui::classes::{set_button_label_visible, set_class};
 
 /// Largeur en dessous de laquelle le panneau de droite devient un tiroir.
 pub const MEDIUM: i32 = 1100;
 
 /// Largeur en dessous de laquelle la barre latérale devient un tiroir.
-pub const NARROW: i32 = 880;
+pub const NARROW: i32 = 760;
 
 impl App {
     /// Indique si la fenêtre est assez étroite pour que le panneau de droite soit un tiroir.
@@ -54,5 +55,8 @@ impl App {
         self.ui.work.root.set_visible(!narrow || has_pick);
         self.ui.top.user.set_visible(!narrow_side);
         self.ui.top.who.set_visible(!narrow);
+        let small = self.ui.window.width() > 0 && self.ui.window.width() <= 900;
+        set_button_label_visible(&self.ui.top.gear, !small);
+        set_class(&self.ui.top.root, "small", small);
     }
 }

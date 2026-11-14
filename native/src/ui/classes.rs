@@ -47,3 +47,11 @@ pub fn centered(width: i32, height: i32, child: &impl IsA<Widget>) -> GtkBox {
     frame.append(child);
     frame
 }
+
+/// Montre ou cache le libellé d'un bouton créé par `text_button` (l'icône reste).
+pub fn set_button_label_visible(button: &Button, visible: bool) {
+    let label = button.child().and_then(|row| row.last_child()).and_downcast::<Label>();
+    if let Some(label) = label {
+        label.set_visible(visible);
+    }
+}

@@ -259,3 +259,4 @@ window.five .crumb label, window.five .crumb-sep label { font-family: "JetBrains
 window.five .who-name, window.five .who-root { }
 window.five .tile .name { line-height: 1; }
 window.five .tile .meta { line-height: 0.91; }
+window.five .topbar.small { padding: 0 12px 0 12px; }
