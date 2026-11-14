@@ -2,9 +2,9 @@
 
 use std::rc::Rc;
 
+use gtk4::Widget;
 use gtk4::gdk::ModifierType;
 use gtk4::prelude::*;
-use gtk4::{FlowBox, Widget};
 
 use five_engine::entry::Entry;
 
@@ -20,11 +20,9 @@ impl App {
     /// Widgets des lignes ou tuiles affichées, dans l'ordre de `shown`.
     pub fn row_widgets(&self) -> Vec<Widget> {
         let items = &self.ui.files.items;
-        if let Some(flow) = items.first_child().and_downcast::<FlowBox>() {
-            return (0..self.st.borrow().shown.len() as i32).filter_map(|i| flow.child_at_index(i)).filter_map(|c| c.child()).collect();
-        }
         let mut out = Vec::new();
-        let mut cursor = items.first_child();
+        let first = items.first_child();
+        let mut cursor = if first.as_ref().is_some_and(|w| w.is::<gtk4::Grid>()) { first.and_then(|g| g.first_child()) } else { first };
         while let Some(widget) = cursor {
             cursor = widget.next_sibling();
             out.push(widget);

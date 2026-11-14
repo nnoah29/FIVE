@@ -41,6 +41,11 @@ impl App {
         self.place_side(narrow_side);
         if self.compact.replace(narrow_side) != narrow_side {
             self.render(None);
+        } else {
+            self.render_cards();
+            if self.set.borrow().view == "grid" {
+                self.render_items(None);
+            }
         }
         self.ui.top.menu.set_visible(narrow_side);
         self.ui.work.close.set_visible(narrow);

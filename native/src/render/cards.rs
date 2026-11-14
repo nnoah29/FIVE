@@ -66,12 +66,18 @@ impl App {
         });
         let card = Overlay::new();
         card.add_css_class("card");
-        card.set_size_request(200, -1);
+        card.set_size_request(self.card_width(), -1);
         card.set_hexpand(false);
         card.set_halign(Align::Start);
         card.set_child(Some(&self.card_main(dir)));
         card.add_overlay(&dots);
         card
+    }
+
+    /// Largeur d'une carte : 19 % de la zone (entre 168 et 240 px), ou 70 % sur fenêtre étroite.
+    fn card_width(&self) -> i32 {
+        let available = (self.ui.window.width() - if self.narrow_side() { 32 } else { 248 + 64 }).max(300) as f64;
+        if self.narrow_side() { (available * 0.7) as i32 } else { (available * 0.19).clamp(168.0, 240.0) as i32 }
     }
 
     /// Reconstruit les cartes (aucune en recherche ni en vue virtuelle).

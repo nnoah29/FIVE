@@ -13,7 +13,7 @@ use crate::ui::widgets::label;
 /// Bouton de texte brut du fil d'Ariane.
 fn crumb(text: &str, class: &str) -> Button {
     let button = Button::new();
-    button.set_child(Some(&label(text, &["mono"])));
+    button.set_child(Some(&label(text, &[])));
     button.add_css_class(class);
     button
 }

@@ -27,6 +27,10 @@ fn user_chip() -> (gtk4::Box, gtk4::Label, gtk4::Label, gtk4::Label, gtk4::Box) 
     avatar.set_xalign(0.5);
     avatar.set_halign(Align::Center);
     let (name, root) = (label("", &["who-name"]), label("", &["who-root"]));
+    root.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+    root.set_max_width_chars(20);
+    name.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+    name.set_max_width_chars(16);
     let who = vbox(0);
     who.set_valign(Align::Center);
     who.append(&name);

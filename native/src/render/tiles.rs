@@ -4,7 +4,7 @@ use std::rc::Rc;
 
 use five_engine::entry::Entry;
 use gtk4::prelude::*;
-use gtk4::{Align, Box as GtkBox, FlowBox, Overlay, Picture, SelectionMode};
+use gtk4::{Align, Box as GtkBox, Grid, Overlay, Picture};
 
 use super::press::attach_press;
 use crate::app::shared::App;
@@ -39,15 +39,15 @@ impl App {
     fn tile_for(self: &Rc<Self>, item: &Entry, index: usize) -> GtkBox {
         let tile = vbox(8);
         tile.add_css_class("tile");
-        tile.set_size_request(132, -1);
         if self.st.borrow().picked.contains(&item.path) {
             tile.add_css_class("selected");
         }
         tile.append(&self.thumb_for(item));
         let name = label(&item.name, &["name"]);
         name.set_ellipsize(gtk4::pango::EllipsizeMode::End);
-        name.set_max_width_chars(12);
-        name.set_width_chars(8);
+        name.set_max_width_chars(1);
+        name.set_hexpand(true);
+        name.set_halign(Align::Fill);
         name.set_tooltip_text(Some(&item.name));
         let size = if item.is_dir { "Dossier".to_string() } else { format_size(item.size, self.set.borrow().binary_units) };
         tile.append(&name);
@@ -56,21 +56,26 @@ impl App {
         tile
     }
 
-    /// Grille de toutes les tuiles.
-    pub fn build_tiles(self: &Rc<Self>) -> FlowBox {
-        let flow = FlowBox::new();
-        flow.set_selection_mode(SelectionMode::None);
-        flow.set_homogeneous(true);
-        flow.set_column_spacing(8);
-        flow.set_row_spacing(8);
-        flow.set_min_children_per_line(1);
-        flow.set_max_children_per_line(40);
-        flow.set_valign(Align::Start);
-        flow.set_margin_top(14);
-        let shown = self.st.borrow().shown.clone();
+    /// Nombre de colonnes de la grille : comme `repeat(auto-fill, minmax(132px, 1fr))`, avec 8 px d'écart.
+    fn grid_columns(&self) -> i32 {
+        let measured = self.ui.files.scroll.width();
+        let available = if measured > 100 { measured } else { self.ui.window.width() - 248 - 360 - 56 };
+        ((available + 8) / (132 + 8)).max(1)
+    }
+
+    /// Grille de toutes les tuiles, à colonnes de largeur égale.
+    pub fn build_tiles(self: &Rc<Self>) -> Grid {
+        let grid = Grid::new();
+        grid.set_column_homogeneous(true);
+        grid.set_column_spacing(8);
+        grid.set_row_spacing(8);
+        grid.set_valign(Align::Start);
+        grid.set_margin_top(14);
+        let (shown, columns) = (self.st.borrow().shown.clone(), self.grid_columns());
         for (index, item) in shown.iter().enumerate() {
-            flow.append(&self.tile_for(item, index));
+            let tile = self.tile_for(item, index);
+            grid.attach(&tile, index as i32 % columns, index as i32 / columns, 1, 1);
         }
-        flow
+        grid
     }
 }

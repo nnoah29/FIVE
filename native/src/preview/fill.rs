@@ -17,6 +17,23 @@ use crate::app::work::spawn_work;
 use crate::model::format::{format_clock, format_size};
 use crate::ui::classes::clear;
 
+/// Lecteur : barre de commandes seule pour l'audio, vidéo avec image sinon.
+fn media_player(file: &MediaFile, audio: bool, height: i32) -> gtk4::Widget {
+    if audio {
+        let controls = gtk4::MediaControls::new(Some(file));
+        controls.set_margin_top(24);
+        controls.set_margin_bottom(24);
+        controls.set_hexpand(true);
+        return controls.upcast();
+    }
+    let video = Video::new();
+    video.set_media_stream(Some(file));
+    video.set_autoplay(false);
+    video.set_size_request(-1, height);
+    video.set_hexpand(true);
+    video.upcast()
+}
+
 impl App {
     /// Aperçu d'une image : chargement hors du fil de l'interface, dimensions ajoutées à la fiche.
     pub fn fill_image(self: &Rc<Self>, zone: &GtkBox, full: PathBuf, facts: Option<Rc<Facts>>, height: i32) {
@@ -45,12 +62,14 @@ impl App {
         clear(zone);
         zone.remove_css_class("none");
         let file = MediaFile::for_filename(&full);
-        let video = Video::new();
-        video.set_media_stream(Some(&file));
-        video.set_autoplay(false);
-        video.set_size_request(-1, if kind == "audio" { 60 } else { height });
-        video.set_hexpand(true);
-        zone.append(&video);
+        let player = media_player(&file, kind == "audio", height);
+        zone.append(&player);
+        let (broken, glyph) = (zone.clone(), kind.to_string());
+        file.connect_error_notify(move |stream| {
+            if stream.error().is_some() {
+                none_state(&broken, &glyph, "Lecture impossible");
+            }
+        });
         let (kind, facts) = (kind.to_string(), facts);
         file.connect_prepared_notify(move |stream| {
             let Some(facts) = &facts else { return };

@@ -36,7 +36,6 @@ impl App {
     pub fn render_table(self: &Rc<Self>) {
         let head = &self.ui.files.thead;
         clear(head);
-        head.set_visible(self.set.borrow().view != "grid");
         let (tag, size, date) = column_widths(self.set.borrow().full_dates);
         head.append(&fixed(34, &hbox(0)));
         let name = self.column_button(SortKey::Name, "Nom");

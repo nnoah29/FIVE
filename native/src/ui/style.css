@@ -4,7 +4,7 @@ window.five {
   font-family: "Hanken Grotesk", sans-serif;
   font-size: 15px;
 }
-window.five label { color: inherit; }
+window.five label { color: inherit; line-height: 1.15; }
 window.five * { border-radius: 0; }
 window.five button, window.five entry, window.five scrolledwindow, window.five viewport { background-image: none; box-shadow: none; text-shadow: none; }
 window.five scrolledwindow, window.five viewport { background-color: transparent; border: none; }
@@ -32,7 +32,7 @@ window.five .logo-f { font-family: "Anton", sans-serif; font-size: 22px; color: 
 window.five .wordmark { font-family: "Anton", sans-serif; font-size: 30px; letter-spacing: 1.8px; color: @text@; }
 window.five .wordmark-b { color: @accent@; }
 window.five .big { font-family: "Anton", sans-serif; font-size: 52px; color: @text@; }
-window.five .counter { margin: 22px 12px 18px 12px; }
+window.five .counter { margin: 28px 12px 18px 12px; }
 window.five .nav { margin: 14px 0 0 0; }
 window.five .nav-title { padding: 12px 12px 10px 12px; font-family: "JetBrains Mono", monospace; font-weight: 500; font-size: 10.5px; letter-spacing: 1.9px; color: @dim@; }
 window.five .navitem { padding: 8px 12px; border-left: 2px solid transparent; color: @muted@; transition: background-color 130ms, color 130ms; }
@@ -250,3 +250,14 @@ window.five.csd { border-radius: 0; box-shadow: none; }
 window.five .rn-check check { border-radius: 0; background-color: @bg@; border: 1px solid @dim@; min-width: 14px; min-height: 14px; }
 window.five .rn-check check:checked { background-color: @accent@; border-color: @accent@; color: @on_accent@; }
 window.five .titlebar, window.five headerbar { min-height: 0; min-width: 0; padding: 0; margin: 0; border: none; background: none; box-shadow: none; }
+
+window.five .mono, window.five .tag, window.five .meta, window.five .pill, window.five .btn, window.five .card-meta, window.five .card-pill { line-height: 1.14; }
+window.five .big, window.five .wordmark, window.five .avatar, window.five .gauge-read-b { line-height: 0.664; }
+window.five .tab, window.five .th, window.five .seg-btn, window.five .kind-size { line-height: 0.758; }
+window.five .h1 { line-height: 0.83; }
+window.five .h2 { line-height: 0.73; }
+window.five .counter .mono { margin-top: 6px; }
+window.five .crumb label, window.five .crumb-sep label { font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 1.05px; text-transform: none; }
+window.five .who-name, window.five .who-root { }
+window.five .tile .name { line-height: 1; }
+window.five .tile .meta { line-height: 0.91; }

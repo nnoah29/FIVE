@@ -22,7 +22,7 @@ fn brand() -> gtk4::Box {
 
 /// Compteur d'éléments : grand nombre et libellé.
 fn counter() -> (gtk4::Box, gtk4::Label, gtk4::Label) {
-    let column = vbox(6);
+    let column = vbox(0);
     column.add_css_class("counter");
     column.add_css_class("side-pad");
     let (count, caption) = (label("0", &["big"]), mono("éléments", &["dim"]));
