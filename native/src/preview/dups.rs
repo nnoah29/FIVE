@@ -53,6 +53,7 @@ impl App {
         box_.append(&label("DOUBLONS", &["h2"]));
         let summary: Label = label("", &["dialog-text"]);
         summary.set_wrap(true);
+        summary.set_max_width_chars(1);
         box_.append(&summary);
         let groups = data["groups"].as_array().cloned().unwrap_or_default();
         let marked: Marked = Rc::new(RefCell::new(initial_marks(&data)));

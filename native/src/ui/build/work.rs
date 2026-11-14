@@ -14,7 +14,14 @@ pub fn build_work() -> WorkUi {
     root.set_size_request(360, -1);
     let body = vbox(18);
     body.add_css_class("work-body");
-    let scroll = ScrolledWindow::builder().hscrollbar_policy(PolicyType::Never).vexpand(true).child(&body).build();
+    let scroll = ScrolledWindow::builder()
+        .hscrollbar_policy(PolicyType::Automatic)
+        .vexpand(true)
+        .min_content_width(360)
+        .max_content_width(360)
+        .propagate_natural_width(false)
+        .child(&body)
+        .build();
     let close = icon_button("x", &[]);
     close.set_halign(Align::End);
     close.set_valign(Align::Start);

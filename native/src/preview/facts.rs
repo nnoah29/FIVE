@@ -34,6 +34,8 @@ impl Facts {
         let text: Label = label(value, &["fact-v"]);
         text.set_hexpand(true);
         text.set_wrap(true);
+        text.set_max_width_chars(1);
+        text.set_wrap_mode(gtk4::pango::WrapMode::WordChar);
         text.set_selectable(true);
         self.grid.attach(&name, 0, row, 1, 1);
         self.grid.attach(&text, 1, row, 1, 1);

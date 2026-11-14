@@ -35,5 +35,6 @@ impl App {
         let (path, view) = self.start_location();
         self.load(path, view);
         self.poll_jobs();
+        self.watch_wallpaper();
     }
 }

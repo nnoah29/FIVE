@@ -16,7 +16,10 @@ impl App {
     /// Bascule entre thème clair et sombre.
     pub fn toggle_theme(self: &Rc<Self>) {
         let dark = is_dark(&self.set.borrow());
-        self.change_setting(|s| s.theme = if dark { "light" } else { "dark" }.to_string());
+        self.change_setting(|s| {
+            s.theme = if dark { "light" } else { "dark" }.to_string();
+            s.wallpaper = false;
+        });
     }
 
     /// Choisit l'affichage en liste ou en grille.

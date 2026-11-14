@@ -2,6 +2,8 @@
 
 use crate::model::accent::{SWATCHES, is_hex, on_accent};
 use crate::model::settings::Settings;
+use crate::model::wall_palette::wall_tokens;
+use crate::model::wall_seed::WallSeed;
 
 const TEMPLATE: &str = include_str!("style.css");
 
@@ -56,11 +58,22 @@ pub fn palette(dark: bool, accent: &str) -> Palette {
     Palette { tokens }
 }
 
-/// Feuille de style complète : jetons remplacés, densité appliquée.
-pub fn build_css(dark: bool, settings: &Settings) -> String {
+/// Jetons du fond d'écran ; une couleur principale choisie par l'utilisateur garde la priorité sur l'accent du fond.
+fn wall_palette(seed: &WallSeed, accent: &str) -> Vec<(&'static str, String)> {
+    let (mut tokens, dark) = wall_tokens(seed);
+    if is_hex(accent) {
+        let custom = palette(dark, accent).tokens;
+        tokens.retain(|(name, _)| !matches!(*name, "accent" | "on_accent" | "accent_soft"));
+        tokens.extend(custom.into_iter().filter(|(name, _)| matches!(*name, "accent" | "on_accent" | "accent_soft")));
+    }
+    tokens
+}
+
+/// Feuille de style complète : jetons remplacés (ceux du fond d'écran s'il y en a), densité appliquée.
+pub fn build_css(dark: bool, settings: &Settings, wall: Option<&WallSeed>) -> String {
     let mut css = TEMPLATE.to_string();
     let (row, kind) = if settings.compact { ("36", "5") } else { ("54", "9") };
-    let mut tokens = palette(dark, &settings.accent).tokens;
+    let mut tokens = wall.map_or_else(|| palette(dark, &settings.accent).tokens, |seed| wall_palette(seed, &settings.accent));
     tokens.push(("row_h", row.to_string()));
     tokens.push(("kind_pad", kind.to_string()));
     tokens.push(("date_w", if settings.full_dates { "150" } else { "104" }.to_string()));

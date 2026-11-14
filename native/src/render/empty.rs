@@ -61,13 +61,18 @@ impl App {
         column.set_vexpand(true);
         column.set_size_request(-1, 220);
         let glyph = icon_with_stroke("folder", 44, 1.6);
+        glyph.set_halign(Align::Center);
         column.append(&glyph);
-        column.append(&mono(if error.is_some() { "Lecture impossible" } else { "Aucun fichier" }, &[]));
+        let title = mono(if error.is_some() { "Lecture impossible" } else { "Aucun fichier" }, &[]);
+        title.set_halign(Align::Center);
+        title.set_xalign(0.5);
+        column.append(&title);
         let text = label(&self.empty_message(error), &["empty-text"]);
         text.set_wrap(true);
         text.set_max_width_chars(34);
         text.set_justify(Justification::Center);
         text.set_xalign(0.5);
+        text.set_halign(Align::Center);
         column.append(&text);
         if let Some(button) = self.empty_action() {
             button.set_halign(Align::Center);

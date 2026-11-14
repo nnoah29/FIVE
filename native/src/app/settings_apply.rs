@@ -8,12 +8,14 @@ use crate::model::sorting::SortKey;
 use crate::ui::classes::set_class;
 use crate::ui::scheme::is_dark;
 use crate::ui::theme::build_css;
+use crate::ui::wallpaper::wall_seed;
 
 impl App {
     /// Régénère la feuille de style selon le thème, la couleur principale, la densité et le format des dates.
     pub fn apply_theme(self: &Rc<Self>) {
         let settings = self.set.borrow().clone();
-        self.provider.load_from_string(&build_css(is_dark(&settings), &settings));
+        let wall = wall_seed(&settings);
+        self.provider.load_from_string(&build_css(is_dark(&settings), &settings, wall.as_ref()));
     }
 
     /// Reflète les réglages sur les boutons de la fenêtre (affichage, fichiers cachés, paramètres).

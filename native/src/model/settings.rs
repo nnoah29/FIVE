@@ -21,6 +21,7 @@ pub struct Settings {
     pub compact: bool,
     pub git: bool,
     pub restore: bool,
+    pub wallpaper: bool,
 }
 
 impl Default for Settings {
@@ -40,6 +41,7 @@ impl Default for Settings {
             compact: false,
             git: true,
             restore: true,
+            wallpaper: true,
         }
     }
 }
@@ -76,6 +78,7 @@ impl Settings {
             compact: flag("compact", base.compact),
             git: flag("git", base.git),
             restore: flag("restore", base.restore),
+            wallpaper: flag("wallpaper", base.wallpaper),
         }
     }
 
@@ -83,7 +86,7 @@ impl Settings {
     pub fn to_json(&self) -> Value {
         json!({"theme": self.theme, "view": self.view, "sort": self.sort, "ascending": self.ascending, "hidden": self.hidden,
             "binary_units": self.binary_units, "full_dates": self.full_dates, "thumbs": self.thumbs, "confirm_trash": self.confirm_trash,
-            "accent": self.accent, "compact": self.compact, "git": self.git, "restore": self.restore})
+            "accent": self.accent, "compact": self.compact, "git": self.git, "restore": self.restore, "wallpaper": self.wallpaper})
     }
 
     /// Enregistre les réglages ; un échec d'écriture est sans conséquence.

@@ -69,6 +69,7 @@ impl App {
         let facts = self.item_facts(item);
         let title = label(&item.name.to_uppercase(), &["h2"]);
         title.set_wrap(true);
+        title.set_max_width_chars(1);
         title.set_wrap_mode(gtk4::pango::WrapMode::WordChar);
         title.set_hexpand(true);
         title.set_halign(gtk4::Align::Fill);

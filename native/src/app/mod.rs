@@ -32,5 +32,6 @@ pub mod settings_apply;
 pub mod shared;
 pub mod submits;
 pub mod toast;
+pub mod wall_watch;
 pub mod wire;
 pub mod work;

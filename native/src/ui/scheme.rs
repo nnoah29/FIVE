@@ -4,6 +4,7 @@ use gtk4::glib;
 use gtk4::prelude::*;
 
 use crate::model::settings::Settings;
+use crate::ui::wallpaper::wall_seed;
 
 /// Indique si le système demande un thème sombre.
 pub fn system_is_dark() -> bool {
@@ -21,6 +22,9 @@ pub fn system_is_dark() -> bool {
 
 /// Indique si le thème effectif est sombre, d'après le réglage de l'utilisateur.
 pub fn is_dark(settings: &Settings) -> bool {
+    if let Some(seed) = wall_seed(settings) {
+        return seed.bg.luminance() < 0.4;
+    }
     match settings.theme.as_str() {
         "dark" => true,
         "light" => false,

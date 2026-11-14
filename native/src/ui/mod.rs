@@ -12,4 +12,5 @@ pub mod icons_data;
 pub mod scheme;
 pub mod svgpath;
 pub mod theme;
+pub mod wallpaper;
 pub mod widgets;
