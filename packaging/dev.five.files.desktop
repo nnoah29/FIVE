@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=FIVE
+GenericName=File Manager
+Comment=A fast, native file manager with folder cards, rules and previews
+Exec=five-gtk %U
+Icon=dev.five.files
+Terminal=false
+Categories=Utility;System;FileTools;FileManager;GTK;
+StartupWMClass=dev.five.files
+MimeType=inode/directory;
+Keywords=files;folders;explorer;manager;
