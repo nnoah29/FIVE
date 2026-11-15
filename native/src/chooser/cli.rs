@@ -73,6 +73,7 @@ pub fn run_if_requested() -> Option<glib::ExitCode> {
             Some(run_chooser(request, shot, select))
         }
         Some("--portal") => Some(super::portal::run()),
+        Some(flag) => super::enable_cli::run_if_requested(flag),
         _ => None,
     }
 }

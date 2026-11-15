@@ -56,17 +56,20 @@ Ubuntu 24.04 LTS and Debian 12 ship an older GTK 4 and are not supported yet.
 
 Applications ask the desktop portal (`xdg-desktop-portal`) for the dialog that picks a file, a folder or a save location.
 FIVE ships a small, simple window for that: a list of folders and files, an editable path, your usual and pinned folders,
-file type filters, a name field and an overwrite confirmation. It is opt-in. Packages install the portal files; to turn it on:
+file type filters, a name field with an overwrite confirmation, and the same preview panel as the main window.
 
-```bash
-mkdir -p ~/.config/xdg-desktop-portal
-printf '[preferred]\norg.freedesktop.impl.portal.FileChooser=five;gtk\n' >> ~/.config/xdg-desktop-portal/portals.conf
-systemctl --user restart xdg-desktop-portal
-```
+It is a choice you make, because it changes a setting of your own account (a package cannot do that for you, and it should not
+replace everybody's dialog silently). Turn it on with one click or one command:
 
-If the file already has a `[preferred]` section, add the `FileChooser` line to it instead. `gtk` stays as a fallback.
-To go back, remove that line. You can also try the window alone: `five-gtk --chooser open` (or `folder`, `save --name report.pdf`);
-it prints the chosen paths. Keys: `Enter` or double click to validate, `Ctrl+L` to type a path, `Alt+Up` for the parent folder, `Ctrl+H` for hidden files, `Esc` to cancel.
+- in FIVE: **Settings, System, "System file chooser"**, or
+- in a terminal: `five-gtk --enable-chooser` (and `five-gtk --disable-chooser` to go back, `five-gtk --chooser-status` to check).
+
+This adds `org.freedesktop.impl.portal.FileChooser=five;gtk` to `~/.config/xdg-desktop-portal/portals.conf` and restarts the portal;
+the default `gtk` chooser stays as a fallback. If you installed FIVE from the tarball or from source, the same command also writes
+the small service files FIVE needs in `~/.local/share`.
+
+You can also try the window alone: `five-gtk --chooser open` (or `folder`, `save --name report.pdf`); it prints the chosen paths.
+Keys: `Enter` or double click to validate, `Ctrl+L` to type a path, `Alt+Up` for the parent folder, `Ctrl+H` for hidden files, `Esc` to cancel.
 
 ## Build from source
 

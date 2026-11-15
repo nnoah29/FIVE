@@ -76,6 +76,7 @@ impl App {
         note.set_halign(Align::End);
         vec![
             facts.grid.clone().upcast(),
+            self.chooser_row(),
             setting_row("Changer de racine", Some("Relancez FIVE avec --root /chemin (par exemple --root / pour tout le disque)."), &note, false).upcast(),
         ]
     }

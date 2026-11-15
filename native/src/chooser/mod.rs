@@ -3,6 +3,7 @@
 pub mod accept;
 pub mod bytes;
 pub mod cli;
+pub mod enable_cli;
 pub mod finish;
 pub mod footer;
 pub mod header;
@@ -15,6 +16,8 @@ pub mod outcome;
 pub mod paths;
 pub mod portal;
 pub mod portal_call;
+pub mod portal_conf;
+pub mod portal_enable;
 pub mod portal_xml;
 pub mod preview;
 pub mod preview_parts;

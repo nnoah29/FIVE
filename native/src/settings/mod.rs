@@ -1,6 +1,7 @@
 //! Page Paramètres : onglets et panneaux, à la place du contenu.
 
 pub mod accent;
+pub mod chooser_row;
 pub mod controls;
 pub mod display;
 pub mod folder_fields;
