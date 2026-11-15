@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 dnf install -y -q gcc pkgconf-pkg-config gtk4-devel rpm-build curl python3 git >/dev/null
 packaging/prepare-toolchain.sh
-export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$PATH"
 cargo build --release -p five-gtk
 version="$(packaging/version.sh)"
 top="$(mktemp -d)"

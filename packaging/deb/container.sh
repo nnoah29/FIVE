@@ -6,7 +6,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq build-essential curl ca-certificates pkg-config libgtk-4-dev dpkg-dev python3 git >/dev/null
 packaging/prepare-toolchain.sh
-export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$PATH"
 cargo build --release -p five-gtk
 version="$(packaging/version.sh)"
 out="packaging/out"; mkdir -p "$out"
