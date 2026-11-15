@@ -11,7 +11,9 @@ impl App {
     pub(super) fn empty_card(&self) -> gtk4::Box {
         let card = vbox(0);
         card.add_css_class("card-empty");
-        card.set_size_request(self.card_width(), -1);
+        card.set_size_request(self.card_width(), 122);
+        card.set_vexpand(false);
+        card.set_valign(Align::Start);
         let text = label("Aucun sous-dossier", &["dim"]);
         text.set_halign(Align::Center);
         text.set_valign(Align::Center);
