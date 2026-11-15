@@ -32,9 +32,18 @@ impl Chooser {
         self.list.selected_rows().iter().filter_map(|r| rows.get(r.index() as usize).cloned()).collect()
     }
 
+    /// Sélectionne la ligne portant ce nom (essais et captures en ligne de commande).
+    pub fn select_name(&self, name: &str) {
+        let index = self.rows.borrow().iter().position(|r| r.name == name);
+        if let Some(row) = index.and_then(|i| self.list.row_at_index(i as i32)) {
+            self.list.select_row(Some(&row));
+        }
+    }
+
     /// Selon le mode : en enregistrement, un clic sur un fichier propose son nom ; la validation est remise à jour.
     pub fn on_selection(self: &Rc<Self>) {
         let picked = self.selected_rows();
+        self.preview.show(if let [row] = picked.as_slice() { Some(row) } else { None });
         if let (Mode::Save, [row]) = (self.request.mode, picked.as_slice())
             && !row.is_dir
         {

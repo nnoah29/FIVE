@@ -25,6 +25,7 @@ impl Chooser {
         let rows = selectable(rows, self.request.mode, self.active_filter());
         fill(&self.list, &rows);
         *self.rows.borrow_mut() = rows;
+        self.preview.show(None);
         self.refresh_accept();
     }
 

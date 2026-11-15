@@ -16,6 +16,8 @@ pub mod paths;
 pub mod portal;
 pub mod portal_call;
 pub mod portal_xml;
+pub mod preview;
+pub mod preview_parts;
 pub mod request;
 pub mod rows_view;
 pub mod shot;

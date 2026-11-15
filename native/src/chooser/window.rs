@@ -11,6 +11,7 @@ use super::footer::{Footer, build_footer};
 use super::header::{Header, build_header};
 use super::listing::Row;
 use super::outcome::Choice;
+use super::preview::{Preview, build_preview};
 use super::request::{Mode, Request};
 use super::style;
 use crate::ui::widgets::{hbox, vbox};
@@ -26,6 +27,7 @@ pub struct Chooser {
     pub footer: Footer,
     pub list: ListBox,
     pub side: gtk4::Box,
+    pub preview: Preview,
     pub dir: RefCell<PathBuf>,
     pub rows: RefCell<Vec<Row>>,
     pub show_hidden: Cell<bool>,
@@ -52,7 +54,7 @@ fn build_list(request: &Request) -> ListBox {
 }
 
 /// Corps de la fenêtre : barre latérale à gauche, liste défilante à droite.
-fn build_body(list: &ListBox, side: &gtk4::Box) -> gtk4::Box {
+fn build_body(list: &ListBox, side: &gtk4::Box, preview: &Preview) -> gtk4::Box {
     let scroll = ScrolledWindow::builder().hscrollbar_policy(PolicyType::Never).child(list).build();
     scroll.set_hexpand(true);
     scroll.set_vexpand(true);
@@ -62,20 +64,22 @@ fn build_body(list: &ListBox, side: &gtk4::Box) -> gtk4::Box {
     let body = hbox(0);
     body.append(&side_scroll);
     body.append(&scroll);
+    body.append(&preview.root);
     body
 }
 
 /// Construit la fenêtre et son contenu, sans rien câbler.
 fn assemble(request: Request, done: Done) -> Rc<Chooser> {
     let title = if request.title.is_empty() { default_title(request.mode) } else { request.title.as_str() };
-    let window = Window::builder().title(title).default_width(860).default_height(580).build();
+    let window = Window::builder().title(title).default_width(1040).default_height(580).build();
     window.add_css_class("five");
     window.add_css_class("chooser");
     window.set_titlebar(Some(&gtk4::Box::new(gtk4::Orientation::Vertical, 0)));
     let (header, footer, list, side) = (build_header(title), build_footer(&request), build_list(&request), vbox(2));
+    let preview = build_preview();
     let column = vbox(0);
     column.append(&WindowHandle::builder().child(&header.root).build());
-    column.append(&build_body(&list, &side));
+    column.append(&build_body(&list, &side, &preview));
     column.append(&footer.root);
     window.set_child(Some(&column));
     let dir = RefCell::new(request.start_dir.clone());
@@ -86,6 +90,7 @@ fn assemble(request: Request, done: Done) -> Rc<Chooser> {
         footer,
         list,
         side,
+        preview,
         dir,
         rows: RefCell::new(Vec::new()),
         show_hidden: Cell::new(false),

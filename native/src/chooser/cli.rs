@@ -10,9 +10,9 @@ use gtk4::{Application, gio, glib};
 use super::request::{Mode, Request};
 use super::window::Chooser;
 
-/// Lit les options du sélecteur : `--title`, `--name`, `--folder`, `--multiple`, `--shot`.
-fn read_request(mode: Mode, args: &[String]) -> (Request, Option<String>) {
-    let (mut request, mut shot) = (Request::new(mode, ""), None);
+/// Lit les options du sélecteur : `--title`, `--name`, `--folder`, `--multiple`, `--shot`, `--select`.
+fn read_request(mode: Mode, args: &[String]) -> (Request, Option<String>, Option<String>) {
+    let (mut request, mut shot, mut select) = (Request::new(mode, ""), None, None);
     let mut it = args.iter();
     while let Some(flag) = it.next() {
         match (flag.as_str(), it.clone().next()) {
@@ -21,13 +21,14 @@ fn read_request(mode: Mode, args: &[String]) -> (Request, Option<String>) {
             ("--name", Some(v)) => request.current_name.clone_from(v),
             ("--folder", Some(v)) => request.start_dir = PathBuf::from(v),
             ("--shot", Some(v)) => shot = Some(v.clone()),
+            ("--select", Some(v)) => select = Some(v.clone()),
             _ => continue,
         }
         if flag != "--multiple" {
             it.next();
         }
     }
-    (request, shot)
+    (request, shot, select)
 }
 
 /// Mode demandé après `--chooser`.
@@ -40,7 +41,7 @@ fn read_mode(word: Option<&String>) -> Mode {
 }
 
 /// Affiche le sélecteur seul : les chemins choisis sont écrits sur la sortie standard, un par ligne.
-fn run_chooser(request: Request, shot: Option<String>) -> glib::ExitCode {
+fn run_chooser(request: Request, shot: Option<String>, select: Option<String>) -> glib::ExitCode {
     let application = Application::builder().application_id("dev.five.files.chooser").flags(gio::ApplicationFlags::NON_UNIQUE).build();
     let code = Rc::new(Cell::new(1u8));
     let result = code.clone();
@@ -55,6 +56,7 @@ fn run_chooser(request: Request, shot: Option<String>) -> glib::ExitCode {
                 quit.quit();
             }),
         );
+        select.iter().for_each(|name| chooser.select_name(name));
         super::shot::schedule(&chooser, shot.clone());
         std::mem::forget(chooser);
     });
@@ -67,8 +69,8 @@ pub fn run_if_requested() -> Option<glib::ExitCode> {
     let args: Vec<String> = std::env::args().skip(1).collect();
     match args.first().map(String::as_str) {
         Some("--chooser") => {
-            let (request, shot) = read_request(read_mode(args.get(1)), &args[2.min(args.len())..]);
-            Some(run_chooser(request, shot))
+            let (request, shot, select) = read_request(read_mode(args.get(1)), &args[2.min(args.len())..]);
+            Some(run_chooser(request, shot, select))
         }
         Some("--portal") => Some(super::portal::run()),
         _ => None,
