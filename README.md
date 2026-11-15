@@ -84,6 +84,10 @@ Packages are built in the same containers as the CI: `packaging/build-in-contain
 - `tools/check-norms`: code norms checker (function length, one doc line per function...).
 - `docs/`: design notes and decisions (French).
 
+## License
+
+FIVE is released under the [MIT License](LICENSE).
+
 ## Status
 
 FIVE is young (0.x): expect rough edges. Issues and ideas are welcome on GitHub.

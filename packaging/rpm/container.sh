@@ -9,7 +9,7 @@ cargo build --release -p five-gtk
 version="$(packaging/version.sh)"
 top="$(mktemp -d)"
 mkdir -p "$top"/{SOURCES,SPECS,BUILD,RPMS,SRPMS}
-cp packaging/stage.sh packaging/dev.five.files.desktop packaging/dev.five.files.svg "$top/SOURCES/"
+cp LICENSE packaging/stage.sh packaging/dev.five.files.desktop packaging/dev.five.files.svg "$top/SOURCES/"
 cp target/release/five-gtk "$top/SOURCES/"
 export FIVE_ROOT="$PWD"
 rpmbuild -bb --define "_topdir $top" --define "pkg_version $version" packaging/rpm/five.spec

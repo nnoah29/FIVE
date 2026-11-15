@@ -5,7 +5,7 @@ pkgrel=1
 pkgdesc='A fast, native file manager with folder cards, previews and automation rules'
 arch=('x86_64')
 url='https://github.com/nnoah29/FIVE'
-license=('LicenseRef-Unspecified')
+license=('MIT')
 depends=('gtk4>=4.16' 'pango>=1.56')
 makedepends=('rust' 'git')
 options=('!debug')
