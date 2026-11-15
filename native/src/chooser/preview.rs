@@ -8,6 +8,9 @@ use crate::model::kinds::kind_of;
 use crate::preview::media::fill_zone;
 use crate::ui::widgets::vbox;
 
+/// Hauteur fixe de la zone d'aperçu, quel que soit le contenu.
+const ZONE_HEIGHT: i32 = 260;
+
 /// Le panneau et sa zone de contenu.
 pub struct Preview {
     pub root: gtk4::Box,
@@ -37,8 +40,12 @@ impl Preview {
         let (zone, entry) = (vbox(8), entry_of(row));
         zone.add_css_class("preview");
         zone.add_css_class("none");
+        zone.set_size_request(-1, ZONE_HEIGHT);
+        zone.set_vexpand(false);
+        zone.set_valign(gtk4::Align::Start);
+        zone.set_overflow(gtk4::Overflow::Hidden);
         self.body.append(&zone);
-        fill_zone(&zone, row.path.clone(), &entry, kind_of(&entry), None, 260, false);
+        fill_zone(&zone, row.path.clone(), &entry, kind_of(&entry), None, ZONE_HEIGHT - 12, false);
         self.body.append(&facts_box(row));
     }
 }
