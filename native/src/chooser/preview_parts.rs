@@ -59,6 +59,7 @@ pub fn facts_box(row: &Row) -> gtk4::Box {
     let column = vbox(4);
     let name = label(&row.name, &["chooser-fact-name"]);
     name.set_ellipsize(gtk4::pango::EllipsizeMode::Middle);
+    name.set_max_width_chars(28);
     name.set_tooltip_text(Some(&row.name));
     let size = if row.is_dir { fs::read_dir(&row.path).map_or(String::new(), |d| format!("{} éléments", d.count())) } else { format_size(row.size, false) };
     let kind = if row.is_dir { "Dossier" } else { five_engine::mime::guess(&row.name) };

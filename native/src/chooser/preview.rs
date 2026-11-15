@@ -18,6 +18,8 @@ pub fn build_preview() -> Preview {
     let root = vbox(0);
     root.add_css_class("chooser-preview");
     root.set_size_request(300, -1);
+    root.set_hexpand(false);
+    root.set_overflow(gtk4::Overflow::Hidden);
     let body = vbox(14);
     body.add_css_class("chooser-preview-body");
     root.append(&body);
@@ -26,7 +28,11 @@ pub fn build_preview() -> Preview {
 
 /// Contenu visuel : dossier ou icône, image, ou début du texte.
 fn visual(row: &Row) -> gtk4::Widget {
-    let big = |name: &str| icon_with_stroke(name, 64, 1.3).upcast::<gtk4::Widget>();
+    let big = |name: &str| {
+        let glyph = icon_with_stroke(name, 64, 1.3);
+        glyph.set_halign(gtk4::Align::Start);
+        glyph.upcast::<gtk4::Widget>()
+    };
     if row.is_dir {
         return big("folder");
     }
@@ -40,9 +46,7 @@ impl Preview {
             self.body.remove(&child);
         }
         let Some(row) = row else { return };
-        let picture = visual(row);
-        picture.set_halign(gtk4::Align::Fill);
-        self.body.append(&picture);
+        self.body.append(&visual(row));
         self.body.append(&facts_box(row));
     }
 }
