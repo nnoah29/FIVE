@@ -67,9 +67,12 @@ impl App {
             let (weak, run, pop) = (Rc::downgrade(self), entry.run.clone(), popover.clone());
             button.connect_clicked(move |_| {
                 pop.popdown();
-                if let Some(app) = weak.upgrade() {
-                    run(&app);
-                }
+                let (weak, run) = (weak.clone(), run.clone());
+                gtk4::glib::idle_add_local_once(move || {
+                    if let Some(app) = weak.upgrade() {
+                        run(&app);
+                    }
+                });
             });
             list.append(&button);
         }

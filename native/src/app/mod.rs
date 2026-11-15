@@ -34,6 +34,7 @@ pub mod select;
 pub mod settings_apply;
 pub mod shared;
 pub mod side_places;
+pub mod side_unpin;
 pub mod submits;
 pub mod toast;
 pub mod wall_watch;

@@ -6,6 +6,7 @@ use gtk4::Button;
 use gtk4::prelude::*;
 
 use crate::app::shared::{App, on_click};
+use crate::app::side_unpin::attach_unpin_menu;
 use crate::state::Place;
 use crate::ui::classes::{clear, set_class};
 use crate::ui::icon::icon;
@@ -86,7 +87,9 @@ impl App {
         for place in &others {
             let entry = NavEntry { id: place.id.clone(), text: place.label.clone(), view: None, target: place.path.clone() };
             let here = is_current(&entry, &path, &view, searching);
-            self.ui.side.places.append(&self.nav_row(entry, here));
+            let row = self.nav_row(entry, here);
+            attach_unpin_menu(self, &row, &place.path);
+            self.ui.side.places.append(&row);
         }
     }
 }

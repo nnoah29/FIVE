@@ -23,7 +23,7 @@ impl App {
         let mut out = self.archive_entries(targets);
         if let ([only], true) = (targets, item.is_dir) {
             let target = only.clone();
-            out.push(MenuEntry::new("favorites", "Épingler dans la barre latérale", move |app| app.pin_entry(&target)));
+            out.push(self.pin_toggle_entry(target));
         }
         if let [only] = targets {
             let (target, is_dir) = (only.clone(), item.is_dir);
