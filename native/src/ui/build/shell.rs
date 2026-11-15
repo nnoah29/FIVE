@@ -64,7 +64,7 @@ pub fn build_ui(app: &gtk4::Application) -> Ui {
     main.set_hexpand(true);
     main.append(&WindowHandle::builder().child(&top.root).build());
     main.append(&stack);
-    let side_scroll = ScrolledWindow::builder().hscrollbar_policy(PolicyType::Never).child(&side.root).build();
+    let side_scroll = ScrolledWindow::builder().hscrollbar_policy(PolicyType::External).child(&side.root).build();
     side_scroll.set_size_request(248, -1);
     let page = hbox(0);
     page.append(&side_scroll);
