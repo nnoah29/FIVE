@@ -1,0 +1,126 @@
+name: release
+# Runs on every push to main. A release starts only when the pushed history contains a commit
+# "chore(release): version X.Y.Z"; otherwise the workflow stops without doing anything.
+# Result: an annotated tag vX.Y.Z and a DRAFT GitHub release (publish it by hand after trying the packages).
+# Recovery: "Run workflow" with the version of an existing tag rebuilds the packages from that tag.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version whose tag vX.Y.Z already exists (rebuild after a failed package job)"
+        required: true
+permissions:
+  contents: write
+concurrency:
+  group: release
+  cancel-in-progress: false
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.find.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - id: find
+        name: Find the release commit in the pushed history
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            version="$(tr -d '[:space:]' <<<"${{ inputs.version }}")"; version="${version#v}"
+            [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Invalid version: '$version'" >&2; exit 1; }
+            git rev-parse -q --verify "refs/tags/v$version" >/dev/null || { echo "Tag v$version does not exist" >&2; exit 1; }
+            echo "version=$version" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          before="${{ github.event.before }}"
+          if [[ "$before" =~ ^0+$ ]]; then range="HEAD -1"; else range="$before..HEAD"; fi
+          subject="$(git log --format=%s $range | grep -E '^chore\(release\): version [0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)"
+          version="$(sed -nE 's/^chore\(release\): version ([0-9]+\.[0-9]+\.[0-9]+).*/\1/p' <<<"$subject")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Release version detected: '${version:-none}'"
+      - name: Consistency checks
+        if: steps.find.outputs.version != '' && github.event_name == 'push'
+        run: |
+          v="${{ steps.find.outputs.version }}"
+          if git rev-parse -q --verify "refs/tags/v$v" >/dev/null; then echo "Tag v$v already exists" >&2; exit 1; fi
+          cargo_v="$(sed -nE '/^\[workspace\.package\]/,/^\[/ s/^version = "([^"]+)"/\1/p' Cargo.toml | head -1)"
+          test "$cargo_v" = "$v" || { echo "Cargo.toml says $cargo_v, release commit says $v" >&2; exit 1; }
+          test -f "docs/release-notes/v$v.md" || { echo "Missing docs/release-notes/v$v.md" >&2; exit 1; }
+  verify:
+    needs: plan
+    if: needs.plan.outputs.version != '' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    container: debian:trixie
+    steps:
+      - run: apt-get update && apt-get install -y build-essential curl ca-certificates pkg-config libgtk-4-dev python3 git
+      - uses: actions/checkout@v4
+      - run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable -c rustfmt -c clippy
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+      - uses: Swatinem/rust-cache@v2
+      - run: ./ci.sh
+  tag:
+    needs: [plan, verify]
+    if: needs.plan.outputs.version != '' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create the annotated tag
+        run: |
+          v="${{ needs.plan.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "v$v" -m "Release v$v" "${{ github.sha }}"
+          git push origin "v$v"
+  deb:
+    needs: [plan, tag]
+    if: ${{ !cancelled() && needs.plan.outputs.version != '' && (needs.tag.result == 'success' || needs.tag.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    container: debian:trixie
+    steps:
+      - run: apt-get update && apt-get install -y git
+      - uses: actions/checkout@v4
+        with: { ref: "v${{ needs.plan.outputs.version }}" }
+      - run: packaging/deb/container.sh
+      - uses: actions/upload-artifact@v4
+        with: { name: deb, path: "packaging/out/*" }
+  rpm:
+    needs: [plan, tag]
+    if: ${{ !cancelled() && needs.plan.outputs.version != '' && (needs.tag.result == 'success' || needs.tag.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    container: fedora:42
+    steps:
+      - run: dnf install -y git
+      - uses: actions/checkout@v4
+        with: { ref: "v${{ needs.plan.outputs.version }}" }
+      - run: packaging/rpm/container.sh
+      - uses: actions/upload-artifact@v4
+        with: { name: rpm, path: "packaging/out/*" }
+  arch:
+    needs: [plan, tag]
+    if: ${{ !cancelled() && needs.plan.outputs.version != '' && (needs.tag.result == 'success' || needs.tag.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - run: pacman -Syu --noconfirm git
+      - uses: actions/checkout@v4
+        with: { ref: "v${{ needs.plan.outputs.version }}" }
+      - run: packaging/arch/container.sh
+      - uses: actions/upload-artifact@v4
+        with: { name: arch, path: "packaging/out/*" }
+  publish:
+    needs: [plan, deb, rpm, arch]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: "v${{ needs.plan.outputs.version }}" }
+      - uses: actions/download-artifact@v4
+        with: { path: dist, merge-multiple: true }
+      - name: Checksums and draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v="${{ needs.plan.outputs.version }}"
+          (cd dist && sha256sum * > SHA256SUMS && sha256sum -c SHA256SUMS)
+          gh release create "v$v" dist/* --title "FIVE $v" --notes-file "docs/release-notes/v$v.md" --verify-tag --draft

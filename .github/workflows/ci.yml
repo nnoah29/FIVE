@@ -1,0 +1,21 @@
+name: ci
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    container: debian:trixie
+    steps:
+      - name: System packages
+        run: apt-get update && apt-get install -y build-essential curl ca-certificates pkg-config libgtk-4-dev python3 git
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable -c rustfmt -c clippy
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+      - uses: Swatinem/rust-cache@v2
+      - name: fmt, clippy, build, tests, norms
+        run: ./ci.sh
