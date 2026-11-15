@@ -295,7 +295,5 @@ window.five .chooser-date { min-width: 96px; }
 window.five .chooser-footer { background-color: @bg_side@; border-top: 1px solid @line_soft@; padding: 14px 20px; }
 window.five .chooser-preview { background-color: @bg_side@; border-left: 1px solid @line_soft@; }
 window.five .chooser-preview-body { padding: 20px; }
-window.five .chooser-picture { background-color: @surface@; }
-window.five .chooser-excerpt { background-color: @surface@; padding: 10px; font-size: 11px; color: @muted@; }
 window.five .chooser-fact-name { font-weight: 600; }
 window.five .chooser-fact { font-family: "JetBrains Mono", monospace; font-size: 11px; }

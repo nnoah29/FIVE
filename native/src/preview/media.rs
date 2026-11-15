@@ -1,5 +1,6 @@
 //! Aperçu d'un élément : choix de la méthode selon la famille et l'extension.
 
+use std::path::PathBuf;
 use std::rc::Rc;
 
 use five_engine::entry::Entry;
@@ -7,6 +8,7 @@ use gtk4::prelude::*;
 use gtk4::{Align, Box as GtkBox, PolicyType, ScrolledWindow, TextView};
 
 use super::facts::Facts;
+use super::fill::{fill_archive, fill_image, fill_media, fill_pdf, fill_text};
 use crate::app::shared::App;
 use crate::model::kinds::{extension, kind_icon};
 use crate::ui::classes::clear;
@@ -57,20 +59,25 @@ pub fn show_text(zone: &GtkBox, text: &str, height: i32) {
     zone.append(&scroll);
 }
 
+/// Remplit la zone d'aperçu de `item` ; `facts` reçoit les dimensions ou durées découvertes ; `height` borne la zone.
+pub fn fill_zone(zone: &GtkBox, full: PathBuf, item: &Entry, kind: &str, facts: Option<Rc<Facts>>, height: i32, units: bool) {
+    if item.is_dir {
+        return none_state(zone, kind, "Dossier");
+    }
+    match kind {
+        "image" => fill_image(zone, full, facts, height),
+        "video" | "audio" => fill_media(zone, full, kind, facts, height),
+        _ if is_archive(&item.name) => fill_archive(zone, full, units, height),
+        _ if extension(&item.name) == "pdf" => fill_pdf(zone, full, height),
+        _ if item.size > 50_000_000 => none_state(zone, kind, "Aperçu indisponible : fichier volumineux"),
+        _ => fill_text(zone, full, kind, height),
+    }
+}
+
 impl App {
-    /// Remplit la zone d'aperçu de `item` ; `facts` reçoit les dimensions ou durées découvertes ; `height` borne la zone.
+    /// Remplit la zone d'aperçu de `item` selon sa famille.
     pub fn fill_preview(self: &Rc<Self>, zone: &GtkBox, item: &Entry, kind: &str, facts: Option<Rc<Facts>>, height: i32) {
         let Ok(full) = self.root.resolve(&item.path) else { return };
-        if item.is_dir {
-            return none_state(zone, kind, "Dossier");
-        }
-        match kind {
-            "image" => self.fill_image(zone, full, facts, height),
-            "video" | "audio" => self.fill_media(zone, full, kind, facts, height),
-            _ if is_archive(&item.name) => self.fill_archive(zone, full, height),
-            _ if extension(&item.name) == "pdf" => self.fill_pdf(zone, full, height),
-            _ if item.size > 50_000_000 => none_state(zone, kind, "Aperçu indisponible : fichier volumineux"),
-            _ => self.fill_text(zone, full, kind, height),
-        }
+        fill_zone(zone, full, item, kind, facts, height, self.set.borrow().binary_units);
     }
 }

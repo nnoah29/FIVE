@@ -3,8 +3,9 @@
 use gtk4::prelude::*;
 
 use super::listing::Row;
-use super::preview_parts::{facts_box, image_widget, text_excerpt, text_widget};
-use crate::ui::icon::icon_with_stroke;
+use super::preview_parts::{entry_of, facts_box};
+use crate::model::kinds::kind_of;
+use crate::preview::media::fill_zone;
 use crate::ui::widgets::vbox;
 
 /// Le panneau et sa zone de contenu.
@@ -26,19 +27,6 @@ pub fn build_preview() -> Preview {
     Preview { root, body }
 }
 
-/// Contenu visuel : dossier ou icône, image, ou début du texte.
-fn visual(row: &Row) -> gtk4::Widget {
-    let big = |name: &str| {
-        let glyph = icon_with_stroke(name, 64, 1.3);
-        glyph.set_halign(gtk4::Align::Start);
-        glyph.upcast::<gtk4::Widget>()
-    };
-    if row.is_dir {
-        return big("folder");
-    }
-    image_widget(row).or_else(|| text_excerpt(&row.path).map(|t| text_widget(&t))).unwrap_or_else(|| big("file"))
-}
-
 impl Preview {
     /// Montre l'aperçu de la ligne donnée, ou vide le panneau s'il n'y en a pas.
     pub fn show(&self, row: Option<&Row>) {
@@ -46,7 +34,11 @@ impl Preview {
             self.body.remove(&child);
         }
         let Some(row) = row else { return };
-        self.body.append(&visual(row));
+        let (zone, entry) = (vbox(8), entry_of(row));
+        zone.add_css_class("preview");
+        zone.add_css_class("none");
+        self.body.append(&zone);
+        fill_zone(&zone, row.path.clone(), &entry, kind_of(&entry), None, 260, false);
         self.body.append(&facts_box(row));
     }
 }
