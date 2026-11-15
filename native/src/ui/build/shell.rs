@@ -3,7 +3,7 @@
 use gtk4::prelude::*;
 use gtk4::{Align, ApplicationWindow, Overlay, PolicyType, ScrolledWindow, Stack, WindowHandle};
 
-use super::{files::build_files, folders::build_folders, sidebar::build_side, topbar::build_top, work::build_work};
+use super::{dock::build_dock, files::build_files, folders::build_folders, sidebar::build_side, topbar::build_top, work::build_work};
 use crate::ui::handles::Ui;
 use crate::ui::widgets::{hbox, label, vbox};
 
@@ -49,6 +49,23 @@ fn floating(overlay: &Overlay) -> (gtk4::Label, gtk4::Box) {
     (toast, transfers)
 }
 
+/// Barre latérale de largeur fixe : elle ne suit ni son contenu ni l'expansion de la page.
+fn side_scroller(side: &gtk4::Box) -> ScrolledWindow {
+    let scroll = ScrolledWindow::builder().hscrollbar_policy(PolicyType::External).child(side).build();
+    scroll.set_size_request(248, -1);
+    scroll.set_hexpand(false);
+    scroll
+}
+
+/// Page principale au-dessus, barre du bas contre le bord inférieur de la fenêtre.
+fn with_dock(page: &gtk4::Box, dock_bar: &gtk4::Box) -> gtk4::Box {
+    page.set_vexpand(true);
+    let frame = vbox(0);
+    frame.append(page);
+    frame.append(dock_bar);
+    frame
+}
+
 /// Construit toute la fenêtre sans comportement : les boutons sont câblés ensuite.
 pub fn build_ui(app: &gtk4::Application) -> Ui {
     let window = ApplicationWindow::builder().application(app).title("FIVE").default_width(1500).default_height(900).build();
@@ -64,19 +81,19 @@ pub fn build_ui(app: &gtk4::Application) -> Ui {
     main.set_hexpand(true);
     main.append(&WindowHandle::builder().child(&top.root).build());
     main.append(&stack);
-    let side_scroll = ScrolledWindow::builder().hscrollbar_policy(PolicyType::External).child(&side.root).build();
-    side_scroll.set_size_request(248, -1);
-    side_scroll.set_hexpand(false);
+    let side_scroll = side_scroller(&side.root);
     let page = hbox(0);
     page.append(&side_scroll);
     page.append(&main);
+    let (dock_bar, dock) = build_dock();
+    let frame = with_dock(&page, &dock_bar);
     let overlay = Overlay::new();
-    overlay.set_child(Some(&page));
+    overlay.set_child(Some(&frame));
     let (toast, transfers) = floating(&overlay);
     let scrim = vbox(0);
     scrim.add_css_class("scrim");
     scrim.set_visible(false);
     overlay.add_overlay(&scrim);
     window.set_child(Some(&overlay));
-    Ui { window, overlay, side, side_scroll, page, scrim, top, folders, files, work, stack, content, settings, toast, transfers, lower }
+    Ui { window, overlay, side, side_scroll, page, scrim, top, folders, files, work, stack, content, settings, toast, transfers, lower, dock }
 }

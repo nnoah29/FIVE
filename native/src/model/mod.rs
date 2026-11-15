@@ -3,6 +3,7 @@
 pub mod accent;
 pub mod bookmarks;
 pub mod color;
+pub mod dock;
 pub mod format;
 pub mod hsl;
 pub mod kinds;

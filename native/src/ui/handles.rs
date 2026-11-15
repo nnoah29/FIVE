@@ -74,4 +74,5 @@ pub struct Ui {
     pub toast: Label,
     pub transfers: GtkBox,
     pub lower: Overlay,
+    pub dock: GtkBox,
 }

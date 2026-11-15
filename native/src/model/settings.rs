@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 
 use serde_json::{Value, json};
 
+use super::dock::parse_dock;
 use super::side_folders::{SideFolder, folders_to_json, parse_folders};
 
 /// Réglages persistants de l'interface.
@@ -26,6 +27,7 @@ pub struct Settings {
     pub wallpaper: bool,
     pub rules_enabled: bool,
     pub side_folders: Option<Vec<SideFolder>>,
+    pub dock: Vec<String>,
 }
 
 impl Default for Settings {
@@ -48,6 +50,7 @@ impl Default for Settings {
             wallpaper: true,
             rules_enabled: true,
             side_folders: None,
+            dock: Vec::new(),
         }
     }
 }
@@ -87,6 +90,7 @@ impl Settings {
             wallpaper: flag("wallpaper", base.wallpaper),
             rules_enabled: flag("rules_enabled", base.rules_enabled),
             side_folders: parse_folders(&json["side_folders"]),
+            dock: parse_dock(&json["dock"]),
         }
     }
 
@@ -95,7 +99,8 @@ impl Settings {
         json!({"theme": self.theme, "view": self.view, "sort": self.sort, "ascending": self.ascending, "hidden": self.hidden,
             "binary_units": self.binary_units, "full_dates": self.full_dates, "thumbs": self.thumbs, "confirm_trash": self.confirm_trash,
             "accent": self.accent, "compact": self.compact, "git": self.git, "restore": self.restore, "wallpaper": self.wallpaper, "rules_enabled": self.rules_enabled,
-            "side_folders": self.side_folders.as_deref().map_or(Value::Null, folders_to_json)})
+            "side_folders": self.side_folders.as_deref().map_or(Value::Null, folders_to_json),
+            "dock": self.dock})
     }
 
     /// Enregistre les réglages ; un échec d'écriture est sans conséquence.

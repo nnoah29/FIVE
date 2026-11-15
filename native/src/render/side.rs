@@ -75,6 +75,7 @@ impl App {
         self.ui.side.new_folder.set_sensitive(create);
         self.render_places();
         self.render_disks();
+        self.render_dock();
     }
 
     /// Reconstruit la liste des disques montés.

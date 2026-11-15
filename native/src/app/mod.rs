@@ -8,6 +8,8 @@ pub mod data;
 pub mod demo;
 pub mod demo_find;
 pub mod dialog;
+pub mod dock;
+pub mod dock_pin;
 pub mod filters;
 pub mod git;
 pub mod goto;

@@ -26,6 +26,7 @@ impl App {
             out.push(self.pin_toggle_entry(target));
         }
         if let [only] = targets {
+            out.push(self.dock_toggle_entry(only));
             let (target, is_dir) = (only.clone(), item.is_dir);
             let text = if is_dir { "Surveiller ce dossier avec une règle" } else { "Créer une règle à partir de ce fichier" };
             out.push(MenuEntry::new("gear", text, move |app| if is_dir { app.rule_from_folder(&target) } else { app.rule_from_file(&target) }));

@@ -273,3 +273,8 @@ window.five entry.field.compact { padding: 7px 10px; font-size: 13px; }
 window.five .rule-block { padding: 14px 16px; background-color: @surface@; border: 1px solid @line@; }
 window.five .rule-item { padding: 10px 12px; border: 1px solid @line_soft@; background-color: @bg@; }
 window.five .rule-field-label { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 1.2px; color: @dim@; min-width: 120px; }
+window.five .dock { background-color: @bg_side@; border-top: 1px solid @line_soft@; padding: 6px 12px; min-height: 36px; }
+window.five .dock-chip { padding: 5px 12px; border: 1px solid @line_soft@; color: @muted@; transition: background-color 130ms, color 130ms; }
+window.five .dock-chip:hover { background-color: @surface@; color: @text@; }
+window.five .dock-chip .ic { color: @accent@; }
+window.five .dock-hint { font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 1px; color: @dim@; }

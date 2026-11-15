@@ -1,5 +1,6 @@
 //! Construction statique de la fenêtre, région par région.
 
+pub mod dock;
 pub mod files;
 pub mod folders;
 pub mod logo;
