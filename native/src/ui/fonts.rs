@@ -7,14 +7,14 @@ use gtk4::prelude::*;
 use pango::prelude::FontMapExt;
 
 const FONTS: [(&str, &[u8]); 8] = [
-    ("Anton-Regular.ttf", include_bytes!("../../../web/fonts/Anton-Regular.ttf")),
-    ("HankenGrotesk-Regular.ttf", include_bytes!("../../../web/fonts/HankenGrotesk-Regular.ttf")),
-    ("HankenGrotesk-Medium.ttf", include_bytes!("../../../web/fonts/HankenGrotesk-Medium.ttf")),
-    ("HankenGrotesk-SemiBold.ttf", include_bytes!("../../../web/fonts/HankenGrotesk-SemiBold.ttf")),
-    ("HankenGrotesk-Bold.ttf", include_bytes!("../../../web/fonts/HankenGrotesk-Bold.ttf")),
-    ("JetBrainsMono-Regular.ttf", include_bytes!("../../../web/fonts/JetBrainsMono-Regular.ttf")),
-    ("JetBrainsMono-Medium.ttf", include_bytes!("../../../web/fonts/JetBrainsMono-Medium.ttf")),
-    ("JetBrainsMono-Bold.ttf", include_bytes!("../../../web/fonts/JetBrainsMono-Bold.ttf")),
+    ("Anton-Regular.ttf", include_bytes!("../../assets/fonts/Anton-Regular.ttf")),
+    ("HankenGrotesk-Regular.ttf", include_bytes!("../../assets/fonts/HankenGrotesk-Regular.ttf")),
+    ("HankenGrotesk-Medium.ttf", include_bytes!("../../assets/fonts/HankenGrotesk-Medium.ttf")),
+    ("HankenGrotesk-SemiBold.ttf", include_bytes!("../../assets/fonts/HankenGrotesk-SemiBold.ttf")),
+    ("HankenGrotesk-Bold.ttf", include_bytes!("../../assets/fonts/HankenGrotesk-Bold.ttf")),
+    ("JetBrainsMono-Regular.ttf", include_bytes!("../../assets/fonts/JetBrainsMono-Regular.ttf")),
+    ("JetBrainsMono-Medium.ttf", include_bytes!("../../assets/fonts/JetBrainsMono-Medium.ttf")),
+    ("JetBrainsMono-Bold.ttf", include_bytes!("../../assets/fonts/JetBrainsMono-Bold.ttf")),
 ];
 
 /// Dossier de cache où les polices sont écrites pour que fontconfig les lise.

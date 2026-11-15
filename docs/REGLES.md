@@ -1,7 +1,7 @@
 # FIVE — Règles « condition → action »
 
 Spécification du système de règles automatiques de FIVE : ce que FIVE fait seul, sans clic, sur les fichiers d'un ou plusieurs dossiers. Même modèle que les règles de MIRA (`docs/dev/specs/R1-regles.md` dans le dépôt MIRA) : alternatives (OU) de suites de conditions (ET), conditions inversables, actions ordonnées, évaluateur pur testable sans écran.
-Référence : `API.md` (contrat), `docs/DECISIONS.md` (D-02 dépendances minimales, D-05 zip, D-06 barre latérale). Ce document est la **spécification** ; le lot 1 est implémenté (voir §12).
+Référence : `docs/DECISIONS.md` (D-02 dépendances minimales, D-05 zip, D-06 barre latérale). Ce document est la **spécification** ; le lot 1 est implémenté (voir §12).
 
 ## 1. Objectif et décisions proposées
 
@@ -17,7 +17,7 @@ Une règle surveille des dossiers, repère les fichiers qui correspondent à ses
 | Stockage | `~/.config/five/regles.json`, versionné (`schema_version`), jamais de secret. |
 | Dépendances | Aucune nouvelle : veille par comparaison périodique des dates et tailles (D-02) ; `inotify` via `rustix` en option, derrière le même trait. |
 
-Hors périmètre v1 : exécuter une commande ou un script (surface d'attaque, voir `API.md`), conversion de formats, OCR, condition sur le contenu binaire, groupes imbriqués, règles entre machines, synchronisation cloud, étiquettes (tags) persistantes, suppression définitive automatique, envoi de fichiers par réseau.
+Hors périmètre v1 : exécuter une commande ou un script (surface d'attaque), conversion de formats, OCR, condition sur le contenu binaire, groupes imbriqués, règles entre machines, synchronisation cloud, étiquettes (tags) persistantes, suppression définitive automatique, envoi de fichiers par réseau.
 
 ## 2. Types (`five-engine`)
 
@@ -126,33 +126,22 @@ Fonction pure, sans I/O.
 ## 6. Intégration
 
 - **Veilleur** (`rules/watch`) : un thread par FIVE, analyse les dossiers surveillés toutes les 5 s (configurable) en comparant `(nom, taille, date)` à `etat-regles.json` ; budget de 200 ms par passe, reprise à la passe suivante au-delà ; ne descend pas dans `.git`, `node_modules`, `target`, ni dans les dossiers cachés sauf demande.
-- **Exécution** : les actions de déplacement, copie, zip et extraction passent par `jobs::start::start_job` (progression, pause, annulation visibles dans la file de transferts) ; les renommages par `rename`, la corbeille par `trash_ops`. Aucune nouvelle voie d'écriture : les règles de sécurité de `API.md` (confinement à la racine, liens non suivis, corbeille XDG, jamais d'écrasement) s'appliquent telles quelles.
+- **Exécution** : les actions de déplacement, copie, zip et extraction passent par `jobs::start::start_job` (progression, pause, annulation visibles dans la file de transferts) ; les renommages par `rename`, la corbeille par `trash_ops`. Aucune nouvelle voie d'écriture : les règles de sécurité du moteur (confinement à la racine, liens non suivis, corbeille XDG, jamais d'écrasement) s'appliquent telles quelles.
 - **Fichiers en cours d'écriture** : jamais traités avant `Stable` ; un fichier ouvert en écriture par un autre processus (verrou `fcntl` ou taille changeante) est repoussé à la passe suivante.
 - **Reprise sur incident** : le journal indique l'action commencée ; au redémarrage, une action interrompue est rejouée seulement si elle est idempotente (renommage, déplacement), sinon signalée.
 - **Limites de débit** : 100 fichiers par passe et par règle, 1 000 par jour pour `Notify` ; au-delà, la règle se met en pause et le dit.
 - **Arrêt** : fermer FIVE arrête le veilleur ; les règles `Schedule`, `Daily`, `Weekly` ne rattrapent pas une exécution manquée (une seule exécution au prochain démarrage si l'option « rattraper » est cochée).
 - **Disques** : un disque absent suspend les règles qui le visent, sans erreur.
 
-## 7. API (moteur, puis serveur)
+## 7. API du moteur
 
-Moteur : `rules::{list, get, create, update, delete, set_enabled, reorder, validate, preview, run_now, undo_last, history, catalog}`.
-Serveur (à ajouter à `API.md`) :
+Fonctions de `five-engine` (`rules::api_*`), appelées directement par l'interface native :
+- lecture : `list_rules` (règles dans l'ordre d'évaluation, chacune avec son statut : `trial`, `active`, `disabled` ou `invalid` + raison), `rules_catalog` (conditions, actions, déclencheurs, familles, champs, modèles, plafonds ; le moteur reste la source de vérité), `rules_history` (journal récent) ;
+- écriture : `create_rule`, `update_rule`, `delete_rule`, `reorder_rules`, `enable_rule` ;
+- exécution : `validate_body` (sans enregistrer), `preview_rule` (fichiers touchés et ce qui leur arriverait, sans rien modifier), `run_rule` (appliquer maintenant), `undo_rules` (annuler la dernière exécution : déplacements, renommages, archives créées, éléments mis à la corbeille).
+Aucun chemin absolu ni secret dans les messages d'erreur.
 
-| Route | Rôle |
-|---|---|
-| `GET /api/rules` | liste des règles avec statut (valide, en essai, active, invalide + raison) |
-| `GET /api/rules/catalog` | catalogue de conditions, d'actions, de modèles et de déclencheurs (le moteur reste la source de vérité) |
-| `GET /api/rules/history?limit` | journal récent |
-| `POST /api/rules` | créer ; `PUT /api/rules/<id>` modifier ; `DELETE /api/rules/<id>` |
-| `POST /api/rules/validate` | valider sans enregistrer |
-| `POST /api/rules/preview` | liste des fichiers touchés et de ce qui leur arriverait, sans rien modifier |
-| `POST /api/rules/run` | `{id, paths?}` appliquer maintenant |
-| `POST /api/rules/undo` | annuler la dernière exécution (déplacements, renommages, archives créées, éléments mis à la corbeille) |
-| `POST /api/rules/enable` | `{id, enabled}` ; `POST /api/rules/reorder` `{ids[]}` |
-
-Les écritures portent l'en-tête `X-Five: 1` comme les autres. Aucun chemin absolu ni secret dans les erreurs.
-
-## 8. Interface native (puis web)
+## 8. Interface native
 
 - **Paramètres → Règles** : liste réordonnable (glisser ou monter/descendre), interrupteur d'activation, badge « en essai », « active », « invalide : <raison> », compteur de fichiers traités, dernière exécution.
 - **Éditeur** : nom ; dossiers surveillés (sélecteur) ; déclencheurs ; blocs de conditions séparés par « OU », « ET » dans un bloc, case « inverser » par condition ; liste d'actions ordonnée ; politique de conflit ; bouton **Aperçu** (tableau « fichier → ce qui lui arrive »), **Essayer**, **Activer**.
@@ -183,12 +172,12 @@ Les écritures portent l'en-tête `X-Five: 1` comme les autres. Aucun chemin abs
 - Veilleur : un fichier créé déclenche la règle ; un fichier en cours d'écriture ne la déclenche pas avant `Stable` ; les fichiers existants au démarrage ne sont pas retraités ; plafond de débit ; dossier surveillé supprimé.
 - Sécurité : aucune action ne sort de la racine ; liens symboliques non suivis ; jamais d'écrasement ; aucune suppression définitive hors corbeille ; chemins absolus absents des erreurs.
 - Reprise : arrêt au milieu d'une passe, rejeu sans doublon ; journal et annulation (chaque action est réversible ou explicitement marquée non réversible).
-- Contrat : tests des routes du §7, y compris les refus (400, 403, 404, 409).
+- API : tests des fonctions du §7, y compris les refus (400, 403, 404, 409).
 - Interface : tests de modèle (libellés, catalogue), de l'éditeur et de la liste ; captures `--shot` de la liste, de l'éditeur et de l'aperçu.
 
 ## 11. Livraison en lots et questions ouvertes
 
-Lots : 1. types, stockage, validation, évaluateur (testables sans écran) ; 2. veilleur, exécution par la file de transferts, journal, annulation ; 3. API moteur et serveur ; 4. interface native (liste, éditeur, aperçu, historique) ; 5. interface web (optionnel).
+Lots : 1. types, stockage, validation, évaluateur (testables sans écran) ; 2. veilleur, exécution par la file de transferts, journal, annulation ; 3. API du moteur ; 4. interface native (liste, éditeur, aperçu, historique).
 
 Questions ouvertes (à trancher avant le lot 1) :
 - Veille par `inotify` ou par balayage périodique (balayage retenu par défaut, D-02).
@@ -202,9 +191,9 @@ Questions ouvertes (à trancher avant le lot 1) :
 **Lot 1 — fait** (`engine/src/rules/`, tests `engine/tests/rules_*.rs`) : types (`Rule`, déclencheurs, 74 conditions, 40 actions), évaluateur pur (`evaluate`, `rule_matches`), planification des actions avec noms calculés (`plan_rule`, modèles de noms), validation complète du §5 (`validate_rule`, `validate_set`), statut (`rule_status`), stockage atomique (`store`), noms temporaires, glob, regex en cache.
 
 **Lot 2 — fait** : veilleur par balayage (`scan`, `changes`, `state`), règles planifiées (`schedule`), contexte construit depuis le disque avec seulement les informations demandées (`needs`, `context_build`, `info_*`), exécution (`exec_*`, `exec_pass`), journal et annulation (`journal`, `undo`), service qui orchestre une passe (`runner::RulesService::{tick, run_now, preview}`).
-**Lot 3 — fait** : API du moteur (`rules::api_*`) et routes `/api/rules` du serveur (voir `API.md`), catalogue exposé, aperçu obligatoire avant activation (empreinte de la règle dans `apercus-regles.json`).
+**Lot 3 — fait** : API du moteur (`rules::api_*`), catalogue exposé, aperçu obligatoire avant activation (empreinte de la règle dans `apercus-regles.json`).
 **Lot 4 — fait** (`native/src/rules/`, `native/src/settings/rules_*.rs`) : veille native, onglet Paramètres → Règles, éditeur complet, aperçu, historique, annulation.
-Reste : lot 5 (interface web, optionnel).
+Les quatre lots sont faits.
 
 Écarts du lot 1 avec le texte ci-dessus (à relire avant le lot 2) :
 - `Compare::between` n'existe pas : deux conditions (`ge` et `le`) suffisent.
@@ -226,9 +215,9 @@ Reste : lot 5 (interface web, optionnel).
 - `Zip { one_for_all }` regroupe les fichiers d'une même passe et d'une même règle dans une seule archive, créée à côté du premier fichier.
 
 Écarts du lot 3 :
-- `POST /api/rules/<action>` remplace les routes `/api/rules/enable` etc. du §7 par un seul aiguillage ; les chemins sont identiques. Pas de `GET /api/rules/<id>` : la liste suffit.
+- Pas de lecture d'une règle seule : la liste suffit.
 - Une règle créée ou modifiée repasse **toujours en essai** (même si le client envoie `trial: false`) ; seule `enable` avec `activate: true` la sort de l'essai, après un aperçu de sa version actuelle.
-- Le serveur n'exécute aucune passe automatique : `tick` reste à l'interface native (lot 4). Les routes `preview` et `run` créent un service éphémère sur les transferts partagés du serveur.
+- La veille (`tick`) est portée par l'interface native (lot 4) ; `preview` et `run_rule` créent un service éphémère sur les transferts de l'application.
 
 Écarts du lot 4 :
 - **Veille** : un passage toutes les 5 secondes, dans un fil de travail, tant que la fenêtre native est ouverte. Interrupteur général dans l'onglet Règles ; commandes de palette « Mettre en pause ou reprendre les règles » et « Ouvrir les règles et leur historique ». **Pas de pastille dans la barre du haut** (prévue au §8) : un échec ou une question s'affiche en notification.

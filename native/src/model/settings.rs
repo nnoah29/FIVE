@@ -29,7 +29,7 @@ pub struct Settings {
 }
 
 impl Default for Settings {
-    /// Valeurs d'origine de l'interface web.
+    /// Valeurs d'origine des réglages.
     fn default() -> Self {
         Self {
             theme: "system".into(),

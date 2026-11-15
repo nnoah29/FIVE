@@ -1,13 +1,11 @@
 # FIVE — File Interface & View Explorer
 
-Gestionnaire de fichiers Linux léger, en Rust, même direction artistique que MIRA. Le contrat de comportement est `API.md` ; l'interface web (`web/`) est la maquette de référence ; `legacy-python/` est le prototype jetable d'origine.
+Gestionnaire de fichiers Linux léger, en Rust, même direction artistique que MIRA. L'interface est native (GTK 4), branchée directement sur le moteur.
 
 ## Disposition
 - `engine/` : crate `five-engine`, logique pure sur les fichiers, aucun réseau.
-- `server/` : crate `five-server`, binaire `five`, coque HTTP locale qui sert `web/` et expose l'API.
-- `web/` : interface web (HTML/CSS/JS sans dépendance), maquette de référence.
-- `engine/src/rules/` : règles automatiques condition → action (`docs/REGLES.md`), lot 1 (évaluateur, validation, stockage).
-- `native/` : crate `five-gtk`, interface native GTK 4 fidèle à `web/`, branchée directement sur `five-engine` (aucun réseau). `native/src/model/` = logique pure testée ; `app/` = comportements ; `render/`, `preview/`, `settings/` = régions de la fenêtre ; `ui/` = widgets, icônes cairo, thème (`ui/style.css`).
+- `engine/src/rules/` : règles automatiques condition → action (`docs/REGLES.md`), évaluateur, exécution, journal, API.
+- `native/` : crate `five-gtk`, interface native GTK 4, branchée directement sur `five-engine` (aucun réseau). `native/src/model/` = logique pure testée ; `app/` = comportements ; `render/`, `preview/`, `settings/` = régions de la fenêtre ; `ui/` = widgets, icônes cairo, thème (`ui/style.css`).
 - `tools/check-norms` : normes de code (fonction ≤ 30 lignes, ≤ 6 fonctions par fichier, une ligne `///` par fonction, aucun commentaire dans un corps, zéro `unwrap`/`expect`/`panic!`/`unsafe` hors tests).
 
 ## Commandes
@@ -16,5 +14,5 @@ Gestionnaire de fichiers Linux léger, en Rust, même direction artistique que M
 - `./ci.sh` regroupe le tout ; ne le lancer que sur accord de l'utilisateur.
 
 ## Règles
-- Tests en boîte noire dans `engine/tests/`, depuis `API.md`. Un test rouge se corrige dans le code.
+- Tests en boîte noire dans `engine/tests/`, depuis `docs/` (règles, décisions). Un test rouge se corrige dans le code.
 - Un commit par fonctionnalité, message `type(domaine): résumé`, sans trailer d'attribution.

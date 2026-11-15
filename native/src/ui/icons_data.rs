@@ -1,4 +1,4 @@
-//! Tracés des icônes (grille 24 × 24), repris de l'interface web : chemins SVG ou cercles `c:cx,cy,r`.
+//! Tracés des icônes (grille 24 × 24), chemins SVG ou cercles `c:cx,cy,r`.
 
 pub const ICONS: &[(&str, &[&str])] = &[
     ("up", &["M12 19V5M6 11l6-6 6 6"]),

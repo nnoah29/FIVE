@@ -1,9 +1,9 @@
-//! Refus HTTP du moteur : un code et un message en français.
+//! Refus du moteur : un code (403 accès refusé, 404 introuvable, 409 conflit…) et un message en français.
 
 use std::fmt;
 use std::io::{Error, ErrorKind};
 
-/// Erreur métier portant le code HTTP à renvoyer.
+/// Erreur métier portant un code de refus.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Refus {
     pub code: u16,
@@ -14,7 +14,7 @@ pub struct Refus {
 pub type Resultat<T> = Result<T, Refus>;
 
 impl Refus {
-    /// Construit un refus avec son code HTTP et son message.
+    /// Construit un refus avec son code et son message.
     pub fn new(code: u16, message: impl Into<String>) -> Self {
         Self { code, message: message.into() }
     }
@@ -28,7 +28,7 @@ impl fmt::Display for Refus {
 }
 
 impl From<Error> for Refus {
-    /// Traduit une erreur système en refus HTTP.
+    /// Traduit une erreur système en refus.
     fn from(error: Error) -> Self {
         match error.kind() {
             ErrorKind::PermissionDenied => Refus::new(403, "Accès refusé par le système"),

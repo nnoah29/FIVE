@@ -3,9 +3,8 @@
 Lancer : `cargo run -p five-gtk --release -- [--root DOSSIER]` (racine par défaut : le dossier personnel).
 Réglages : `~/.config/five/reglages.json` ; dernier emplacement : `~/.config/five/session.json`.
 
-## Parité avec l'interface web
-Même disposition (barre latérale, barre du haut, cartes de dossiers, liste/grille, panneau Espace et aperçu), mêmes
-raccourcis (voir Paramètres, onglet Raccourcis), mêmes fonctions : multi-sélection, renommage simple et par lot
+## Fonctions
+Barre latérale, barre du haut, cartes de dossiers, liste/grille, panneau Espace et aperçu, raccourcis (voir Paramètres, onglet Raccourcis) : multi-sélection, renommage simple et par lot
 (remplacement, expression régulière, modèle), copier/couper/coller avec file de transferts (pause, reprise, annulation),
 palette de commandes (Ctrl P / Ctrl K), aperçu rapide (Espace), analyse d'occupation, doublons, indicateurs Git,
 contenu des archives, disques montés, récents, favoris, réseau, corbeille, thème clair/sombre, couleur principale,
