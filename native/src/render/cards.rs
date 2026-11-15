@@ -6,6 +6,7 @@ use five_engine::entry::Entry;
 use gtk4::prelude::*;
 use gtk4::{Align, Button, Overlay};
 
+use crate::app::menu_place::MenuPlace;
 use crate::app::shared::{App, on_click};
 use crate::model::format::{format_date, group_digits};
 use crate::model::sorting::sort_items;
@@ -72,7 +73,7 @@ impl App {
         let (entry, weak) = (dir.clone(), Rc::downgrade(self));
         dots.connect_clicked(move |button| {
             if let Some(app) = weak.upgrade() {
-                app.open_menu_at(button, &entry, None);
+                app.open_menu_at(button, MenuPlace::BelowEnd, &entry, None);
             }
         });
         let card = Overlay::new();

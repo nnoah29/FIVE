@@ -5,6 +5,8 @@ use std::rc::Rc;
 use gtk4::prelude::*;
 use gtk4::{Button, Popover, PositionType, Widget};
 
+use super::menu_place::MenuPlace;
+
 use super::shared::App;
 use crate::ui::icon::icon;
 use crate::ui::widgets::{hbox, label, vbox};
@@ -74,8 +76,8 @@ impl App {
         list
     }
 
-    /// Ouvre un menu sous `anchor` ; un second appel sur la même ancre le referme.
-    pub fn popover(self: &Rc<Self>, anchor: &impl IsA<Widget>, entries: Vec<MenuEntry>) {
+    /// Ouvre un menu placé selon `place` ; un second appel sur la même ancre le referme.
+    pub fn popover_at(self: &Rc<Self>, anchor: &impl IsA<Widget>, place: MenuPlace, entries: Vec<MenuEntry>) {
         let toggled = self.menu.borrow().as_ref().is_some_and(|p| p.parent().as_ref() == Some(anchor.upcast_ref()));
         self.close_menu();
         if toggled {
@@ -86,6 +88,7 @@ impl App {
         popover.set_parent(anchor);
         popover.set_has_arrow(false);
         popover.set_position(PositionType::Bottom);
+        place.apply(&popover);
         popover.add_css_class("menu");
         popover.connect_closed(|p| {
             let p = p.clone();

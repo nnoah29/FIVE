@@ -18,6 +18,7 @@ pub mod keys;
 pub mod layout;
 pub mod layout_side;
 pub mod menu;
+pub mod menu_place;
 pub mod modal;
 pub mod nav;
 pub mod open;

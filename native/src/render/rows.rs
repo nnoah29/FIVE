@@ -9,6 +9,7 @@ use gtk4::prelude::*;
 
 use super::press::attach_press;
 use super::table::column_widths;
+use crate::app::menu_place::MenuPlace;
 use crate::app::shared::{App, on_click};
 use crate::model::format::{format_date, format_size};
 use crate::model::kinds::{kind_class, kind_label, kind_of};
@@ -70,7 +71,7 @@ impl App {
         let (entry, weak) = (item.clone(), Rc::downgrade(self));
         dots.connect_clicked(move |button| {
             if let Some(app) = weak.upgrade() {
-                app.open_menu_at(button, &entry, Some(index));
+                app.open_menu_at(button, MenuPlace::BelowEnd, &entry, Some(index));
             }
         });
         dots

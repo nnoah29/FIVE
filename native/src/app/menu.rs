@@ -6,6 +6,7 @@ use five_engine::entry::Entry;
 use gtk4::Widget;
 use gtk4::prelude::*;
 
+use super::menu_place::MenuPlace;
 use super::popover::MenuEntry;
 use super::shared::App;
 use crate::model::paths::in_trash;
@@ -64,12 +65,12 @@ impl App {
     }
 
     /// Ouvre le menu d'un élément sous `anchor` ; sélectionne d'abord l'élément s'il ne l'est pas.
-    pub fn open_menu_at(self: &Rc<Self>, anchor: &impl IsA<Widget>, item: &Entry, index: Option<usize>) {
+    pub fn open_menu_at(self: &Rc<Self>, anchor: &impl IsA<Widget>, place: MenuPlace, item: &Entry, index: Option<usize>) {
         if let Some(i) = index.filter(|_| !self.st.borrow().picked.contains(&item.path)) {
             self.select(i as isize, gtk4::gdk::ModifierType::empty());
         }
         let targets = self.menu_targets(item);
         let entries = self.menu_entries(item, targets);
-        self.popover(anchor, entries);
+        self.popover_at(anchor, place, entries);
     }
 }

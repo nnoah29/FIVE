@@ -8,6 +8,7 @@ use gtk4::glib;
 use gtk4::prelude::*;
 
 use super::demo_find::{find_class, find_widget};
+use super::menu_place::MenuPlace;
 use super::shared::App;
 use crate::ui::capture::save_png;
 
@@ -61,7 +62,7 @@ impl App {
             "menu" => {
                 let item = self.st.borrow().shown.get(index).cloned();
                 if let (Some(item), Some(row)) = (item, self.row_widgets().get(index).cloned()) {
-                    self.open_menu_at(&row, &item, Some(index));
+                    self.open_menu_at(&row, MenuPlace::Below, &item, Some(index));
                 }
             }
             _ => self.demo_dialog(name, arg),
