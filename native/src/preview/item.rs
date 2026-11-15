@@ -19,7 +19,6 @@ impl App {
     fn item_facts(&self, item: &Entry) -> Rc<Facts> {
         let facts = Facts::new();
         let units = self.set.borrow().binary_units;
-        facts.add("Emplacement", &format!("/{}", item.path));
         let kind = if item.is_dir {
             "Dossier".to_string()
         } else {
@@ -71,10 +70,9 @@ impl App {
     /// Panneau d'un seul élément, avec l'aperçu rempli en arrière-plan.
     pub fn item_panel(self: &Rc<Self>, item: &Entry) -> Vec<Widget> {
         let facts = self.item_facts(item);
-        let title = label(&item.name.to_uppercase(), &["h2"]);
-        title.set_wrap(true);
-        title.set_max_width_chars(1);
-        title.set_wrap_mode(gtk4::pango::WrapMode::WordChar);
+        let title = label(&item.name.to_uppercase(), &["h2", "item-title"]);
+        title.set_ellipsize(gtk4::pango::EllipsizeMode::Middle);
+        title.set_tooltip_text(Some(&item.name));
         title.set_hexpand(true);
         title.set_halign(gtk4::Align::Fill);
         let preview = vbox(8);

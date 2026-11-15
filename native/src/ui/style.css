@@ -279,3 +279,4 @@ window.five .dock-chip:hover { background-color: @surface@; color: @text@; }
 window.five .dock-chip .ic { color: @accent@; }
 window.five .card-empty { border: 1px dashed @line@; }
 window.five .card-empty .dim { font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 1px; }
+window.five .h2.item-title { font-size: 17px; letter-spacing: 0.3px; }
