@@ -1,6 +1,6 @@
 # Maintainer: nnoah29
 pkgname=five
-pkgver=0.1.0
+pkgver=0.2.0
 pkgrel=1
 pkgdesc='A fast, native file manager with folder cards, previews and automation rules'
 arch=('x86_64')
@@ -8,6 +8,7 @@ url='https://github.com/nnoah29/FIVE'
 license=('MIT')
 depends=('gtk4>=4.16' 'pango>=1.56')
 makedepends=('rust' 'git')
+optdepends=('poppler: PDF previews')
 options=('!debug')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/nnoah29/FIVE/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('SKIP')

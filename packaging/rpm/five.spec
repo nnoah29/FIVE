@@ -7,6 +7,7 @@ URL:            https://github.com/nnoah29/FIVE
 BuildArch:      x86_64
 Requires:       gtk4 >= 4.16
 Requires:       pango >= 1.56
+Recommends:     poppler-utils
 %global debug_package %{nil}
 %global __strip /bin/true
 

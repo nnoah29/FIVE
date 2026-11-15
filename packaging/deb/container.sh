@@ -21,6 +21,7 @@ Section: utils
 Priority: optional
 Architecture: amd64
 Depends: libgtk-4-1 (>= 4.16), libglib2.0-0, libpango-1.0-0 (>= 1.56)
+Recommends: poppler-utils
 Installed-Size: $size
 Maintainer: nnoah29 <noreply@users.noreply.github.com>
 Homepage: https://github.com/nnoah29/FIVE

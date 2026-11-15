@@ -25,7 +25,7 @@ Rust, the interface is GTK 4 (gtk4-rs), and everything runs locally.
 ## Install
 
 Pre-built packages are attached to each [release](https://github.com/nnoah29/FIVE/releases).
-FIVE needs **GTK 4.16 or newer** and **Pango 1.56 or newer**, which means:
+FIVE needs **GTK 4.16 or newer** and **Pango 1.56 or newer** (and `poppler-utils` for PDF previews, recommended by the packages), which means:
 
 | Distribution | Supported versions | Package |
 | --- | --- | --- |
