@@ -7,12 +7,16 @@ use super::{dock::build_dock, files::build_files, folders::build_folders, sideba
 use crate::ui::handles::Ui;
 use crate::ui::widgets::{hbox, label, vbox};
 
-/// Zone des fichiers avec le panneau de droite posé par-dessus, à droite.
-fn lower_area(files: &gtk4::Box, work: &Overlay) -> Overlay {
+/// Zone des fichiers, barre du bas en dessous, avec le panneau de droite posé par-dessus, à droite.
+fn lower_area(files: &gtk4::Box, work: &Overlay, dock_bar: &gtk4::Box) -> Overlay {
     let lower = Overlay::new();
     files.set_margin_end(0);
     let scroller = ScrolledWindow::builder().hscrollbar_policy(PolicyType::External).vscrollbar_policy(PolicyType::Never).child(files).build();
-    lower.set_child(Some(&scroller));
+    scroller.set_vexpand(true);
+    let column = vbox(0);
+    column.append(&scroller);
+    column.append(dock_bar);
+    lower.set_child(Some(&column));
     work.set_halign(Align::End);
     lower.add_overlay(work);
     lower.set_vexpand(true);
@@ -57,22 +61,14 @@ fn side_scroller(side: &gtk4::Box) -> ScrolledWindow {
     scroll
 }
 
-/// Page principale au-dessus, barre du bas contre le bord inférieur de la fenêtre.
-fn with_dock(page: &gtk4::Box, dock_bar: &gtk4::Box) -> gtk4::Box {
-    page.set_vexpand(true);
-    let frame = vbox(0);
-    frame.append(page);
-    frame.append(dock_bar);
-    frame
-}
-
 /// Construit toute la fenêtre sans comportement : les boutons sont câblés ensuite.
 pub fn build_ui(app: &gtk4::Application) -> Ui {
     let window = ApplicationWindow::builder().application(app).title("FIVE").default_width(1500).default_height(900).build();
     window.add_css_class("five");
     window.set_titlebar(Some(&gtk4::Box::new(gtk4::Orientation::Vertical, 0)));
     let (side, top, folders, files, work) = (build_side(), build_top(), build_folders(), build_files(), build_work());
-    let lower = lower_area(&files.root, &work.root);
+    let (dock_bar, dock) = build_dock();
+    let lower = lower_area(&files.root, &work.root, &dock_bar);
     let content = vbox(0);
     content.append(&folders.root);
     content.append(&lower);
@@ -85,15 +81,13 @@ pub fn build_ui(app: &gtk4::Application) -> Ui {
     let page = hbox(0);
     page.append(&side_scroll);
     page.append(&main);
-    let (dock_bar, dock) = build_dock();
-    let frame = with_dock(&page, &dock_bar);
     let overlay = Overlay::new();
-    overlay.set_child(Some(&frame));
+    overlay.set_child(Some(&page));
     let (toast, transfers) = floating(&overlay);
     let scrim = vbox(0);
     scrim.add_css_class("scrim");
     scrim.set_visible(false);
     overlay.add_overlay(&scrim);
     window.set_child(Some(&overlay));
-    Ui { window, overlay, side, side_scroll, page, scrim, top, folders, files, work, stack, content, settings, toast, transfers, lower, dock }
+    Ui { window, overlay, side, side_scroll, page, scrim, top, folders, files, work, stack, content, settings, toast, transfers, lower, dock, dock_bar }
 }

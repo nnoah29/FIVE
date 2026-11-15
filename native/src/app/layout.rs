@@ -50,7 +50,7 @@ impl App {
         }
         self.ui.top.menu.set_visible(narrow_side);
         self.ui.work.close.set_visible(narrow);
-        self.ui.files.root.set_margin_end(if narrow { 0 } else { 360 });
+        self.reserve_panel_space(narrow);
         let has_pick = !self.st.borrow().picked.is_empty();
         self.ui.work.root.set_visible(!narrow || has_pick);
         self.ui.top.user.set_visible(!narrow_side);

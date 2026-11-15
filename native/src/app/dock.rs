@@ -15,19 +15,24 @@ use crate::ui::icon::icon;
 use crate::ui::widgets::{hbox, label};
 
 impl App {
+    /// Réserve à droite la place du panneau d'informations pour que la barre reste au milieu.
+    pub fn reserve_panel_space(&self, narrow: bool) {
+        let width = if narrow { 0 } else { 360 };
+        self.ui.files.root.set_margin_end(width);
+        self.ui.dock_bar.set_margin_end(width);
+    }
+
     /// Raccourcis qui existent encore et se trouvent sous la racine.
     fn dock_paths(&self) -> Vec<PathBuf> {
         let paths = self.set.borrow().dock.clone();
         paths.iter().map(PathBuf::from).filter(|full| self.root.inside(full) && full.exists()).collect()
     }
 
-    /// Reconstruit la barre du bas ; un message guide l'utilisateur tant qu'elle est vide.
+    /// Reconstruit la barre du bas ; elle disparaît tant qu'aucun raccourci n'est épinglé.
     pub fn render_dock(self: &Rc<Self>) {
         clear(&self.ui.dock);
         let paths = self.dock_paths();
-        if paths.is_empty() {
-            self.ui.dock.append(&label("Clic droit sur un dossier ou un fichier › Épingler dans la barre du bas", &["dock-hint"]));
-        }
+        self.ui.dock_bar.set_visible(!paths.is_empty());
         paths.iter().for_each(|full| self.ui.dock.append(&self.dock_chip(full)));
     }
 

@@ -75,4 +75,5 @@ pub struct Ui {
     pub transfers: GtkBox,
     pub lower: Overlay,
     pub dock: GtkBox,
+    pub dock_bar: GtkBox,
 }
