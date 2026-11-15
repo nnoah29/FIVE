@@ -76,32 +76,38 @@ fn build_app(application: &Application, options: &Options) -> Option<Rc<App>> {
     }))
 }
 
+/// Affiche la fenêtre principale, surveille sa largeur et lance les captures demandées.
+fn activate(application: &Application, options: &Options) {
+    let Some(app) = build_app(application, options) else { return };
+    app.wire();
+    app.wire_keys();
+    app.ui.window.present();
+    app.start();
+    let watcher = app.clone();
+    let last = Cell::new(0);
+    app.ui.window.add_tick_callback(move |window, _| {
+        if window.width() != last.get() {
+            last.set(window.width());
+            watcher.apply_layout();
+        }
+        glib::ControlFlow::Continue
+    });
+    if !options.shots.is_empty() {
+        if let Some(settings) = gtk4::Settings::default() {
+            settings.set_gtk_enable_animations(false);
+        }
+        app.run_shots(options.shots.clone());
+    }
+}
+
 /// Point d'entrée.
 fn main() -> glib::ExitCode {
+    if let Some(code) = five_gtk::chooser::cli::run_if_requested() {
+        return code;
+    }
     five_engine::clock::init_offset();
     let options = Rc::new(options());
     let application = Application::builder().application_id("dev.five.files").flags(gtk4::gio::ApplicationFlags::NON_UNIQUE).build();
-    application.connect_activate(move |application| {
-        let Some(app) = build_app(application, &options) else { return };
-        app.wire();
-        app.wire_keys();
-        app.ui.window.present();
-        app.start();
-        let watcher = app.clone();
-        let last = Cell::new(0);
-        app.ui.window.add_tick_callback(move |window, _| {
-            if window.width() != last.get() {
-                last.set(window.width());
-                watcher.apply_layout();
-            }
-            glib::ControlFlow::Continue
-        });
-        if !options.shots.is_empty() {
-            if let Some(settings) = gtk4::Settings::default() {
-                settings.set_gtk_enable_animations(false);
-            }
-            app.run_shots(options.shots.clone());
-        }
-    });
+    application.connect_activate(move |application| activate(application, &options));
     application.run_with_args::<&str>(&[])
 }

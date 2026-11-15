@@ -21,4 +21,6 @@ and an automation rules engine. Built with Rust and GTK 4.
 %{_bindir}/five-gtk
 %license %{_datadir}/licenses/five/LICENSE
 %{_datadir}/applications/dev.five.files.desktop
+%{_datadir}/xdg-desktop-portal/portals/five.portal
+%{_datadir}/dbus-1/services/org.freedesktop.impl.portal.desktop.five.service
 %{_datadir}/icons/hicolor/scalable/apps/dev.five.files.svg

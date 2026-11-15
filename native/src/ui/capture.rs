@@ -1,10 +1,10 @@
 //! Capture de la fenêtre en PNG, sans dépendre d'un outil externe (vérification visuelle).
 
 use gtk4::prelude::*;
-use gtk4::{ApplicationWindow, Snapshot, WidgetPaintable};
+use gtk4::{Snapshot, Widget, WidgetPaintable};
 
 /// Enregistre l'aspect actuel de la fenêtre dans un fichier PNG ; `false` si la capture échoue.
-pub fn save_png(window: &ApplicationWindow, path: &str) -> bool {
+pub fn save_png(window: &impl IsA<Widget>, path: &str) -> bool {
     let paintable = WidgetPaintable::new(Some(window));
     let snapshot = Snapshot::new();
     paintable.snapshot(&snapshot, window.width() as f64, window.height() as f64);

@@ -19,6 +19,7 @@ Rust, the interface is GTK 4 (gtk4-rs), and everything runs locally.
 - **Automation rules**: when a file is created, modified or stable, on a schedule, at start or on mount,
   run actions (move, rename, notify, pin to the sidebar...). Every new or modified rule runs as a trial first,
   and every run is journaled and can be undone. See [docs/REGLES.md](docs/REGLES.md) (French).
+- **System file chooser**: FIVE can replace the "Open" and "Save as" dialogs of your browser and other applications (see below).
 - Light and dark themes, accent color following your wallpaper, compact density.
 
 ## Install
@@ -50,6 +51,22 @@ tar xzf five-*-linux-x86_64.tar.gz && ./five-*-linux-x86_64/install.sh
 
 Then start **FIVE** from your application menu, or run `five-gtk`.
 Ubuntu 24.04 LTS and Debian 12 ship an older GTK 4 and are not supported yet.
+
+## Use FIVE as your file chooser
+
+Applications ask the desktop portal (`xdg-desktop-portal`) for the dialog that picks a file, a folder or a save location.
+FIVE ships a small, simple window for that: a list of folders and files, an editable path, your usual and pinned folders,
+file type filters, a name field and an overwrite confirmation. It is opt-in. Packages install the portal files; to turn it on:
+
+```bash
+mkdir -p ~/.config/xdg-desktop-portal
+printf '[preferred]\norg.freedesktop.impl.portal.FileChooser=five;gtk\n' >> ~/.config/xdg-desktop-portal/portals.conf
+systemctl --user restart xdg-desktop-portal
+```
+
+If the file already has a `[preferred]` section, add the `FileChooser` line to it instead. `gtk` stays as a fallback.
+To go back, remove that line. You can also try the window alone: `five-gtk --chooser open` (or `folder`, `save --name report.pdf`);
+it prints the chosen paths. Keys: `Enter` or double click to validate, `Ctrl+L` to type a path, `Alt+Up` for the parent folder, `Ctrl+H` for hidden files, `Esc` to cancel.
 
 ## Build from source
 

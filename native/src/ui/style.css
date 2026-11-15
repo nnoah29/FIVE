@@ -280,3 +280,16 @@ window.five .dock-chip .ic { color: @accent@; }
 window.five .card-empty { border: 1px dashed @line@; }
 window.five .card-empty .dim { font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 1px; }
 window.five .h2.item-title { font-size: 17px; letter-spacing: 0.3px; }
+window.five.chooser { background-color: @bg@; }
+window.five .chooser-header { padding: 20px 20px 14px 20px; }
+window.five .chooser-title { font-size: 20px; }
+window.five .chooser-path { font-family: "JetBrains Mono", monospace; font-size: 12px; }
+window.five .chooser-side { background-color: @bg_side@; border-right: 1px solid @line_soft@; padding: 10px 8px; }
+window.five .chooser-list { background: transparent; padding: 6px 12px; }
+window.five .chooser-list row { padding: 0; border-left: 2px solid transparent; background: transparent; }
+window.five .chooser-list row:hover { background-color: @surface@; }
+window.five .chooser-list row:selected { background-color: @surface2@; border-left-color: @accent@; }
+window.five .chooser-row { padding: 8px 12px; }
+window.five .chooser-size { min-width: 64px; }
+window.five .chooser-date { min-width: 96px; }
+window.five .chooser-footer { background-color: @bg_side@; border-top: 1px solid @line_soft@; padding: 14px 20px; }

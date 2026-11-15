@@ -55,3 +55,9 @@
 - **Sûreté** : enregistrer repasse toujours en essai ; activer exige l'aperçu de la version exacte (règle du moteur, pas de l'interface) ; « Appliquer maintenant » demande confirmation.
 - **Piège évité** : les boutons de l'éditeur ne référencent l'éditeur que faiblement ; l'application le garde en vie tant que sa fenêtre est ouverte.
 - **Retour arrière** : l'interrupteur « Appliquer les règles automatiquement » coupe la veille sans rien supprimer.
+
+## D-11 — Sélecteur de fichiers du système (2026-11-15)
+- **Contexte** : ouvrir ou enregistrer un fichier depuis une autre application (navigateur…) doit pouvoir passer par FIVE, dans une fenêtre simple, pas dans la fenêtre complète.
+- **Choix** : FIVE devient un backend du portail de bureau (`org.freedesktop.impl.portal.FileChooser`) : `five-gtk --portal` exporte `OpenFile`, `SaveFile`, `SaveFiles` et l'objet `Request.Close` avec GDBus (déjà dans gio, aucune dépendance de plus). La fenêtre (`native/src/chooser/`) est indépendante de l'application : liste des dossiers et fichiers, chemin modifiable, emplacements habituels et dossiers épinglés, filtres, nom du fichier à enregistrer, confirmation avant d'écraser. `five-gtk --chooser open|folder|save` la lance seule (chemins sur la sortie standard) pour l'essayer et la tester.
+- **Sûreté** : activation volontaire (`portals.conf`) ; le portail `gtk` reste en repli (`five;gtk`). Le sélecteur n'écrit jamais : il ne renvoie que des chemins.
+- **Retour arrière** : retirer la ligne `FileChooser=five` de `~/.config/xdg-desktop-portal/portals.conf`.

@@ -1,6 +1,7 @@
 //! Interface native GTK de FIVE, branchée directement sur le moteur.
 
 pub mod app;
+pub mod chooser;
 pub mod model;
 pub mod preview;
 pub mod render;
