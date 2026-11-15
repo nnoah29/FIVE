@@ -2,6 +2,7 @@
 
 pub mod cards;
 pub mod empty;
+pub mod empty_card;
 pub mod head;
 pub mod main_render;
 pub mod nav;

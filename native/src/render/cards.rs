@@ -87,7 +87,7 @@ impl App {
     }
 
     /// Largeur d'une carte : 19 % de la zone (entre 168 et 240 px), ou 70 % sur fenêtre étroite.
-    fn card_width(&self) -> i32 {
+    pub(super) fn card_width(&self) -> i32 {
         let available = (self.ui.window.width() - if self.narrow_side() { 32 } else { 248 + 64 }).max(300) as f64;
         if self.narrow_side() { (available * 0.7) as i32 } else { (available * 0.19).clamp(168.0, 240.0) as i32 }
     }
@@ -100,8 +100,12 @@ impl App {
             if st.list_all() { Vec::new() } else { sort_items(&st.items.iter().filter(|i| i.is_dir).cloned().collect::<Vec<_>>(), st.sort, st.ascending) }
         };
         dirs.iter().for_each(|dir| self.ui.folders.cards.append(&self.card_for(dir)));
+        let all = self.st.borrow().list_all();
+        if dirs.is_empty() && !all {
+            self.ui.folders.cards.append(&self.empty_card());
+        }
         if let Some(scroll) = self.ui.folders.cards.parent().and_then(|p| p.parent()) {
-            scroll.set_visible(!dirs.is_empty());
+            scroll.set_visible(!all);
         }
     }
 }
