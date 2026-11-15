@@ -26,7 +26,10 @@ pub fn nav_button(icon_name: &str, text: &str, current: bool) -> Button {
     set_class(&button, "current", current);
     let row = hbox(14);
     row.append(&icon(icon_name));
-    row.append(&label(text, &[]));
+    let name = label(text, &[]);
+    name.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+    name.set_hexpand(true);
+    row.append(&name);
     button.set_child(Some(&row));
     button
 }
