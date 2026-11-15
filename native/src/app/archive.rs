@@ -39,15 +39,14 @@ impl App {
         );
     }
 
-    /// Bouton des panneaux : « Extraire ici » pour une archive seule, sinon « Compresser en .zip » ; rien dans la corbeille.
+    /// Bouton du panneau : « Extraire ici » pour une archive seule, rien sinon ni dans la corbeille.
     pub fn archive_button(self: &Rc<Self>, items: &[Entry]) -> Option<Button> {
-        if items.is_empty() || items.iter().any(|i| in_trash(&i.path)) {
+        if items.is_empty() || !extractable(items) || items.iter().any(|i| in_trash(&i.path)) {
             return None;
         }
-        let (text, kind) = if extractable(items) { ("Extraire ici", "unzip") } else { ("Compresser en .zip", "zip") };
-        let button = text_button(text, Some("archive"), &[]);
+        let button = text_button("Extraire ici", Some("archive"), &[]);
         let list = items.to_vec();
-        on_click(&button, self, move |app| app.archive_items(kind, &list));
+        on_click(&button, self, move |app| app.archive_items("unzip", &list));
         Some(button)
     }
 
