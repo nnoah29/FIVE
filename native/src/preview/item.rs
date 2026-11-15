@@ -1,44 +1,62 @@
 //! Fiche d'un élément sélectionné : titre, aperçu, renseignements, actions.
 
+use std::path::PathBuf;
 use std::rc::Rc;
 
 use five_engine::entry::Entry;
 use gtk4::Widget;
-use gtk4::gdk::ModifierType;
 use gtk4::prelude::*;
 
 use super::facts::Facts;
+use super::media::fill_zone;
 use crate::app::shared::{App, on_click};
 use crate::model::format::{format_day, format_size, format_time, group_digits};
 use crate::model::kinds::{extension, kind_of};
 use crate::model::paths::in_trash;
 use crate::ui::widgets::{hbox, label, text_button, vbox};
 
-impl App {
-    /// Renseignements de base d'un élément.
-    fn item_facts(&self, item: &Entry) -> Rc<Facts> {
-        let facts = Facts::new();
-        let units = self.set.borrow().binary_units;
-        let kind = if item.is_dir {
-            "Dossier".to_string()
-        } else {
-            item.mime
-                .clone()
-                .filter(|m| !m.is_empty())
-                .or_else(|| Some(extension(&item.name).to_uppercase()).filter(|e| !e.is_empty()))
-                .unwrap_or_else(|| "Fichier".into())
-        };
-        facts.add("Type", &kind);
-        if !item.is_dir {
-            facts.add("Taille", &format!("{} ({} octets)", format_size(item.size, units), group_digits(item.size)));
-        }
-        facts.add("Modifié", &format!("{} à {}", format_day(item.modified), format_time(item.modified)));
-        if item.is_link {
-            facts.add("Nature", "Lien symbolique");
-        }
-        facts
+/// Renseignements de base d'un élément.
+pub fn item_facts(item: &Entry, units: bool) -> Rc<Facts> {
+    let facts = Facts::new();
+    let kind = if item.is_dir {
+        "Dossier".to_string()
+    } else {
+        item.mime
+            .clone()
+            .filter(|m| !m.is_empty())
+            .or_else(|| Some(extension(&item.name).to_uppercase()).filter(|e| !e.is_empty()))
+            .unwrap_or_else(|| "Fichier".into())
+    };
+    facts.add("Type", &kind);
+    if !item.is_dir {
+        facts.add("Taille", &format!("{} ({} octets)", format_size(item.size, units), group_digits(item.size)));
     }
+    facts.add("Modifié", &format!("{} à {}", format_day(item.modified), format_time(item.modified)));
+    if item.is_link {
+        facts.add("Nature", "Lien symbolique");
+    }
+    facts
+}
 
+/// Titre, aperçu rempli et renseignements d'un élément : la fiche commune à la fenêtre principale et au sélecteur.
+pub fn item_sheet(item: &Entry, full: PathBuf, units: bool) -> (gtk4::Label, gtk4::Box, Rc<Facts>) {
+    let facts = item_facts(item, units);
+    let title = label(&item.name.to_uppercase(), &["h2", "item-title"]);
+    title.set_ellipsize(gtk4::pango::EllipsizeMode::Middle);
+    title.set_tooltip_text(Some(&item.name));
+    title.set_hexpand(true);
+    title.set_halign(gtk4::Align::Fill);
+    let preview = vbox(8);
+    preview.add_css_class("preview");
+    preview.add_css_class("none");
+    preview.set_halign(gtk4::Align::Fill);
+    preview.set_valign(gtk4::Align::Center);
+    preview.set_size_request(-1, 140);
+    fill_zone(&preview, full, item, kind_of(item), Some(facts.clone()), 300, units);
+    (title, preview, facts)
+}
+
+impl App {
     /// Rangée de boutons : ouvrir, copier le chemin, renommer, supprimer.
     fn item_actions(self: &Rc<Self>, item: &Entry) -> gtk4::Box {
         let actions = hbox(8);
@@ -69,18 +87,8 @@ impl App {
 
     /// Panneau d'un seul élément, avec l'aperçu rempli en arrière-plan.
     pub fn item_panel(self: &Rc<Self>, item: &Entry) -> Vec<Widget> {
-        let facts = self.item_facts(item);
-        let title = label(&item.name.to_uppercase(), &["h2", "item-title"]);
-        title.set_ellipsize(gtk4::pango::EllipsizeMode::Middle);
-        title.set_tooltip_text(Some(&item.name));
-        title.set_hexpand(true);
-        title.set_halign(gtk4::Align::Fill);
-        let preview = vbox(8);
-        preview.add_css_class("preview");
-        preview.add_css_class("none");
-        preview.set_halign(gtk4::Align::Fill);
-        preview.set_valign(gtk4::Align::Center);
-        preview.set_size_request(-1, 140);
+        let Ok(full) = self.root.resolve(&item.path) else { return Vec::new() };
+        let (title, preview, facts) = item_sheet(item, full, self.set.borrow().binary_units);
         let click = gtk4::GestureClick::new();
         let weak = Rc::downgrade(self);
         click.connect_pressed(move |_, _, _, _| {
@@ -89,8 +97,6 @@ impl App {
             }
         });
         preview.add_controller(click);
-        self.fill_preview(&preview, item, kind_of(item), Some(facts.clone()), 300);
-        let _ = ModifierType::empty();
         vec![title.upcast(), preview.upcast(), facts.grid.clone().upcast(), self.item_actions(item).upcast()]
     }
 }
