@@ -2,7 +2,11 @@
 # Builds the Arch package inside an archlinux container with makepkg (needs the vX.Y.Z tag to be published).
 set -euo pipefail
 cd "$(dirname "$0")/../.."
-pacman -Syu --noconfirm --needed base-devel git python gtk4 pango rust >/dev/null
+for attempt in 1 2 3 4; do
+  pacman -Syu --noconfirm --needed base-devel git python gtk4 pango rust >/dev/null && break
+  [ "$attempt" = 4 ] && exit 1
+  sleep 5
+done
 useradd -m builder 2>/dev/null || true
 work="$(mktemp -d)"
 cp packaging/arch/PKGBUILD "$work/"
